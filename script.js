@@ -71,8 +71,8 @@ class RecipeSignupForm {
             const response = await fetch(`${CONFIG.SCRIPT_URL}?action=getData`);
             const data = await response.json();
             console.log('🚀 raw payload:', data);
-            this.members = data.members.filter(member => member.active);
-            this.recipes = data.recipes.filter(recipe => !recipe.claimed);
+            this.members = data.data.members.filter(member => member.active);
+            this.recipes = data.data.recipes.filter(recipe => !recipe.claimed);
         } catch (error) {
             console.error('Error fetching from Google Sheets:', error);
             throw error;
