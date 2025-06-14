@@ -16,7 +16,7 @@ class RecipeSignupForm {
         this.cookingRadios = document.querySelectorAll('input[name="cooking"]');
         this.recipeSelect = document.getElementById('recipe');
         this.recipeGroup = document.getElementById('recipeGroup');
-        this.recipeInfo = document.getElementById('recipeInfo');
+        this.recipeEntry = document.getElementById('recipeEntry');
         this.submitBtn = document.getElementById('submitBtn');
         this.messageDiv = document.getElementById('message');
         this.notesField = document.getElementById('notes');
@@ -184,7 +184,8 @@ class RecipeSignupForm {
             this.recipeGroup.style.display = 'none';
             this.recipeSelect.required = false;
             this.recipeSelect.value = '';
-            this.recipeInfo.style.display = 'none';
+            this.recipeEntry.style.display = 'none';
+            this.recipeEntry.innerHTML = '';
         }
         
         this.validateForm();
@@ -192,18 +193,107 @@ class RecipeSignupForm {
     
     handleRecipeChange() {
         const selectedRecipeId = parseInt(this.recipeSelect.value);
-        
+
         if (selectedRecipeId) {
             const recipe = this.recipes.find(r => r.id === selectedRecipeId);
             if (recipe) {
-                this.recipeInfo.textContent = recipe.description;
-                this.recipeInfo.style.display = 'block';
+                this.renderRecipeEntry(recipe);
+                this.recipeEntry.style.display = 'block';
             }
         } else {
-            this.recipeInfo.style.display = 'none';
+            this.recipeEntry.style.display = 'none';
+            this.recipeEntry.innerHTML = '';
         }
-        
+
         this.validateForm();
+    }
+
+    renderRecipeEntry(recipe) {
+        const entry = document.createElement('div');
+        entry.className = 'recipe-entry';
+
+        // Title
+        const title = document.createElement('div');
+        title.className = 'title';
+        title.textContent = recipe.name || '';
+        entry.appendChild(title);
+
+        // Page
+        if (recipe.page) {
+            const row = document.createElement('div');
+            row.className = 'meta-row';
+
+            const label = document.createElement('span');
+            label.className = 'label';
+            label.textContent = 'Page';
+            row.appendChild(label);
+
+            const pill = document.createElement('span');
+            pill.className = 'pill neutral';
+            pill.textContent = recipe.page;
+            row.appendChild(pill);
+
+            entry.appendChild(row);
+        }
+
+        // Categories
+        let categories = recipe.categories;
+        if (typeof categories === 'string') {
+            categories = categories.split(/[,;]+/).map(c => c.trim()).filter(Boolean);
+        }
+        if (Array.isArray(categories) && categories.length) {
+            const row = document.createElement('div');
+            row.className = 'meta-row';
+
+            const label = document.createElement('span');
+            label.className = 'label';
+            label.textContent = 'Categories';
+            row.appendChild(label);
+
+            categories.forEach((cat, idx) => {
+                const pill = document.createElement('span');
+                pill.className = 'pill ' + (idx % 2 === 0 ? 'pink' : 'blue');
+                pill.textContent = cat;
+                row.appendChild(pill);
+            });
+
+            entry.appendChild(row);
+        }
+
+        // Ingredients
+        let ingredientsText = recipe.ingredients;
+        if (Array.isArray(ingredientsText)) {
+            ingredientsText = ingredientsText.join('; ');
+        }
+        if (ingredientsText) {
+            const row = document.createElement('div');
+            row.className = 'meta-row ingredients';
+
+            const label = document.createElement('span');
+            label.className = 'label';
+            label.textContent = 'Ingredients';
+            row.appendChild(label);
+
+            const textSpan = document.createElement('span');
+            textSpan.id = 'ingredient-text';
+            textSpan.className = 'ingredient-text collapsed';
+            textSpan.textContent = ingredientsText;
+            row.appendChild(textSpan);
+
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'toggle-button';
+            button.setAttribute('aria-expanded', 'false');
+            button.setAttribute('aria-controls', 'ingredient-text');
+            button.textContent = 'Show more';
+            button.addEventListener('click', () => toggleIngredientText());
+            row.appendChild(button);
+
+            entry.appendChild(row);
+        }
+
+        this.recipeEntry.innerHTML = '';
+        this.recipeEntry.appendChild(entry);
     }
     
     validateForm() {
@@ -382,7 +472,8 @@ class RecipeSignupForm {
     resetForm() {
         this.form.reset();
         this.recipeGroup.style.display = 'none';
-        this.recipeInfo.style.display = 'none';
+        this.recipeEntry.style.display = 'none';
+        this.recipeEntry.innerHTML = '';
         this.recipeSelect.required = false;
         this.submitBtn.disabled = true;
         this.cookingRadios.forEach(r => r.parentElement.classList.remove('selected'));
@@ -395,4 +486,18 @@ class RecipeSignupForm {
 document.addEventListener('DOMContentLoaded', () => {
     new RecipeSignupForm();
 });
+
+function toggleIngredientText() {
+    const text = document.getElementById('ingredient-text');
+    const button = document.querySelector('.toggle-button');
+    if (!text || !button) return;
+    const expanded = text.classList.toggle('expanded');
+    if (expanded) {
+        text.classList.remove('collapsed');
+    } else {
+        text.classList.add('collapsed');
+    }
+    button.textContent = expanded ? 'Show less' : 'Show more';
+    button.setAttribute('aria-expanded', expanded);
+}
 
