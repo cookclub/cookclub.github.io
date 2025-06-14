@@ -13,15 +13,18 @@ class RecipeSignupForm {
         // Get form elements
         this.form = document.getElementById('recipeForm');
         this.memberSelect = document.getElementById('member');
-        this.cookingSelect = document.getElementById('cooking');
+        this.cookingRadios = document.querySelectorAll('input[name="cooking"]');
         this.recipeSelect = document.getElementById('recipe');
         this.recipeGroup = document.getElementById('recipeGroup');
         this.recipeInfo = document.getElementById('recipeInfo');
         this.submitBtn = document.getElementById('submitBtn');
         this.messageDiv = document.getElementById('message');
+        this.notesField = document.getElementById('notes');
         
         // Add event listeners
-        this.cookingSelect.addEventListener('change', () => this.handleCookingChange());
+        this.cookingRadios.forEach(radio => {
+            radio.addEventListener('change', () => this.handleCookingChange());
+        });
         this.recipeSelect.addEventListener('change', () => this.handleRecipeChange());
         this.form.addEventListener('submit', (e) => this.handleSubmit(e));
         this.memberSelect.addEventListener('change', () => this.validateForm());
@@ -48,6 +51,7 @@ class RecipeSignupForm {
             await this.loadSampleData();
             this.populateMemberDropdown();
             this.populateRecipeDropdown();
+            this.hideMessage();
         }
     }
     
@@ -65,9 +69,10 @@ class RecipeSignupForm {
         }
         
         try {
-            console.log('🔄 Fetching data from:', CONFIG.SCRIPT_URL);
-            
-            const response = await fetch(`${CONFIG.SCRIPT_URL}?action=getData`);
+            const url = `${CONFIG.SCRIPT_URL}?action=getData&cb=${Date.now()}`;
+            console.log('🔄 Fetching data from:', url);
+
+            const response = await fetch(url);
             
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -155,9 +160,22 @@ class RecipeSignupForm {
         
         console.log('🍽️ Populated recipe dropdown with', this.recipes.length, 'recipes');
     }
-    
+
+    getCookingValue() {
+        const checked = document.querySelector('input[name="cooking"]:checked');
+        return checked ? checked.value : '';
+    }
+
     handleCookingChange() {
-        const isCooking = this.cookingSelect.value === 'yes';
+        const value = this.getCookingValue();
+        this.cookingRadios.forEach(radio => {
+            if (radio.checked) {
+                radio.parentElement.classList.add('selected');
+            } else {
+                radio.parentElement.classList.remove('selected');
+            }
+        });
+        const isCooking = value === 'yes';
         
         if (isCooking) {
             this.recipeGroup.style.display = 'block';
@@ -190,8 +208,9 @@ class RecipeSignupForm {
     
     validateForm() {
         const memberSelected = this.memberSelect.value !== '';
-        const cookingSelected = this.cookingSelect.value !== '';
-        const recipeSelected = this.cookingSelect.value === 'no' || this.recipeSelect.value !== '';
+        const cookingValue = this.getCookingValue();
+        const cookingSelected = cookingValue !== '';
+        const recipeSelected = cookingValue === 'no' || this.recipeSelect.value !== '';
         
         const isValid = memberSelected && cookingSelected && recipeSelected;
         this.submitBtn.disabled = !isValid;
@@ -240,13 +259,15 @@ class RecipeSignupForm {
         const discordId = this.memberSelect.value;
         const member = this.members.find(m => m.discordId === discordId);
         
+        const cookingValue = this.getCookingValue();
         const formData = {
             eventName: document.getElementById('eventName').value,
             discordId: discordId,
             displayName: member ? member.displayName : '',
-            cooking: this.cookingSelect.value === 'yes',
-            recipeId: this.cookingSelect.value === 'yes' ? parseInt(this.recipeSelect.value) : null,
+            cooking: cookingValue === 'yes',
+            recipeId: cookingValue === 'yes' ? parseInt(this.recipeSelect.value) : null,
             recipeName: '',
+            notes: this.notesField.value.trim(),
             timestamp: new Date().toISOString()
         };
         
@@ -364,6 +385,8 @@ class RecipeSignupForm {
         this.recipeInfo.style.display = 'none';
         this.recipeSelect.required = false;
         this.submitBtn.disabled = true;
+        this.cookingRadios.forEach(r => r.parentElement.classList.remove('selected'));
+        if (this.notesField) this.notesField.value = '';
         document.getElementById('eventName').value = CONFIG.EVENT.name;
     }
 }
