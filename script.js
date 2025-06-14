@@ -60,37 +60,61 @@ class RecipeSignupForm {
     }
     
     async loadFromGoogleSheets() {
-        // This method will be implemented when Google Apps Script is set up
-        // For now, it's a placeholder for the real implementation
-        
         if (!CONFIG.SCRIPT_URL) {
             throw new Error('Google Apps Script URL not configured');
         }
         
         try {
-            const response = await fetch(`${CONFIG.SCRIPT_URL}?action=getData`);
-            // const data = await response.json();
-            // console.log('🚀 raw payload:', data);
-
-            const raw = await res.json();
-            console.log('🚀 raw payload:', raw);
+            console.log('🔄 Fetching data from:', CONFIG.SCRIPT_URL);
             
-            // guard against unexpected shape
-            if (!raw.data || !Array.isArray(raw.data.members) || !Array.isArray(raw.data.recipes)) {
-              throw new Error('Unexpected payload shape');
+            const response = await fetch(`${CONFIG.SCRIPT_URL}?action=getData`);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
             
-            // unpack the envelope
+            // 1. Log the raw response
+            const raw = await response.json();
+            console.log('🚀 raw payload:', raw);
+            
+            // Check if the response indicates success
+            if (!raw.success) {
+                throw new Error(raw.message || 'API returned error');
+            }
+            
+            // 2. Guard against unexpected shapes
+            if (!raw.data || !Array.isArray(raw.data.members) || !Array.isArray(raw.data.recipes)) {
+                console.error('❌ Unexpected payload shape. Expected: {success: true, data: {members: [], recipes: []}}');
+                console.error('❌ Received:', raw);
+                throw new Error('Unexpected payload shape');
+            }
+            
+            // 3. Destructure the nested data envelope
             const { members, recipes } = raw.data;
             
-            // // now your filtering is clean:
-            // const activeMembers    = members.filter(m => m.active);
-            // const availableRecipes = recipes.filter(r => !r.claimed);
+            console.log('📊 Members found:', members.length);
+            console.log('🍽️ Recipes found:', recipes.length);
             
-            this.members = members.filter(member => member.active);
-            this.recipes = recipes.filter(recipe => !recipe.claimed);
+            // 4. Filter the clean arrays
+            const activeMembers = members.filter(m => m.active);
+            const availableRecipes = recipes.filter(r => !r.claimed);
+            
+            console.log('✅ Active members:', activeMembers.length);
+            console.log('🆓 Available recipes:', availableRecipes.length);
+            
+            this.members = activeMembers;
+            this.recipes = availableRecipes;
+            
+            if (this.members.length === 0) {
+                throw new Error('No active members found');
+            }
+            
+            if (this.recipes.length === 0) {
+                console.warn('⚠️ No available recipes found - all may be claimed');
+            }
+            
         } catch (error) {
-            console.error('Error fetching from Google Sheets:', error);
+            console.error('❌ Error fetching from Google Sheets:', error);
             throw error;
         }
     }
@@ -105,6 +129,8 @@ class RecipeSignupForm {
             option.textContent = member.displayName;
             this.memberSelect.appendChild(option);
         });
+        
+        console.log('👥 Populated member dropdown with', this.members.length, 'members');
     }
     
     populateRecipeDropdown() {
@@ -126,6 +152,8 @@ class RecipeSignupForm {
             option.textContent = recipe.name;
             this.recipeSelect.appendChild(option);
         });
+        
+        console.log('🍽️ Populated recipe dropdown with', this.recipes.length, 'recipes');
     }
     
     handleCookingChange() {
@@ -183,6 +211,7 @@ class RecipeSignupForm {
         
         try {
             const formData = this.getFormData();
+            console.log('📤 Submitting form data:', formData);
             
             // Submit to Google Apps Script
             await this.submitToGoogleSheets(formData);
@@ -194,7 +223,7 @@ class RecipeSignupForm {
             await this.loadData();
             
         } catch (error) {
-            console.error('Submission error:', error);
+            console.error('❌ Submission error:', error);
             
             if (error.message.includes('duplicate')) {
                 this.showMessage(CONFIG.MESSAGES.DUPLICATE, 'error');
@@ -229,42 +258,12 @@ class RecipeSignupForm {
         return formData;
     }
     
-    async simulateSubmission(formData) {
-        // Simulate network delay
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        // Simulate random failure (10% chance)
-        if (Math.random() < 0.1) {
-            throw new Error('Network error');
-        }
-        
-        // Simulate duplicate check (5% chance)
-        if (formData.recipeId && Math.random() < 0.05) {
-            throw new Error('Recipe already claimed - duplicate');
-        }
-        
-        // If cooking, mark recipe as claimed
-        if (formData.cooking && formData.recipeId) {
-            const recipe = this.recipes.find(r => r.id === formData.recipeId);
-            if (recipe) {
-                recipe.claimed = true;
-                recipe.claimedByDiscordId = formData.discordId;
-                recipe.claimedAt = formData.timestamp;
-                
-                // Remove from available recipes and update dropdown
-                this.recipes = this.recipes.filter(r => r.id !== formData.recipeId);
-                this.populateRecipeDropdown();
-            }
-        }
-        
-        console.log('Form submitted successfully:', formData);
-    }
-    
     async submitToGoogleSheets(formData) {
-        // This method will be implemented when Google Apps Script is set up
         if (!CONFIG.SCRIPT_URL) {
             throw new Error('Google Apps Script URL not configured');
         }
+        
+        console.log('📡 Submitting to Google Apps Script...');
         
         const response = await fetch(CONFIG.SCRIPT_URL, {
             method: 'POST',
@@ -282,9 +281,10 @@ class RecipeSignupForm {
         }
         
         const result = await response.json();
+        console.log('📥 Submission result:', result);
         
         if (!result.success) {
-            throw new Error(result.error || 'Submission failed');
+            throw new Error(result.error || result.message || 'Submission failed');
         }
         
         return result;
