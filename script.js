@@ -70,7 +70,7 @@ class RecipeSignupForm {
         try {
             const response = await fetch(`${CONFIG.SCRIPT_URL}?action=getData`);
             const data = await response.json();
-            
+            console.log('🚀 raw payload:', data);
             this.members = data.members.filter(member => member.active);
             this.recipes = data.recipes.filter(recipe => !recipe.claimed);
         } catch (error) {
