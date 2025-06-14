@@ -260,15 +260,18 @@ button:disabled {
 }
 
 .pill {
+  display: inline-block;
+  margin: 0 4px 4px 0;
   padding: 4px 10px;
   border-radius: 999px;
   font-size: 13px;
   font-weight: 500;
-  background-color: #e0e0e0;
+  color: #333;
+  /* background-color is set inline via JavaScript */
 }
-.pill.pink { background-color: #fbd5e4; }
-.pill.blue { background-color: #d7e8fc; }
-.pill.neutral { background-color: #efefef; }
+.pill.neutral {
+  background-color: #efefef;
+}
 
 .ingredient-text {
   display: inline-block;
