@@ -240,9 +240,15 @@ class RecipeSignupForm {
         }
 
         // Categories
-        let categories = recipe.categories;
-        if (typeof categories === 'string') {
-            categories = categories.split(/[,;]+/).map(c => c.trim()).filter(Boolean);
+        let categories = recipe.categories;        
+        if (Array.isArray(categories)) {
+            categories = categories.flatMap(cat => String(cat)
+                .split(/[,;]+/));
+        } else if (typeof categories === 'string') {
+            categories = categories.split(/[,;]+/);
+        }
+        if (Array.isArray(categories)) {
+            categories = categories.map(c => String(c).trim()).filter(Boolean);
         }
         if (Array.isArray(categories) && categories.length) {
             const row = document.createElement('div');
