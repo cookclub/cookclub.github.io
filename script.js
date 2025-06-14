@@ -69,10 +69,26 @@ class RecipeSignupForm {
         
         try {
             const response = await fetch(`${CONFIG.SCRIPT_URL}?action=getData`);
-            const data = await response.json();
-            console.log('🚀 raw payload:', data);
-            this.members = data.data.members.filter(member => member.active);
-            this.recipes = data.data.recipes.filter(recipe => !recipe.claimed);
+            // const data = await response.json();
+            // console.log('🚀 raw payload:', data);
+
+            const raw = await res.json();
+            console.log('🚀 raw payload:', raw);
+            
+            // guard against unexpected shape
+            if (!raw.data || !Array.isArray(raw.data.members) || !Array.isArray(raw.data.recipes)) {
+              throw new Error('Unexpected payload shape');
+            }
+            
+            // unpack the envelope
+            const { members, recipes } = raw.data;
+            
+            // // now your filtering is clean:
+            // const activeMembers    = members.filter(m => m.active);
+            // const availableRecipes = recipes.filter(r => !r.claimed);
+            
+            this.members = members.filter(member => member.active);
+            this.recipes = recipes.filter(recipe => !recipe.claimed);
         } catch (error) {
             console.error('Error fetching from Google Sheets:', error);
             throw error;
