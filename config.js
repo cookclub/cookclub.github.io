@@ -38,9 +38,9 @@ const CONFIG = {
     
     // Event configuration
     EVENT: {
-        name: 'Team Potluck 2025',
-        date: '2025-07-15',
-        description: 'Annual team potluck dinner'
+        name: 'Shared Table RSVP \u2022 June 2025',
+        date: '2025-06-15',
+        description: 'Monthly community dinner'
     },
     
     // UI Messages

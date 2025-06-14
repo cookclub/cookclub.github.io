@@ -4,66 +4,68 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recipe Sign-Up</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🍽️ Recipe Sign-Up</h1>
-            <p>Reserve your recipe for the upcoming event</p>
-        </header>
-        
-        <form id="recipeForm" class="signup-form">
-            <div class="form-group">
-                <label for="eventName">Event Name</label>
-                <input type="text" id="eventName" name="eventName" value="Team Potluck 2025" readonly>
-            </div>
-            
-            <div class="form-group">
-                <label for="member">Who are you? *</label>
-                <select id="member" name="member" required>
-                    <option value="">Select your name...</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label for="cooking">Are you cooking? *</label>
-                <select id="cooking" name="cooking" required>
-                    <option value="">Select...</option>
-                    <option value="yes">Yes, I'm bringing a dish</option>
-                    <option value="no">No, just attending</option>
-                </select>
-            </div>
-            
-            <div class="form-group" id="recipeGroup" style="display:none;">
-                <label for="recipe">Choose a recipe: *</label>
-                <select id="recipe" name="recipe">
-                    <option value="">Select a recipe...</option>
-                </select>
-                <div class="recipe-info" id="recipeInfo"></div>
-            </div>
-            
-            <button type="submit" id="submitBtn" disabled>
-                <span class="btn-text">Submit RSVP</span>
-                <span class="btn-loading" style="display:none;">Submitting...</span>
-            </button>
-        </form>
-        
-        <div id="message" class="message"></div>
-        
-        <div class="info-section">
-            <h3>How it works:</h3>
-            <ul>
-                <li>Select your name from the dropdown</li>
-                <li>Choose whether you're cooking or just attending</li>
-                <li>If cooking, pick an available recipe (first come, first served!)</li>
-                <li>Submit your RSVP and get confirmation</li>
-            </ul>
-        </div>
+    <div class="layout">
+        <div class="hero" role="img" aria-label="Food on table"></div>
+        <main class="cards">
+            <section class="card header-card">
+                <h1>Shared Table RSVP • June 2025</h1>
+                <p>Come share a meal with friends and neighbors.</p>
+                <p>Claim a dish or just join the feast!</p>
+                <hr>
+            </section>
+            <section class="card form-card">
+                <form id="recipeForm" novalidate>
+                    <input type="hidden" id="eventName" name="eventName" readonly>
+                    <div class="form-group">
+                        <label for="member">Who are you? *</label>
+                        <select id="member" name="member" required>
+                            <option value="">Select your name...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>How are you joining? *</label>
+                        <div class="radio-group" id="cookingGroup">
+                            <label class="radio-card">
+                                <input type="radio" name="cooking" value="yes">
+                                <span class="icon">👩‍🍳</span>
+                                <span class="title">Cooking something</span>
+                                <span class="subtitle">I'll bring a dish</span>
+                            </label>
+                            <label class="radio-card">
+                                <input type="radio" name="cooking" value="no">
+                                <span class="icon">🍽️</span>
+                                <span class="title">Just showing up</span>
+                                <span class="subtitle">I'm here to eat</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group" id="recipeGroup" style="display:none;">
+                        <label for="recipe">What are you cooking? *</label>
+                        <select id="recipe" name="recipe">
+                            <option value="">Select a recipe...</option>
+                        </select>
+                        <div class="recipe-info" id="recipeInfo"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="notes">Anything else we should know?</label>
+                        <span class="sub-label">This note will post in Discord…</span>
+                        <textarea id="notes" name="notes"></textarea>
+                    </div>
+                    <button type="submit" id="submitBtn" disabled>
+                        <span class="btn-text">Submit RSVP</span>
+                        <span class="btn-loading" style="display:none;">Submitting...</span>
+                    </button>
+                </form>
+                <div id="message" class="message"></div>
+            </section>
+        </main>
     </div>
-    
+
     <script src="config.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
-
