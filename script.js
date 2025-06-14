@@ -284,18 +284,15 @@ class RecipeSignupForm {
         }
 
         // Categories
-        let categories = recipe.categories;        
+        let categories = recipe.categories;
         if (Array.isArray(categories)) {
-            categories = categories.flatMap(cat => String(cat)
-                .split(/\s*;\s*/)
-          );
+            categories = categories.flatMap(cat =>
+                String(cat).split(/\s*;\s*/)
+            );
         } else {
-          // if it was a string, do the same semicolon-only split
-          categories = String(categories).split(/\s*;\s*/);
+            categories = String(categories || '').split(/\s*;\s*/);
         }
-        if (Array.isArray(categories)) {
-            categories = categories.map(c => String(c).trim()).filter(Boolean);
-        }
+        categories = categories.map(c => String(c).trim()).filter(Boolean);
         if (Array.isArray(categories) && categories.length) {
             const row = document.createElement('div');
             row.className = 'meta-row';
