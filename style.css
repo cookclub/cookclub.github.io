@@ -1,258 +1,200 @@
-/* Reset and base styles */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+/*
+  Recipe RSVP form design
+  - Typography: 16px base using Inter, headings weight 600
+  - Colors: #3B82F6 accent, #6B7280 muted, #D1D5DB borders
+  - Spacing: ~1.5rem with 600px breakpoint for stacking
+*/
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+:root {
+  --font-family: 'Inter', system-ui, sans-serif;
+  --color-text: #111827;
+  --color-muted: #6B7280;
+  --color-border: #D1D5DB;
+  --color-accent: #3B82F6;
+  --color-accent-hover: #2563EB;
+  --radius: 0.75rem;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    line-height: 1.6;
-    color: #333;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-    padding: 20px;
+  font-family: var(--font-family);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--color-text);
+  background: #F9FAFB;
 }
 
-.container {
-    max-width: 600px;
-    margin: 0 auto;
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
+.form-container {
+  max-width: 480px;
+  margin: 2rem auto;
+  background: #fff;
+  border-radius: var(--radius);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  overflow: hidden;
 }
 
-header {
-    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
-    color: white;
-    padding: 40px 30px;
-    text-align: center;
+.hero {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  display: block;
 }
 
-header h1 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: 10px;
+.form-header {
+  font-size: 1.75rem;
+  font-weight: 600;
+  text-align: center;
+  margin: 1rem 1.5rem 0.25rem;
 }
 
-header p {
-    font-size: 1.1rem;
-    opacity: 0.9;
+.subtitle {
+  text-align: center;
+  color: var(--color-muted);
+  margin: 0 1.5rem 1.5rem;
 }
 
-.signup-form {
-    padding: 40px 30px;
+.section-divider {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 0 1.5rem 1.5rem;
 }
 
-.form-group {
-    margin-bottom: 25px;
+.field-group {
+  margin: 0 1.5rem 1.5rem;
 }
 
 label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 600;
-    color: #555;
-    font-size: 0.95rem;
+  display: block;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
 }
 
-input, select {
-    width: 100%;
-    padding: 14px 16px;
-    border: 2px solid #e1e5e9;
-    border-radius: 8px;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-    background: white;
+.select-with-change {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
 }
 
-input:focus, select:focus {
-    outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+.select-with-change select {
+  flex: 1;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: #fff;
+  font-size: 1rem;
 }
 
-input[readonly] {
-    background: #f8f9fa;
-    color: #6c757d;
+.change-btn {
+  background: none;
+  border: none;
+  color: var(--color-accent);
+  font-size: 0.875rem;
+  cursor: pointer;
 }
 
-select {
-    cursor: pointer;
+.card-group {
+  display: flex;
+  gap: 1rem;
 }
 
-select:invalid {
-    color: #999;
+@media (max-width: 600px) {
+  .card-group {
+    flex-direction: column;
+  }
+}
+
+.choice-card {
+  position: relative;
+  flex: 1;
+  cursor: pointer;
+}
+
+.choice-card input[type="radio"] {
+  position: absolute;
+  left: 0.75rem;
+  top: 0.75rem;
+}
+
+.choice-card .card-body {
+  padding: 1.25rem 1rem 1rem 3rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  text-align: center;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.choice-card .icon {
+  font-size: 2rem;
+  margin-bottom: 0.25rem;
+}
+
+.choice-card .title {
+  font-weight: 600;
+}
+
+.choice-card .subtitle {
+  font-size: 0.9rem;
+  color: var(--color-muted);
+}
+
+.choice-card input[type="radio"]:checked + .card-body {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px rgba(59,130,246,0.4);
+}
+
+.choice-card input[type="radio"]:focus + .card-body {
+  box-shadow: 0 0 0 2px rgba(59,130,246,0.6);
 }
 
 .recipe-info {
-    margin-top: 10px;
-    padding: 12px;
-    background: #f8f9fa;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    color: #666;
-    display: none;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--color-muted);
 }
 
-button {
-    width: 100%;
-    padding: 16px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
+#submitBtn {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  margin: 0 1.5rem 1.5rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--color-accent);
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 0.2s ease, opacity 0.2s ease;
 }
 
-button:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+#submitBtn:hover:not(:disabled) {
+  background: var(--color-accent-hover);
 }
 
-button:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
+#submitBtn:focus-visible {
+  outline: 2px solid var(--color-accent-hover);
+  outline-offset: 2px;
+}
+
+#submitBtn:disabled {
+  background: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
 }
 
 .btn-loading {
-    display: none;
+  display: none;
 }
 
-.message {
-    margin-top: 20px;
-    padding: 16px;
-    border-radius: 8px;
-    font-weight: 500;
-    text-align: center;
-    display: none;
+@media (min-width: 601px) {
+  #submitBtn {
+    width: auto;
+  }
 }
-
-.message.success {
-    background: #d4edda;
-    color: #155724;
-    border: 1px solid #c3e6cb;
-}
-
-.message.error {
-    background: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
-}
-
-.message.info {
-    background: #d1ecf1;
-    color: #0c5460;
-    border: 1px solid #bee5eb;
-}
-
-.info-section {
-    background: #f8f9fa;
-    padding: 30px;
-    border-top: 1px solid #e9ecef;
-}
-
-.info-section h3 {
-    color: #495057;
-    margin-bottom: 15px;
-    font-size: 1.2rem;
-}
-
-.info-section ul {
-    list-style: none;
-    padding-left: 0;
-}
-
-.info-section li {
-    padding: 8px 0;
-    padding-left: 25px;
-    position: relative;
-    color: #6c757d;
-}
-
-.info-section li::before {
-    content: "✓";
-    position: absolute;
-    left: 0;
-    color: #28a745;
-    font-weight: bold;
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-    body {
-        padding: 10px;
-    }
-    
-    .container {
-        border-radius: 12px;
-    }
-    
-    header {
-        padding: 30px 20px;
-    }
-    
-    header h1 {
-        font-size: 2rem;
-    }
-    
-    .signup-form {
-        padding: 30px 20px;
-    }
-    
-    .info-section {
-        padding: 20px;
-    }
-}
-
-/* Animation for form reveal */
-.form-group {
-    opacity: 0;
-    transform: translateY(20px);
-    animation: slideIn 0.6s ease forwards;
-}
-
-.form-group:nth-child(1) { animation-delay: 0.1s; }
-.form-group:nth-child(2) { animation-delay: 0.2s; }
-.form-group:nth-child(3) { animation-delay: 0.3s; }
-.form-group:nth-child(4) { animation-delay: 0.4s; }
-
-@keyframes slideIn {
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Loading state */
-.loading {
-    position: relative;
-}
-
-.loading::after {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 20px;
-    height: 20px;
-    margin: -10px 0 0 -10px;
-    border: 2px solid #fff;
-    border-top: 2px solid transparent;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-

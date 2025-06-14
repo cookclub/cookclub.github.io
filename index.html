@@ -1,69 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recipe Sign-Up</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recipe Sign-Up</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>🍽️ Recipe Sign-Up</h1>
-            <p>Reserve your recipe for the upcoming event</p>
-        </header>
-        
-        <form id="recipeForm" class="signup-form">
-            <div class="form-group">
-                <label for="eventName">Event Name</label>
-                <input type="text" id="eventName" name="eventName" value="Team Potluck 2025" readonly>
-            </div>
-            
-            <div class="form-group">
-                <label for="member">Who are you? *</label>
-                <select id="member" name="member" required>
-                    <option value="">Select your name...</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label for="cooking">Are you cooking? *</label>
-                <select id="cooking" name="cooking" required>
-                    <option value="">Select...</option>
-                    <option value="yes">Yes, I'm bringing a dish</option>
-                    <option value="no">No, just attending</option>
-                </select>
-            </div>
-            
-            <div class="form-group" id="recipeGroup" style="display:none;">
-                <label for="recipe">Choose a recipe: *</label>
-                <select id="recipe" name="recipe">
-                    <option value="">Select a recipe...</option>
-                </select>
-                <div class="recipe-info" id="recipeInfo"></div>
-            </div>
-            
-            <button type="submit" id="submitBtn" disabled>
-                <span class="btn-text">Submit RSVP</span>
-                <span class="btn-loading" style="display:none;">Submitting...</span>
-            </button>
-        </form>
-        
-        <div id="message" class="message"></div>
-        
-        <div class="info-section">
-            <h3>How it works:</h3>
-            <ul>
-                <li>Select your name from the dropdown</li>
-                <li>Choose whether you're cooking or just attending</li>
-                <li>If cooking, pick an available recipe (first come, first served!)</li>
-                <li>Submit your RSVP and get confirmation</li>
-            </ul>
+  <div class="form-container">
+    <img class="hero" src="cheese-grating.jpg" alt="">
+    <h1 class="form-header">Shared Table RSVP · June 2025</h1>
+    <p class="subtitle">
+      This month’s book is <em>That Sounds So Good</em> by Carla Lalli Music —<br>
+      brought to the table by Kristyn (@LilGucky).
+    </p>
+    <hr class="section-divider">
+    <form id="recipeForm">
+      <input type="hidden" id="eventName" name="eventName">
+      <div class="field-group">
+        <label for="member">Who are you? *</label>
+        <div class="select-with-change">
+          <select id="member" name="discordId"></select>
+          <button type="button" class="change-btn">Change</button>
         </div>
-    </div>
-    
-    <script src="config.js"></script>
-    <script src="script.js"></script>
+      </div>
+      <div class="field-group">
+        <label>How are you joining? *</label>
+        <div class="card-group">
+          <label class="choice-card">
+            <input type="radio" name="cooking" value="yes">
+            <div class="card-body">
+              <div class="icon">👩‍🍳</div>
+              <div class="title">Cooking something</div>
+              <div class="subtitle">I’ll bring a dish</div>
+            </div>
+          </label>
+          <label class="choice-card">
+            <input type="radio" name="cooking" value="no">
+            <div class="card-body">
+              <div class="icon">🍽️</div>
+              <div class="title">Just showing up</div>
+              <div class="subtitle">I’m here to eat</div>
+            </div>
+          </label>
+        </div>
+      </div>
+      <div class="field-group" id="recipeGroup">
+        <label for="recipe">What are you cooking? *</label>
+        <div class="select-with-change">
+          <select id="recipe" name="recipeId"></select>
+          <button type="button" class="change-btn">Change</button>
+        </div>
+        <p id="recipeInfo" class="recipe-info"></p>
+      </div>
+      <button id="submitBtn" disabled>
+        <span class="btn-text">Submit</span>
+        <span class="btn-loading">Loading…</span>
+      </button>
+    </form>
+  </div>
+  <div id="message" class="message"></div>
+  <script src="config.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
-
