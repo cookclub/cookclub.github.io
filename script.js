@@ -257,38 +257,71 @@ class RecipeSignupForm {
         
         return formData;
     }
-    
+
     async submitToGoogleSheets(formData) {
-        if (!CONFIG.SCRIPT_URL) {
-            throw new Error('Google Apps Script URL not configured');
-        }
-        
-        console.log('📡 Submitting to Google Apps Script...');
-        
-        const response = await fetch(CONFIG.SCRIPT_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                action: 'submitRSVP',
-                data: formData
-            })
-        });
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const result = await response.json();
-        console.log('📥 Submission result:', result);
-        
-        if (!result.success) {
-            throw new Error(result.error || result.message || 'Submission failed');
-        }
-        
-        return result;
+      if (!CONFIG.SCRIPT_URL) {
+        throw new Error('Google Apps Script URL not configured');
+      }
+      
+      console.log('📡 Submitting to Google Apps Script...');
+      
+      // Create form data (no JSON, no custom headers = no CORS preflight)
+      const formBody = new URLSearchParams();
+      formBody.append('action', 'submitRSVP');
+      formBody.append('data', JSON.stringify(formData));
+      
+      const response = await fetch(CONFIG.SCRIPT_URL, {
+        method: 'POST',
+        body: formBody  // No headers = simple request
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      console.log('📥 Submission result:', result);
+      
+      if (!result.success) {
+        throw new Error(result.error || result.message || 'Submission failed');
+      }
+      
+      return result;
     }
+
+
+    
+    // async submitToGoogleSheets(formData) {
+    //     if (!CONFIG.SCRIPT_URL) {
+    //         throw new Error('Google Apps Script URL not configured');
+    //     }
+        
+    //     console.log('📡 Submitting to Google Apps Script...');
+        
+    //     const response = await fetch(CONFIG.SCRIPT_URL, {
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type': 'application/json',
+    //         },
+    //         body: JSON.stringify({
+    //             action: 'submitRSVP',
+    //             data: formData
+    //         })
+    //     });
+        
+    //     if (!response.ok) {
+    //         throw new Error(`HTTP error! status: ${response.status}`);
+    //     }
+        
+    //     const result = await response.json();
+    //     console.log('📥 Submission result:', result);
+        
+    //     if (!result.success) {
+    //         throw new Error(result.error || result.message || 'Submission failed');
+    //     }
+        
+    //     return result;
+    // }
     
     setLoadingState(loading) {
         const btnText = this.submitBtn.querySelector('.btn-text');
