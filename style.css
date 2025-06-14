@@ -272,14 +272,29 @@ button:disabled {
 
 .ingredient-text {
   display: inline-block;
-  max-height: 60px;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  transition: all 0.3s ease;
+  transition: max-height 0.3s ease;
 }
+
+.ingredient-text.collapsed {
+  max-height: 60px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 .ingredient-text.expanded {
+  max-height: none;
   white-space: normal;
+}
+
+@media (max-width: 768px) {
+  .ingredient-text.collapsed {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    max-height: 3em;
+    white-space: normal;
+  }
 }
 
 .toggle-button {

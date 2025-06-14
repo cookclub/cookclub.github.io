@@ -102,7 +102,10 @@ class RecipeSignupForm {
             
             // 4. Filter the clean arrays
             const activeMembers = members.filter(m => m.active);
-            const availableRecipes = recipes.filter(r => !r.claimed);
+            const availableRecipes = recipes.filter(r => !r.claimed).map(r => ({
+                ...r,
+                id: parseInt(r.id, 10)
+            }));
             
             console.log('✅ Active members:', activeMembers.length);
             console.log('🆓 Available recipes:', availableRecipes.length);
@@ -192,10 +195,10 @@ class RecipeSignupForm {
     }
     
     handleRecipeChange() {
-        const selectedRecipeId = parseInt(this.recipeSelect.value);
+        const selectedRecipeId = this.recipeSelect.value;
 
         if (selectedRecipeId) {
-            const recipe = this.recipes.find(r => r.id === selectedRecipeId);
+            const recipe = this.recipes.find(r => String(r.id) === String(selectedRecipeId));
             if (recipe) {
                 this.renderRecipeEntry(recipe);
                 this.recipeEntry.style.display = 'block';
@@ -355,14 +358,14 @@ class RecipeSignupForm {
             discordId: discordId,
             displayName: member ? member.displayName : '',
             cooking: cookingValue === 'yes',
-            recipeId: cookingValue === 'yes' ? parseInt(this.recipeSelect.value) : null,
+            recipeId: cookingValue === 'yes' ? parseInt(this.recipeSelect.value, 10) : null,
             recipeName: '',
             notes: this.notesField.value.trim(),
             timestamp: new Date().toISOString()
         };
         
         if (formData.recipeId) {
-            const recipe = this.recipes.find(r => r.id === formData.recipeId);
+            const recipe = this.recipes.find(r => parseInt(r.id, 10) === formData.recipeId);
             formData.recipeName = recipe ? recipe.name : '';
         }
         
