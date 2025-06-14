@@ -1,4 +1,48 @@
 // Recipe Sign-Up Form JavaScript
+
+// Pastel palette for category pills
+const PILL_COLORS = [
+    '#F8D7DA', // soft rose
+    '#FFF3CD', // pale gold
+    '#D1ECF1', // baby aqua
+    '#D4EDDA', // mint
+    '#E2D6F8', // lavender
+    '#FDE2E4', // peach
+    '#E8F0FE', // light sky
+    '#F0F3F5', // light gray
+    '#FFEBE5', // blush
+    '#EAF7E0'  // pistachio
+];
+
+// Map to keep a deterministic color for each category
+const categoryColorMap = new Map();
+let nextColorIndex = 0;
+
+/**
+ * Render pastel category pills into the given container.
+ * Each new category gets the next color from the palette.
+ */
+function renderCategoryPills(categories, container) {
+    // Remove any existing pills to avoid duplicates
+    container.querySelectorAll('.pill').forEach(p => p.remove());
+
+    categories.forEach(cat => {
+        const key = String(cat).trim();
+
+        if (!categoryColorMap.has(key)) {
+            categoryColorMap.set(key, PILL_COLORS[nextColorIndex]);
+            nextColorIndex = (nextColorIndex + 1) % PILL_COLORS.length;
+        }
+
+        const pill = document.createElement('span');
+        pill.className = 'pill';
+        pill.textContent = key;
+        pill.style.backgroundColor = categoryColorMap.get(key);
+
+        container.appendChild(pill);
+    });
+}
+
 class RecipeSignupForm {
     constructor() {
         this.members = [];
@@ -261,12 +305,11 @@ class RecipeSignupForm {
             label.textContent = 'Categories';
             row.appendChild(label);
 
-            categories.forEach((cat, idx) => {
-                const pill = document.createElement('span');
-                pill.className = 'pill ' + (idx % 2 === 0 ? 'pink' : 'blue');
-                pill.textContent = cat;
-                row.appendChild(pill);
-            });
+            const pillContainer = document.createElement('span');
+            row.appendChild(pillContainer);
+
+            // Render pastel pills for each category
+            renderCategoryPills(categories, pillContainer);
 
             entry.appendChild(row);
         }
