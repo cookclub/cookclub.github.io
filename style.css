@@ -32,6 +32,7 @@ body {
   align-items: center;
   gap: 32px;
   padding: 32px;
+  padding-top: calc(32px + env(safe-area-inset-top, 0));
   background: #F7F7F7;
 }
 
@@ -70,14 +71,14 @@ body {
 
 label {
   display: block;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
   font-weight: 600;
 }
 
 .sub-label {
   display: block;
-  margin-top: -8px;
-  margin-bottom: 16px;
+  margin-top: 4px;
+  margin-bottom: 8px;
   color: #6c6c6c;
   font-size: 0.9em;
 }
@@ -108,6 +109,7 @@ textarea {
 .radio-group {
   display: flex;
   gap: 16px;
+  flex-wrap: nowrap;
 }
 
 .radio-card {
@@ -134,7 +136,7 @@ textarea {
 }
 
 .radio-card .icon {
-  font-size: 24px;
+  font-size: 32px;
   display: block;
   margin-bottom: 8px;
 }

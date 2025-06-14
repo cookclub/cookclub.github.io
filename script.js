@@ -51,6 +51,7 @@ class RecipeSignupForm {
             await this.loadSampleData();
             this.populateMemberDropdown();
             this.populateRecipeDropdown();
+            this.hideMessage();
         }
     }
     
@@ -68,9 +69,10 @@ class RecipeSignupForm {
         }
         
         try {
-            console.log('🔄 Fetching data from:', CONFIG.SCRIPT_URL);
-            
-            const response = await fetch(`${CONFIG.SCRIPT_URL}?action=getData`);
+            const url = `${CONFIG.SCRIPT_URL}?action=getData&cb=${Date.now()}`;
+            console.log('🔄 Fetching data from:', url);
+
+            const response = await fetch(url);
             
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
