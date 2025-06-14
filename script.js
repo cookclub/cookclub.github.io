@@ -243,9 +243,11 @@ class RecipeSignupForm {
         let categories = recipe.categories;        
         if (Array.isArray(categories)) {
             categories = categories.flatMap(cat => String(cat)
-                .split(/[,;]+/));
-        } else if (typeof categories === 'string') {
-            categories = categories.split(/[,;]+/);
+                .split(/\s*;\s*/)
+          );
+        } else {
+          // if it was a string, do the same semicolon-only split
+          categories = String(categories).split(/\s*;\s*/);
         }
         if (Array.isArray(categories)) {
             categories = categories.map(c => String(c).trim()).filter(Boolean);
