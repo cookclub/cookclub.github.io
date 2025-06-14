@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Sign-Up</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🍽️ Recipe Sign-Up</h1>
+            <p>Reserve your recipe for the upcoming event</p>
+        </header>
+        
+        <form id="recipeForm" class="signup-form">
+            <div class="form-group">
+                <label for="eventName">Event Name</label>
+                <input type="text" id="eventName" name="eventName" value="Team Potluck 2025" readonly>
+            </div>
+            
+            <div class="form-group">
+                <label for="member">Who are you? *</label>
+                <select id="member" name="member" required>
+                    <option value="">Select your name...</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="cooking">Are you cooking? *</label>
+                <select id="cooking" name="cooking" required>
+                    <option value="">Select...</option>
+                    <option value="yes">Yes, I'm bringing a dish</option>
+                    <option value="no">No, just attending</option>
+                </select>
+            </div>
+            
+            <div class="form-group" id="recipeGroup" style="display:none;">
+                <label for="recipe">Choose a recipe: *</label>
+                <select id="recipe" name="recipe">
+                    <option value="">Select a recipe...</option>
+                </select>
+                <div class="recipe-info" id="recipeInfo"></div>
+            </div>
+            
+            <button type="submit" id="submitBtn" disabled>
+                <span class="btn-text">Submit RSVP</span>
+                <span class="btn-loading" style="display:none;">Submitting...</span>
+            </button>
+        </form>
+        
+        <div id="message" class="message"></div>
+        
+        <div class="info-section">
+            <h3>How it works:</h3>
+            <ul>
+                <li>Select your name from the dropdown</li>
+                <li>Choose whether you're cooking or just attending</li>
+                <li>If cooking, pick an available recipe (first come, first served!)</li>
+                <li>Submit your RSVP and get confirmation</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
+
