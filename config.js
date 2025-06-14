@@ -26,14 +26,94 @@ const CONFIG = {
     ],
     
     SAMPLE_RECIPES: [
-        { id: 1, name: 'Caesar Salad', description: 'Fresh romaine lettuce with homemade dressing', claimed: false, claimedByDiscordId: '', claimedAt: '' },
-        { id: 2, name: 'Garlic Bread', description: 'Crispy bread with garlic butter', claimed: false, claimedByDiscordId: '', claimedAt: '' },
-        { id: 3, name: 'Chocolate Brownies', description: 'Rich and fudgy brownies', claimed: false, claimedByDiscordId: '', claimedAt: '' },
-        { id: 4, name: 'Vegetable Stir Fry', description: 'Mixed vegetables with soy sauce', claimed: false, claimedByDiscordId: '', claimedAt: '' },
-        { id: 5, name: 'Fruit Salad', description: 'Fresh seasonal fruits', claimed: false, claimedByDiscordId: '', claimedAt: '' },
-        { id: 6, name: 'Pasta Primavera', description: 'Pasta with fresh vegetables', claimed: false, claimedByDiscordId: '', claimedAt: '' },
-        { id: 7, name: 'Chicken Wings', description: 'Spicy buffalo wings', claimed: false, claimedByDiscordId: '', claimedAt: '' },
-        { id: 8, name: 'Cheese Platter', description: 'Assorted cheeses and crackers', claimed: false, claimedByDiscordId: '', claimedAt: '' }
+        {
+            id: 1,
+            name: 'Caesar Salad',
+            description: 'Fresh romaine lettuce with homemade dressing',
+            page: 63,
+            categories: ['Salad'],
+            ingredients: 'romaine lettuce; croutons; parmesan; Caesar dressing',
+            claimed: false,
+            claimedByDiscordId: '',
+            claimedAt: ''
+        },
+        {
+            id: 2,
+            name: 'Garlic Bread',
+            description: 'Crispy bread with garlic butter',
+            page: 72,
+            categories: ['Side'],
+            ingredients: 'baguette; garlic; butter; parsley',
+            claimed: false,
+            claimedByDiscordId: '',
+            claimedAt: ''
+        },
+        {
+            id: 3,
+            name: 'Chocolate Brownies',
+            description: 'Rich and fudgy brownies',
+            page: 105,
+            categories: ['Dessert'],
+            ingredients: 'chocolate; flour; sugar; eggs; butter',
+            claimed: false,
+            claimedByDiscordId: '',
+            claimedAt: ''
+        },
+        {
+            id: 4,
+            name: 'Vegetable Stir Fry',
+            description: 'Mixed vegetables with soy sauce',
+            page: 88,
+            categories: ['Main course'],
+            ingredients: 'assorted vegetables; soy sauce; sesame oil',
+            claimed: false,
+            claimedByDiscordId: '',
+            claimedAt: ''
+        },
+        {
+            id: 5,
+            name: 'Fruit Salad',
+            description: 'Fresh seasonal fruits',
+            page: 12,
+            categories: ['Dessert'],
+            ingredients: 'mixed fresh fruit',
+            claimed: false,
+            claimedByDiscordId: '',
+            claimedAt: ''
+        },
+        {
+            id: 6,
+            name: 'Pasta Primavera',
+            description: 'Pasta with fresh vegetables',
+            page: 144,
+            categories: ['Main course'],
+            ingredients: 'pasta; seasonal vegetables; olive oil; parmesan',
+            claimed: false,
+            claimedByDiscordId: '',
+            claimedAt: ''
+        },
+        {
+            id: 7,
+            name: 'Chicken Wings',
+            description: 'Spicy buffalo wings',
+            page: 175,
+            categories: ['Appetizer'],
+            ingredients: 'chicken wings; hot sauce; butter',
+            claimed: false,
+            claimedByDiscordId: '',
+            claimedAt: ''
+        },
+        {
+            id: 8,
+            name: 'Cheese Platter',
+            description: 'Assorted cheeses and crackers',
+            page: 5,
+            categories: ['Appetizer'],
+            ingredients: 'assorted cheese; crackers; fruit',
+            claimed: false,
+            claimedByDiscordId: '',
+            claimedAt: ''
+        }
     ],
     
     // Event configuration
