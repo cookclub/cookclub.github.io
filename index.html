@@ -22,9 +22,8 @@
                     <input type="hidden" id="eventName" name="eventName" readonly>
                     <div class="form-group">
                         <label for="member">Who are you? *</label>
-                        <select id="member" name="member" required>
-                            <option value="">Select your name...</option>
-                        </select>
+                        <input id="member" name="member" list="member-list" placeholder="Start typing your name…" required>
+                        <datalist id="member-list"></datalist>
                     </div>
                     <div class="form-group">
                         <label>How are you joining? *</label>
@@ -45,9 +44,8 @@
                     </div>
                     <div class="form-group" id="recipeGroup" style="display:none;">
                         <label for="recipe">What are you cooking? *</label>
-                        <select id="recipe" name="recipe">
-                            <option value="">Select a recipe...</option>
-                        </select>
+                        <input id="recipe" name="recipe" list="recipe-list" placeholder="Start typing your recipe…">
+                        <datalist id="recipe-list"></datalist>
                         <div class="recipe-entry" id="recipeEntry" style="display:none;"></div>
                     </div>
                     <div class="form-group">
