@@ -112,11 +112,9 @@ body {
 
 /* Grid container holding the RSVP form and menu list */
 .main-container {
-  display: grid; /* two columns on desktop */
-  grid-template-columns: 2fr 3fr;
-  gap: 32px;
-  padding: 32px;
-  margin-top: 2rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
 }
 
 /* Card styling for each column */
@@ -343,25 +341,16 @@ button:disabled {
 }
 
 @media (max-width: 768px) {
-  /* collapse to single column on small screens */
-  .layout {
-    grid-template-columns: 1fr;
-  }
   .main-wrapper {
     grid-template-columns: 1fr;
   }
+
   .main-container {
-    grid-template-columns: 1fr; /* stack form above menu */
+    grid-template-columns: 1fr;
   }
-  /* banner simply scales on small screens */
-  /* form spans full width below banner */
-  .cards {
-    margin-left: 0;
-    width: 100%;
-    padding: 24px;
-  }
-  .header-card h1 {
-    font-size: 28px;
+
+  .hero-text {
+    text-align: center;
   }
 }
 
