@@ -33,6 +33,7 @@ const CONFIG = {
             page: 63,
             categories: ['Salad'],
             ingredients: 'romaine lettuce; croutons; parmesan; Caesar dressing',
+            accompaniments: 'extra parmesan; lemon wedges',
             claimed: false,
             claimedByDiscordId: '',
             claimedAt: ''
@@ -44,6 +45,7 @@ const CONFIG = {
             page: 72,
             categories: ['Side'],
             ingredients: 'baguette; garlic; butter; parsley',
+            accompaniments: 'marinara sauce',
             claimed: false,
             claimedByDiscordId: '',
             claimedAt: ''
@@ -55,6 +57,7 @@ const CONFIG = {
             page: 105,
             categories: ['Dessert'],
             ingredients: 'chocolate; flour; sugar; eggs; butter',
+            accompaniments: 'vanilla ice cream',
             claimed: false,
             claimedByDiscordId: '',
             claimedAt: ''
@@ -66,6 +69,7 @@ const CONFIG = {
             page: 88,
             categories: ['Main course'],
             ingredients: 'assorted vegetables; soy sauce; sesame oil',
+            accompaniments: 'steamed rice',
             claimed: false,
             claimedByDiscordId: '',
             claimedAt: ''
@@ -77,6 +81,7 @@ const CONFIG = {
             page: 12,
             categories: ['Dessert'],
             ingredients: 'mixed fresh fruit',
+            accompaniments: 'honey yogurt dip',
             claimed: false,
             claimedByDiscordId: '',
             claimedAt: ''
@@ -88,6 +93,7 @@ const CONFIG = {
             page: 144,
             categories: ['Main course'],
             ingredients: 'pasta; seasonal vegetables; olive oil; parmesan',
+            accompaniments: 'crusty bread',
             claimed: false,
             claimedByDiscordId: '',
             claimedAt: ''
@@ -99,6 +105,7 @@ const CONFIG = {
             page: 175,
             categories: ['Appetizer'],
             ingredients: 'chicken wings; hot sauce; butter',
+            accompaniments: 'celery sticks; blue cheese dip',
             claimed: false,
             claimedByDiscordId: '',
             claimedAt: ''
@@ -110,6 +117,7 @@ const CONFIG = {
             page: 5,
             categories: ['Appetizer'],
             ingredients: 'assorted cheese; crackers; fruit',
+            accompaniments: 'fig jam; sliced baguette',
             claimed: false,
             claimedByDiscordId: '',
             claimedAt: ''

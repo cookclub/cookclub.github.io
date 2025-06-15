@@ -332,6 +332,27 @@ class RecipeSignupForm {
             entry.appendChild(row);
         }
 
+        // Accompaniments
+        let accompanimentsText = recipe.accompaniments;
+        if (Array.isArray(accompanimentsText)) {
+            accompanimentsText = accompanimentsText.join('; ');
+        }
+        if (accompanimentsText) {
+            const row = document.createElement('div');
+            row.className = 'meta-row';
+
+            const label = document.createElement('span');
+            label.className = 'label';
+            label.textContent = 'Accompaniments';
+            row.appendChild(label);
+
+            const textSpan = document.createElement('span');
+            textSpan.textContent = accompanimentsText;
+            row.appendChild(textSpan);
+
+            entry.appendChild(row);
+        }
+
         this.recipeEntry.innerHTML = '';
         this.recipeEntry.appendChild(entry);
     }
