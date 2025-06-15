@@ -118,9 +118,8 @@ const CONFIG = {
     
     // Event configuration
     EVENT: {
-        name: 'Shared Table RSVP \u2022 June 2025',
-        date: '2025-06-15',
-        description: 'Monthly community dinner'
+        name: 'That Sounds So Good: 100 Real-Life Recipes for Every Day of the Week',
+        date: '2025-06-21'
     },
     
     // UI Messages
