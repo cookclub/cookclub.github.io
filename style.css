@@ -45,11 +45,11 @@ body {
 /* Card styling for each column */
 .form-card,
 .menu-card {
-  background: #FFFFFF;
+  background: #ffffff;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  padding: 32px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* subtle shadow */
+  padding: 1.5rem; /* consistent card spacing */
 }
 
 .cards {
@@ -94,7 +94,7 @@ body {
 }
 
 .form-group {
-  margin-bottom: 24px;
+  margin-bottom: 1.5rem; /* vertical spacing between fields */
 }
 
 label {
