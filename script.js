@@ -128,7 +128,7 @@ class RecipeSignupForm {
             
             // 1. Log the raw response
             const raw = await response.json();
-            // console.log('🚀 raw payload:', raw);
+            console.log('🚀 raw payload:', raw);
             
             // Check if the response indicates success
             if (!raw.success) {
