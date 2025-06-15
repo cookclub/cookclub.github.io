@@ -108,6 +108,13 @@ body {
   border-bottom: none;
 }
 
+/* Message displayed when no menu items exist */
+.empty-menu-message {
+  font-style: italic;
+  color: #888;
+  text-align: center;
+}
+
 .menu-item .recipe-name {
   font-weight: 600;
 }
