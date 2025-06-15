@@ -95,7 +95,9 @@ body {
 .cover-column img {
   width: 100%;
   height: auto;
-  object-fit: contain; /* ensure image scales without cropping */
+  max-height: 100vh; /* scale down on smaller screens */
+  object-fit: contain; /* keep full image visible */
+  object-position: center top; /* anchor to the top */
   display: block;
 }
 
@@ -121,9 +123,10 @@ body {
   }
 
   .cover-column img {
-    height: 100vh; /* span full viewport height */
+    height: 100vh; /* span the viewport vertically */
     width: auto;
-    object-fit: none; /* keep natural scale */
+    object-fit: contain; /* scale so the whole height is visible */
+    object-position: center; /* center horizontally within column */
   }
 }
 
