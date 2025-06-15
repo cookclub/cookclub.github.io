@@ -34,6 +34,24 @@ body {
   background: #F7F7F7;
 }
 
+/* Grid container holding the RSVP form and menu list */
+.main-container {
+  display: grid; /* two columns on desktop */
+  grid-template-columns: 2fr 3fr;
+  gap: 32px;
+  padding: 32px;
+}
+
+/* Card styling for each column */
+.form-card,
+.menu-card {
+  background: #FFFFFF;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding: 32px;
+}
+
 .cards {
   /* scrolling form content on the right */
   width: 100%;
@@ -215,6 +233,9 @@ button:disabled {
   /* collapse to single column on small screens */
   .layout {
     grid-template-columns: 1fr;
+  }
+  .main-container {
+    grid-template-columns: 1fr; /* stack form above menu */
   }
   /* banner simply scales on small screens */
   /* form spans full width below banner */
