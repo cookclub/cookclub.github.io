@@ -546,7 +546,21 @@ class RecipeSignupForm {
 // Initialize the form when the page loads
 document.addEventListener('DOMContentLoaded', () => {
     new RecipeSignupForm();
+    renderEmptyMenuMessage();
 });
+
+function renderEmptyMenuMessage() {
+    const menuList = document.querySelector('.menu-list');
+    if (menuList && menuList.children.length === 0) {
+        const p = document.createElement('p');
+        p.className = 'empty-menu-message';
+        p.textContent = 'No dishes claimed yet. Be the first!';
+        p.style.fontStyle = 'italic';
+        p.style.color = '#888';
+        p.style.textAlign = 'center';
+        menuList.appendChild(p);
+    }
+}
 
 function toggleIngredientText() {
     const text = document.getElementById('ingredient-text');
