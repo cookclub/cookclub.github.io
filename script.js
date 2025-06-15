@@ -79,6 +79,9 @@ class RecipeSignupForm {
         
         // Set event name
         document.getElementById('eventName').value = CONFIG.EVENT.name;
+        
+        // Set event date
+        document.getElementById('eventDate').value = CONFIG.EVENT.date;        
     }
     
     async loadData() {
@@ -419,6 +422,7 @@ class RecipeSignupForm {
 
         return {
             eventName : document.getElementById('eventName').value,
+            eventData : document.getElementById('eventDate').value,
             discordId : member ? member.discordId : '',
             displayName: member ? member.displayName : '',
             cooking   : cookingFlag,
