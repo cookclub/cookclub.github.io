@@ -308,3 +308,66 @@ button:disabled {
   cursor: pointer;
   padding-left: 0;
 }
+
+/* Success message after RSVP */
+.success-view {
+  text-align: center;
+  padding: 24px 0;
+}
+
+.success-view .emoji {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+/* Menu in progress styles */
+.menu-card h2 {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.menu-container {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.menu-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-item .dish {
+  font-weight: 500;
+}
+
+.menu-item .who {
+  font-size: 0.9em;
+  color: #555;
+}
+
+/* Fade animations for swapping views */
+.fade-in {
+  opacity: 0;
+  animation: fadeIn 0.4s forwards;
+}
+
+.fade-out {
+  opacity: 1;
+  animation: fadeOut 0.4s forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
