@@ -14,25 +14,36 @@ body {
   min-height: 100vh;
 }
 
-.layout {
-  /* two equal columns using grid */
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  min-height: 100vh;
+.page-wrapper {
+  /* stack on mobile, split on desktop */
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 768px) {
+  .page-wrapper {
+    flex-direction: row;
+    height: 100vh;
+  }
 }
 
 .hero {
-  /* sticky book cover anchored on the left */
-  position: sticky;
-  top: 0;
-  height: 100vh;
+  /* hero image column */
   width: 100%;
-  background: url('https://images-ext-1.discordapp.net/external/77OXjRmw5FPm5119nvN0LN5oygQP4w1-RPBvqUzaugg/https/m.media-amazon.com/images/I/81z109bNPzL._AC_UF1000%2C1000_QL80_.jpg?auto=format&fit=crop&w=800&q=60')
-    center/cover no-repeat;
+  height: auto;
+  object-fit: cover;
+  flex-shrink: 0;
 }
 
-.cards {
-  /* scrolling form content on the right */
+@media (min-width: 768px) {
+  .hero {
+    width: 35vw;
+    height: 100vh;
+  }
+}
+
+.content {
+  /* scrolling form content */
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -41,6 +52,15 @@ body {
   padding: 32px;
   padding-top: calc(32px + env(safe-area-inset-top, 0));
   background: #F7F7F7;
+}
+
+@media (min-width: 768px) {
+  .content {
+    width: 65vw;
+    max-width: 680px;
+    justify-content: center;
+    overflow-y: auto;
+  }
 }
 
 .card {
@@ -210,17 +230,17 @@ button:disabled {
 
 @media (max-width: 768px) {
   /* collapse to single column on small screens */
-  .layout {
-    grid-template-columns: 1fr;
+  .page-wrapper {
+    flex-direction: column;
   }
-  /* hero scrolls normally on mobile */
+  /* hero adjusts to natural size */
   .hero {
-    position: relative;
+    position: static;
     width: 100%;
-    height: 200px;
+    height: auto;
   }
   /* form spans full width below hero */
-  .cards {
+  .content {
     margin-left: 0;
     width: 100%;
     padding: 24px;
