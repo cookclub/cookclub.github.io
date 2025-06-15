@@ -70,6 +70,32 @@ body {
   color: #555;
 }
 
+/* Wrapper grid for cover and content */
+.main-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.cover-column {
+  background-color: #fffdf7;
+  padding: 2rem 0;
+  text-align: center;
+}
+
+.cover-column img {
+  max-height: 400px;
+  max-width: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+}
+
 /* Grid container holding the RSVP form and menu list */
 .main-container {
   display: grid; /* two columns on desktop */
@@ -305,6 +331,9 @@ button:disabled {
 @media (max-width: 768px) {
   /* collapse to single column on small screens */
   .layout {
+    grid-template-columns: 1fr;
+  }
+  .main-wrapper {
     grid-template-columns: 1fr;
   }
   .main-container {
