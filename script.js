@@ -422,7 +422,7 @@ class RecipeSignupForm {
 
         return {
             eventName : document.getElementById('eventName').value,
-            eventData : document.getElementById('eventDate').value,
+            eventDate : document.getElementById('eventDate').value,
             discordId : member ? member.discordId : '',
             displayName: member ? member.displayName : '',
             cooking   : cookingFlag,
