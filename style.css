@@ -52,6 +52,35 @@ body {
   padding: 1.5rem; /* consistent card spacing */
 }
 
+/* Placeholder menu list styling */
+.menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 1rem;
+  list-style: none;
+  padding: 0;
+}
+
+.menu-item {
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 12px;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-item .recipe-name {
+  font-weight: 600;
+}
+
+.menu-item .claimed-by,
+.menu-item .page-num {
+  color: #555;
+  font-size: 0.9rem;
+}
+
 .cards {
   /* scrolling form content on the right */
   width: 100%;
