@@ -34,12 +34,49 @@ body {
   background: #F7F7F7;
 }
 
+/* Hero section with centered image */
+.hero {
+  background-color: #fffdf7; /* soft neutral */
+  padding: 2rem 0;           /* top and bottom breathing room */
+  text-align: center;
+}
+
+.hero img {
+  max-height: 400px;
+  max-width: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+}
+
+.hero-text {
+  max-width: 700px;
+  margin: 0 auto 2rem;
+  padding: 0 1rem;
+  text-align: center;
+}
+
+.hero-text h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.hero-text p {
+  font-size: 1rem;
+  font-weight: 400;
+  color: #555;
+}
+
 /* Grid container holding the RSVP form and menu list */
 .main-container {
   display: grid; /* two columns on desktop */
   grid-template-columns: 2fr 3fr;
   gap: 32px;
   padding: 32px;
+  margin-top: 2rem;
 }
 
 /* Card styling for each column */
