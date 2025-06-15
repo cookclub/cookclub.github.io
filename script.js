@@ -66,6 +66,14 @@ class RecipeSignupForm {
         this.submitBtn = document.getElementById('submitBtn');
         this.messageDiv = document.getElementById('message');
         this.notesField = document.getElementById('notes');
+        this.successView = document.getElementById('successView');
+        this.rsvpAgainBtn = document.getElementById('rsvpAgainBtn');
+        this.menuContainer = document.getElementById('menuContainer');
+        this.formCard = document.querySelector('.form-card');
+
+        if (this.rsvpAgainBtn) {
+            this.rsvpAgainBtn.addEventListener('click', () => this.hideSuccessView());
+        }
         
         // Add event listeners
         this.cookingRadios.forEach(radio => {
@@ -90,7 +98,8 @@ class RecipeSignupForm {
             
             this.populateMemberDropdown();
             this.populateRecipeDropdown();
-            
+            this.renderMenu();
+
             this.hideMessage();
         } catch (error) {
             console.error('Error loading data:', error);
@@ -99,6 +108,7 @@ class RecipeSignupForm {
             await this.loadSampleData();
             this.populateMemberDropdown();
             this.populateRecipeDropdown();
+            this.renderMenu();
             this.hideMessage();
         }
     }
@@ -106,9 +116,11 @@ class RecipeSignupForm {
     async loadSampleData() {
         // Simulate API delay
         await new Promise(resolve => setTimeout(resolve, 1000));
-        
+
         this.members = CONFIG.SAMPLE_MEMBERS.filter(member => member.active);
-        this.recipes = CONFIG.SAMPLE_RECIPES.filter(recipe => !recipe.claimed);
+        const allRecipes = CONFIG.SAMPLE_RECIPES.map(r => ({ ...r }));
+        this.claimedRecipes = allRecipes.filter(r => r.claimed);
+        this.recipes = allRecipes.filter(r => !r.claimed);
     }
     
     async loadFromGoogleSheets() {
@@ -150,16 +162,16 @@ class RecipeSignupForm {
             
             // 4. Filter the clean arrays
             const activeMembers = members.filter(m => m.active);
-            const availableRecipes = recipes.filter(r => !r.claimed).map(r => ({
-                ...r,
-                id: parseInt(r.id, 10)
-            }));
+            const processedRecipes = recipes.map(r => ({ ...r, id: parseInt(r.id, 10) }));
+            const availableRecipes = processedRecipes.filter(r => !r.claimed);
+            const claimedRecipes = processedRecipes.filter(r => r.claimed);
             
             console.log('✅ Active members:', activeMembers.length);
             console.log('🆓 Available recipes:', availableRecipes.length);
-            
+
             this.members = activeMembers;
             this.recipes = availableRecipes;
+            this.claimedRecipes = claimedRecipes;
             
             if (this.members.length === 0) {
                 throw new Error('No active members found');
@@ -367,9 +379,11 @@ class RecipeSignupForm {
             
             this.showMessage(CONFIG.MESSAGES.SUCCESS, 'success');
             this.resetForm();
-            
+            this.showSuccessView();
+
             // Reload data to get updated recipe list
             await this.loadData();
+            this.renderMenu();
             
         } catch (error) {
             console.error('❌ Submission error:', error);
@@ -547,6 +561,53 @@ class RecipeSignupForm {
         this.cookingRadios.forEach(r => r.parentElement.classList.remove('selected'));
         if (this.notesField) this.notesField.value = '';
         document.getElementById('eventName').value = CONFIG.EVENT.name;
+    }
+
+    showSuccessView() {
+        if (!this.successView) return;
+        this.form.classList.add('fade-out');
+        setTimeout(() => {
+            this.form.style.display = 'none';
+            this.successView.style.display = 'block';
+            this.successView.classList.add('fade-in');
+        }, 300);
+    }
+
+    hideSuccessView() {
+        if (!this.successView) return;
+        this.successView.classList.remove('fade-in');
+        this.successView.style.display = 'none';
+        this.form.style.display = 'block';
+        this.form.classList.remove('fade-out');
+    }
+
+    renderMenu() {
+        if (!this.menuContainer) return;
+        this.menuContainer.innerHTML = '';
+
+        const items = this.claimedRecipes || [];
+        if (!items.length) {
+            this.menuContainer.textContent = 'No dishes claimed yet!';
+            return;
+        }
+
+        items.forEach(rcp => {
+            const li = document.createElement('div');
+            li.className = 'menu-item';
+
+            const dish = document.createElement('span');
+            dish.className = 'dish';
+            dish.textContent = rcp.name;
+
+            const member = this.members.find(m => m.discordId === rcp.claimedByDiscordId);
+            const who = document.createElement('span');
+            who.className = 'who';
+            who.textContent = member ? member.displayName : rcp.claimedByDiscordId || '';
+
+            li.appendChild(dish);
+            li.appendChild(who);
+            this.menuContainer.appendChild(li);
+        });
     }
 }
 
