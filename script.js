@@ -385,25 +385,50 @@ class RecipeSignupForm {
         }
     }
     
-    getFormData() {
-        const member = this.members.find(m => m.displayName === this.memberInput.value);
-        const discordId = member ? member.discordId : '';
+    // getFormData() {
+    //     const member = this.members.find(m => m.displayName === this.memberInput.value);
+    //     const discordId = member ? member.discordId : '';
         
-        const cookingValue = this.getCookingValue();
-        const formData = {
-            eventName: document.getElementById('eventName').value,
-            discordId: discordId,
+    //     const cookingValue = this.getCookingValue();
+    //     const formData = {
+    //         eventName: document.getElementById('eventName').value,
+    //         discordId: discordId,
+    //         displayName: member ? member.displayName : '',
+    //         cooking: cookingValue === 'yes',
+    //         recipeId: cookingValue === 'yes' ? (() => {
+    //             const r = this.recipes.find(rc => rc.name === this.recipeInput.value);
+    //             return r ? parseInt(r.id, 10) : null;
+    //         })() : null,
+    //         recipeName: '',
+    //         notes: this.notesField.value.trim(),
+    //         timestamp: new Date().toISOString()
+    //     };
+
+        getFormData() {
+          const member = this.members.find(m => m.displayName === this.memberInput.value);
+          const discordId = member ? member.discordId : '';
+        
+          const cookingValue = this.getCookingValue();
+        
+          const selectedRecipe = cookingValue === 'yes'
+              ? this.recipes.find(r => r.name === this.recipeInput.value)
+              : null;                                            // ← grab recipe obj once
+        
+          const formData = {
+            eventName : document.getElementById('eventName').value,
+            discordId : discordId,
             displayName: member ? member.displayName : '',
-            cooking: cookingValue === 'yes',
-            recipeId: cookingValue === 'yes' ? (() => {
-                const r = this.recipes.find(rc => rc.name === this.recipeInput.value);
-                return r ? parseInt(r.id, 10) : null;
-            })() : null,
-            recipeName: '',
-            notes: this.notesField.value.trim(),
-            timestamp: new Date().toISOString()
-        };
+            cooking   : cookingValue === 'yes',
+            recipeId  : selectedRecipe ? Number(selectedRecipe.id) : null,
+            recipeName: selectedRecipe ? selectedRecipe.name : '',
+            recordUrl : selectedRecipe ? selectedRecipe.recordUrl || '' : '', // ← NEW
+            note      : this.notesField.value.trim(),                        // ← rename
+            timestamp : new Date().toISOString()
+          };
         
+          return formData;
+        }
+
         if (formData.recipeId) {
             const recipe = this.recipes.find(r => parseInt(r.id, 10) === formData.recipeId);
             formData.recipeName = recipe ? recipe.name : '';
