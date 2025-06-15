@@ -15,9 +15,9 @@ body {
 }
 
 .layout {
-  /* two-column grid with a narrow hero on desktop */
+  /* two equal columns using grid */
   display: grid;
-  grid-template-columns: 35vw 1fr;
+  grid-template-columns: 1fr 1fr;
   min-height: 100vh;
 }
 
@@ -27,13 +27,8 @@ body {
   top: 0;
   height: 100vh;
   width: 100%;
-  overflow: hidden;
-}
-
-.hero-img {
-  height: 100%;
-  width: 100%;
-  object-fit: contain;
+  background: url('https://images-ext-1.discordapp.net/external/77OXjRmw5FPm5119nvN0LN5oygQP4w1-RPBvqUzaugg/https/m.media-amazon.com/images/I/81z109bNPzL._AC_UF1000%2C1000_QL80_.jpg?auto=format&fit=crop&w=800&q=60')
+    center/cover no-repeat;
 }
 
 .cards {
