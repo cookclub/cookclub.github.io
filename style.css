@@ -81,6 +81,21 @@ body {
 }
 
 .cover-column {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.cover-column img {
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+/* 
+.cover-column {
   background-color: #fffdf7;
   padding: 2rem 0;
   text-align: center;
@@ -94,7 +109,7 @@ body {
   object-fit: contain;
   display: block;
   margin: 0 auto;
-}
+} */
 
 /* Grid container holding the RSVP form and menu list */
 .main-container {
