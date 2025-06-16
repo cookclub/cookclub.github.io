@@ -573,7 +573,8 @@ class RecipeSignupForm {
         const member = this.members.find(m => m.discordId === discordId);
         return member ? member.displayName : '';
     }
-
+    
+    console.log("Loaded members:", this.members);
     renderMenu() {
         const menuList = document.querySelector('.menu-list');
         if (!menuList) return;
@@ -609,6 +610,8 @@ class RecipeSignupForm {
             }
 
             menuList.appendChild(item);
+            
+            console.log("Recipe:", r.name, "claimedBy:", r.claimedBy, "claimedByDiscordId:", r.claimedByDiscordId);
         });
 
         if (claimedRecipes.length === 0) {
