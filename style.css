@@ -89,13 +89,13 @@ body {
 .cover-column {
   position: relative;
 }
-
 .cover-column img {
   position: fixed;
   top: 0;
   left: 0;
   height: 100vh;
   object-fit: cover;
+  object-position: center top;
 }
 /* 
 .cover-column {
