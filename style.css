@@ -19,6 +19,8 @@ body {
   --cover-ratio: 0.806; /* natural width/height ratio of the book cover */
   /* width of the fixed cover "sliver" */
   --cover-width: clamp(320px, 40vw, 600px);
+  /* soft neutral shade for badges */
+  --neutral-200: #efefef;
 }
 
 .layout {
@@ -196,12 +198,12 @@ body {
   font-size: 0.9rem;
 }
 
-.page-num {
-  font-size: 0.85rem;
+.page-pill {
+  font-size: 12px; /* small but legible */
   font-weight: 500;
-  background: #f3f3f3;
+  background: var(--neutral-200);
   padding: 2px 8px;
-  border-radius: 999px;
+  border-radius: 10px; /* reads as badge */
   display: inline-block;
   margin-left: 8px;
 }

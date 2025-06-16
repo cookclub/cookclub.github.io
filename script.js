@@ -272,7 +272,7 @@ class RecipeSignupForm {
             row.appendChild(label);
 
             const pill = document.createElement('span');
-            pill.className = 'pill neutral';
+            pill.className = 'page-pill';
             pill.textContent = recipe.page;
             row.appendChild(pill);
 
@@ -594,7 +594,7 @@ class RecipeSignupForm {
             }
             if (r.page) {
                 const pageDiv = document.createElement('div');
-                pageDiv.className = 'page-num';
+                pageDiv.className = 'page-pill';
                 pageDiv.textContent = `Page ${r.page}`;
                 header.appendChild(pageDiv);
             }
