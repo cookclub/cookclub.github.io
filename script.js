@@ -47,6 +47,7 @@ class RecipeSignupForm {
     constructor() {
         this.members = [];
         this.recipes = [];
+        this.allRecipes = [];
         this.isLoading = false;
         
         this.initializeForm();
@@ -93,7 +94,8 @@ class RecipeSignupForm {
             
             this.populateMemberDropdown();
             this.populateRecipeDropdown();
-            
+            this.renderMenu();
+
             this.hideMessage();
         } catch (error) {
             console.error('Error loading data:', error);
@@ -102,6 +104,7 @@ class RecipeSignupForm {
             await this.loadSampleData();
             this.populateMemberDropdown();
             this.populateRecipeDropdown();
+            this.renderMenu();
             this.hideMessage();
         }
     }
@@ -109,9 +112,10 @@ class RecipeSignupForm {
     async loadSampleData() {
         // Simulate API delay
         await new Promise(resolve => setTimeout(resolve, 1000));
-        
+
         this.members = CONFIG.SAMPLE_MEMBERS.filter(member => member.active);
-        this.recipes = CONFIG.SAMPLE_RECIPES.filter(recipe => !recipe.claimed);
+        this.allRecipes = CONFIG.SAMPLE_RECIPES.map(r => ({ ...r }));
+        this.recipes = this.allRecipes.filter(recipe => !recipe.claimed);
     }
     
     async loadFromGoogleSheets() {
@@ -153,10 +157,8 @@ class RecipeSignupForm {
             
             // 4. Filter the clean arrays
             const activeMembers = members.filter(m => m.active);
-            const availableRecipes = recipes.filter(r => !r.claimed).map(r => ({
-                ...r,
-                id: parseInt(r.id, 10)
-            }));
+            this.allRecipes = recipes.map(r => ({ ...r, id: parseInt(r.id, 10) }));
+            const availableRecipes = this.allRecipes.filter(r => !r.claimed);
             
             console.log('✅ Active members:', activeMembers.length);
             console.log('🆓 Available recipes:', availableRecipes.length);
@@ -565,6 +567,53 @@ class RecipeSignupForm {
         this.cookingRadios.forEach(r => r.parentElement.classList.remove('selected'));
         if (this.notesField) this.notesField.value = '';
         document.getElementById('eventName').value = CONFIG.EVENT.name;
+    }
+
+    getMemberName(discordId) {
+        const member = this.members.find(m => m.discordId === discordId);
+        return member ? member.displayName : '';
+    }
+
+    renderMenu() {
+        const menuList = document.querySelector('.menu-list');
+        if (!menuList) return;
+
+        menuList.innerHTML = '';
+        const claimedRecipes = this.allRecipes.filter(r => r.claimed);
+
+        claimedRecipes.forEach(r => {
+            const item = document.createElement('div');
+            item.className = 'menu-item';
+
+            const nameDiv = document.createElement('div');
+            nameDiv.className = 'recipe-name';
+            nameDiv.textContent = r.name;
+            item.appendChild(nameDiv);
+
+            let claimedBy = r.claimedBy || '';
+            if (!claimedBy && r.claimedByDiscordId) {
+                claimedBy = this.getMemberName(r.claimedByDiscordId) || r.claimedByDiscordId;
+            }
+            if (claimedBy) {
+                const claimDiv = document.createElement('div');
+                claimDiv.className = 'claimed-by';
+                claimDiv.textContent = `Claimed by ${claimedBy}`;
+                item.appendChild(claimDiv);
+            }
+
+            if (r.page) {
+                const pageDiv = document.createElement('div');
+                pageDiv.className = 'page-num';
+                pageDiv.textContent = `Page ${r.page}`;
+                item.appendChild(pageDiv);
+            }
+
+            menuList.appendChild(item);
+        });
+
+        if (claimedRecipes.length === 0) {
+            renderEmptyMenuMessage();
+        }
     }
 }
 
