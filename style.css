@@ -17,7 +17,8 @@ body {
 /* aspect ratio of the book cover (width / height) */
 :root {
   --cover-ratio: 0.806; /* natural width/height ratio of the book cover */
-  --cover-width: clamp(280px, 35vw, 480px); /* fixed column width on desktop */
+  /* width of the fixed cover "sliver" */
+  --cover-width: clamp(160px, 25vw, 320px);
 }
 
 .layout {
@@ -90,29 +91,10 @@ body {
   position: relative;
 }
 .cover-column img {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100vh;
-  object-fit: cover;
-  object-position: center top;
-}
-/* 
-.cover-column {
-  display: flex;
-  align-items: flex-start; /* top align image */
-  justify-content: flex-start; /* anchor to left */
-  padding-top: 0;
-  padding-bottom: 0;
-}
-.cover-column img {
   width: 100%;
   height: auto;
-  max-height: 100vh; /* scale down on smaller screens */
-  object-fit: contain; /* keep full image visible */
-  object-position: center top; /* anchor to the top */
   display: block;
-} */
+}
 
 /* Desktop layout: show full-height cover anchored to the viewport */
 @media (min-width: 1024px) {
@@ -130,18 +112,21 @@ body {
 
   .cover-column {
     position: fixed;
-    inset: 0 auto 0 0; /* top/right/bottom/left */
+    top: 0;
+    bottom: 0;
+    left: 0;
     width: var(--cover-width);
-    overflow: hidden; /* crop on the right */
+    overflow: hidden;
     padding: 0;
     display: flex;
-    justify-content: center; /* center image horizontally */
+    justify-content: center;
   }
 
   .cover-column img {
-    height: 100vh; /* span the viewport vertically */
+    height: 100vh;
     width: auto;
-    object-fit: none; /* natural proportions without cropping vertically */
+    object-fit: cover;
+    object-position: center;
   }
 }
 
