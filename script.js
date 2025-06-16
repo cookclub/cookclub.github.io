@@ -335,6 +335,27 @@ class RecipeSignupForm {
             entry.appendChild(row);
         }
 
+        // Accompaniments
+        let accompanimentsText = recipe.accompaniments;
+        if (Array.isArray(accompanimentsText)) {
+            accompanimentsText = accompanimentsText.join('; ');
+        }
+        if (accompanimentsText) {
+            const row = document.createElement('div');
+            row.className = 'meta-row';
+
+            const label = document.createElement('span');
+            label.className = 'label';
+            label.textContent = 'Accompaniments';
+            row.appendChild(label);
+
+            const textSpan = document.createElement('span');
+            textSpan.textContent = accompanimentsText;
+            row.appendChild(textSpan);
+
+            entry.appendChild(row);
+        }
+
         this.recipeEntry.innerHTML = '';
         this.recipeEntry.appendChild(entry);
     }
@@ -550,7 +571,21 @@ class RecipeSignupForm {
 // Initialize the form when the page loads
 document.addEventListener('DOMContentLoaded', () => {
     new RecipeSignupForm();
+    renderEmptyMenuMessage();
 });
+
+function renderEmptyMenuMessage() {
+    const menuList = document.querySelector('.menu-list');
+    if (menuList && menuList.children.length === 0) {
+        const p = document.createElement('p');
+        p.className = 'empty-menu-message';
+        p.textContent = 'No dishes claimed yet. Be the first!';
+        p.style.fontStyle = 'italic';
+        p.style.color = '#888';
+        p.style.textAlign = 'center';
+        menuList.appendChild(p);
+    }
+}
 
 function toggleIngredientText() {
     const text = document.getElementById('ingredient-text');
