@@ -3,7 +3,12 @@
   "version": "1.0.0",
   "description": "Recipe sign-up site for Shared Table",
   "scripts": {
-    "test": "echo \"No tests specified\""
+    "test": "jest",
+    "test:unit": "jest --config jest.unit.config.js",
+    "test:e2e": "cypress run",
+    "test:visual": "percy snapshot ./dist",
+    "test:a11y": "axe-cli ./dist/index.html",
+    "test:ci": "npm run test && npm run test:e2e && npm run test:a11y"
   },
   "author": "",
   "license": "MIT"
