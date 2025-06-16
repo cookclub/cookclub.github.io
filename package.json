@@ -1,0 +1,10 @@
+{
+  "name": "spoonfuls-site",
+  "version": "1.0.0",
+  "description": "Recipe sign-up site for Shared Table",
+  "scripts": {
+    "test": "echo \"No tests specified\""
+  },
+  "author": "",
+  "license": "MIT"
+}
