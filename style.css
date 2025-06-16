@@ -166,6 +166,12 @@ body {
   transition: box-shadow 0.2s ease;
 }
 
+.menu-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .menu-item:last-child {
   border-bottom: none;
 }
@@ -197,7 +203,7 @@ body {
   padding: 2px 8px;
   border-radius: 999px;
   display: inline-block;
-  margin-top: 4px;
+  margin-left: 8px;
 }
 
 .cards {
