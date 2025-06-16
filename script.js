@@ -580,27 +580,32 @@ class RecipeSignupForm {
             const item = document.createElement('div');
             item.className = 'menu-item';
 
+            const header = document.createElement('div');
+            header.className = 'menu-item-header';
+
             const nameDiv = document.createElement('div');
             nameDiv.className = 'recipe-name';
             nameDiv.textContent = r.name;
-            item.appendChild(nameDiv);
+            header.appendChild(nameDiv);
 
             let claimedBy = r.claimedBy || '';
             if (!claimedBy && r.claimedByDiscordId) {
                 claimedBy = this.getMemberName(r.claimedByDiscordId) || r.claimedByDiscordId;
             }
+            if (r.page) {
+                const pageDiv = document.createElement('div');
+                pageDiv.className = 'page-num';
+                pageDiv.textContent = `Page ${r.page}`;
+                header.appendChild(pageDiv);
+            }
+
+            item.appendChild(header);
+
             if (claimedBy) {
                 const claimDiv = document.createElement('div');
                 claimDiv.className = 'claimed-by';
                 claimDiv.textContent = `Claimed by ${claimedBy}`;
                 item.appendChild(claimDiv);
-            }
-
-            if (r.page) {
-                const pageDiv = document.createElement('div');
-                pageDiv.className = 'page-num';
-                pageDiv.textContent = `Page ${r.page}`;
-                item.appendChild(pageDiv);
             }
 
             menuList.appendChild(item);
