@@ -87,6 +87,18 @@ body {
 }
 
 .cover-column {
+  position: relative;
+}
+
+.cover-column img {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  object-fit: cover;
+}
+/* 
+.cover-column {
   display: flex;
   align-items: flex-start; /* top align image */
   justify-content: flex-start; /* anchor to left */
@@ -100,7 +112,7 @@ body {
   object-fit: contain; /* keep full image visible */
   object-position: center top; /* anchor to the top */
   display: block;
-}
+} */
 
 /* Desktop layout: show full-height cover anchored to the viewport */
 @media (min-width: 1024px) {
