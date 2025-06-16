@@ -611,7 +611,7 @@ class RecipeSignupForm {
 
             menuList.appendChild(item);
             
-            console.log("Recipe:", r.name, "claimedBy:", r.claimedBy, "claimedByDiscordId:", r.claimedByDiscordId);
+            // console.log("Recipe:", r.name, "claimedBy:", r.claimedBy, "claimedByDiscordId:", r.claimedByDiscordId);
         });
 
         if (claimedRecipes.length === 0) {
