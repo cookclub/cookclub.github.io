@@ -14,6 +14,12 @@ body {
   min-height: 100vh;
 }
 
+/* aspect ratio of the book cover (width / height) */
+:root {
+  --cover-ratio: 0.806; /* natural width/height ratio of the book cover */
+  --cover-width: clamp(280px, 35vw, 480px); /* fixed column width on desktop */
+}
+
 .layout {
   /* two equal columns using grid */
   display: grid;
@@ -72,24 +78,59 @@ body {
 /* Wrapper grid for cover and content */
 .main-wrapper {
   display: grid;
-  grid-template-columns: 1fr 2fr;
+  grid-template-columns: 1fr 3fr; /* favor content column width */
   gap: 2rem;
-  max-width: 1200px;
+  max-width: 1400px; /* allow room on large screens */
   margin: 0 auto;
   padding: 2rem 1rem;
+  align-items: flex-start; /* prevent column stretch so cover doesn't fill entire height */
 }
 
 .cover-column {
   display: flex;
-  align-items: flex-start; /* <-- top-align */
-  justify-content: center;
+  align-items: flex-start; /* top align image */
+  justify-content: flex-start; /* anchor to left */
   padding-top: 0;
   padding-bottom: 0;
 }
 .cover-column img {
-  height: 100%;
-  object-fit: contain;
+  width: 100%;
+  height: auto;
+  max-height: 100vh; /* scale down on smaller screens */
+  object-fit: contain; /* keep full image visible */
+  object-position: center top; /* anchor to the top */
   display: block;
+}
+
+/* Desktop layout: show full-height cover anchored to the viewport */
+@media (min-width: 1024px) {
+  body {
+    overflow-x: hidden; /* prevent scroll from offscreen cover */
+  }
+
+  .main-wrapper {
+    /* offset content to the right of the fixed cover */
+    display: block;
+    max-width: none;
+    padding-left: calc(var(--cover-width) + 3rem);
+    padding-right: 2rem;
+  }
+
+  .cover-column {
+    position: fixed;
+    inset: 0 auto 0 0; /* top/right/bottom/left */
+    width: var(--cover-width);
+    overflow: hidden; /* crop on the right */
+    padding: 0;
+    display: flex;
+    justify-content: center; /* center image horizontally */
+  }
+
+  .cover-column img {
+    height: 100vh; /* span the viewport vertically */
+    width: auto;
+    object-fit: none; /* natural proportions without cropping vertically */
+  }
 }
 
 /* Grid container holding the RSVP form and menu list */
