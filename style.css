@@ -21,6 +21,8 @@ body {
   --cover-width: clamp(320px, 40vw, 600px);
   /* soft neutral shade for badges */
   --neutral-200: #efefef;
+  /* padding used around the main layout */
+  --layout-padding: 2rem;
 }
 
 .layout {
@@ -80,17 +82,22 @@ body {
 
 /* Wrapper grid for cover and content */
 .main-wrapper {
+  /* 12-column layout with small gutters */
   display: grid;
-  grid-template-columns: 1fr 3fr; /* favor content column width */
-  gap: 2rem;
-  max-width: 1400px; /* allow room on large screens */
+  grid-template-columns: repeat(12, 1fr);
+  gap: 8px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 2rem 1rem;
-  align-items: flex-start; /* prevent column stretch so cover doesn't fill entire height */
+  padding: var(--layout-padding) 1rem;
+  align-items: start;
 }
 
 .cover-column {
   position: relative;
+  /* full width by default */
+  grid-column: 1 / -1;
+  /* let the image bleed above the content padding */
+  margin-top: calc(var(--layout-padding) * -1);
 }
 .cover-column img {
   width: 100%;
@@ -98,45 +105,28 @@ body {
   display: block;
 }
 
-/* Desktop layout: show full-height cover anchored to the viewport */
-@media (min-width: 1024px) {
-  body {
-    overflow-x: hidden; /* prevent scroll from offscreen cover */
-  }
-
-  .main-wrapper {
-    /* offset content to the right of the fixed cover */
-    display: block;
-    max-width: none;
-    padding-left: calc(var(--cover-width) + 3rem);
-    padding-right: 2rem;
-  }
-
-  .cover-column {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    width: var(--cover-width);
-    overflow: hidden;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-  }
-
-  .cover-column img {
-    height: 100vh;
-    width: auto;
-    object-fit: cover;
-    object-position: center;
-  }
+/* content column follows the hero */
+.content-column {
+  grid-column: 1 / -1;
 }
+
+@media (min-width: 768px) {
+  .cover-column { grid-column: span 5; }
+  .content-column { grid-column: span 7; }
+}
+
+@media (min-width: 1200px) {
+  .cover-column { grid-column: span 4; }
+  .content-column { grid-column: span 8; }
+}
+
 
 /* Grid container holding the RSVP form and menu list */
 .main-container {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 8px;
+  align-items: start;
 }
 
 /* Card styling for each column */
@@ -147,6 +137,7 @@ body {
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* subtle shadow */
   padding: 1.5rem; /* consistent card spacing */
+  grid-column: span 6; /* half of the 12-column grid */
 }
 
 /* Placeholder menu list styling */
@@ -387,11 +378,16 @@ button:disabled {
 
 @media (max-width: 768px) {
   .main-wrapper {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(12, 1fr);
   }
 
   .main-container {
     grid-template-columns: 1fr;
+  }
+
+  .form-card,
+  .menu-card {
+    grid-column: auto;
   }
 
   .hero-text {
