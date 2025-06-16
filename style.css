@@ -18,7 +18,7 @@ body {
 :root {
   --cover-ratio: 0.806; /* natural width/height ratio of the book cover */
   /* width of the fixed cover "sliver" */
-  --cover-width: clamp(320px, 45vw, 600px);
+  --cover-width: clamp(320px, 35vw, 600px);
 }
 
 .layout {
