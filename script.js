@@ -568,13 +568,7 @@ class RecipeSignupForm {
         if (this.notesField) this.notesField.value = '';
         document.getElementById('eventName').value = CONFIG.EVENT.name;
     }
-
-    getMemberName(discordId) {
-        const member = this.members.find(m => m.discordId === discordId);
-        return member ? member.displayName : '';
-    }
     
-    console.log("Loaded members:", this.members);
     renderMenu() {
         const menuList = document.querySelector('.menu-list');
         if (!menuList) return;
