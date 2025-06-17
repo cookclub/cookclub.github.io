@@ -44,29 +44,59 @@ function renderCategoryPills(categories, container) {
 }
 
 // Course and diet helpers ---------------------------------------
-// Determine the course (main, side, dessert) from recipe categories
+const COURSE_CATEGORIES = {
+    main: ['Main course', 'Stews & one-pot meals', 'Grills & BBQ', 'Rice dishes', 'Pasta, doughs & sauces'],
+    side: ['Side dish', 'Salads', 'Sauces, general', 'Dressings & marinades'],
+    dessert: ['Dessert']
+};
+
+const COURSE_KEYWORDS = {
+    dessert: ['cake', 'pie', 'cookie', 'pudding', 'tart', 'brownie'],
+    main: ['roast', 'steak', 'pasta', 'curry', 'lasagna', 'stew'],
+    side: ['salad', 'slaw', 'soup', 'dip', 'side']
+};
+
+const VEG_KEYWORDS = ['tofu', 'broccoli', 'cauliflower', 'tempeh', 'seitan'];
+const NON_VEG_WORDS = ['chicken', 'beef', 'pork', 'bacon', 'shrimp', 'turkey'];
+
+function normalizeCategories(list) {
+    if (Array.isArray(list)) return list.map(c => String(c).trim());
+    if (typeof list === 'string') return list.split(';').map(c => c.trim());
+    return [];
+}
+
 function detectCourse(recipe) {
-    if (Array.isArray(recipe.categories)) {
-        for (const cat of recipe.categories) {
-            const c = String(cat).toLowerCase();
-            if (c.startsWith('dessert')) return 'dessert';
-            if (c.startsWith('main')) return 'main';
-            if (c.startsWith('side')) return 'side';
+    const cats = normalizeCategories(recipe.categories);
+    for (const [course, options] of Object.entries(COURSE_CATEGORIES)) {
+        for (const c of cats) {
+            if (options.some(opt => opt.toLowerCase() === c.toLowerCase())) {
+                return course;
+            }
+        }
+    }
+
+    const title = String(recipe.title || recipe.name || '').toLowerCase();
+    for (const [course, words] of Object.entries(COURSE_KEYWORDS)) {
+        if (words.some(w => title.includes(w))) {
+            return course;
         }
     }
     return '';
 }
 
-// Determine if a recipe is vegetarian or vegan via categories/flags
+function getVegStatus(recipe) {
+    const cats = normalizeCategories(recipe.categories).map(c => c.toLowerCase());
+    if (cats.includes('vegan')) return 'Vegan';
+    if (cats.includes('vegetarian')) return 'Vegetarian';
+
+    const text = `${recipe.title || recipe.name || ''} ${recipe.description || ''}`.toLowerCase();
+    if (NON_VEG_WORDS.some(w => text.includes(w))) return '';
+    if (VEG_KEYWORDS.some(w => text.includes(w))) return 'Vegetarian';
+    return '';
+}
+
 function isVegRecipe(recipe) {
-    if (recipe.isVegan || recipe.isVeg) return true;
-    if (Array.isArray(recipe.categories)) {
-        return recipe.categories.some(cat => {
-            const c = String(cat).toLowerCase();
-            return c.startsWith('vegan') || c.startsWith('vegetarian');
-        });
-    }
-    return false;
+    return !!getVegStatus(recipe);
 }
 
 class RecipeSignupForm {
@@ -648,12 +678,14 @@ class RecipeSignupForm {
         if (course) {
             item.classList.add(`dish-card--${course}`);
         }
-        if (isVegRecipe(recipe)) {
+
+        const diet = getVegStatus(recipe);
+        if (diet) {
             item.classList.add('dish-card--veg');
             const flag = document.createElement('span');
             flag.className = 'veg-flag';
             flag.setAttribute('role', 'img');
-            flag.setAttribute('aria-label', 'Vegetarian');
+            flag.setAttribute('aria-label', diet);
             flag.textContent = '🌱';
             item.appendChild(flag);
         }
