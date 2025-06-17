@@ -20,7 +20,7 @@ body {
   /* width of the fixed cover "sliver" */
   --cover-width: clamp(320px, 40vw, 600px);
   /* soft neutral shade for badges */
-  --neutral-200: #efefef;
+  --neutral-200: #E4E4E4; /* darker for better contrast */
   /* course accent colors */
   --course-main: #C9362E;
   --course-side: #3DA351;

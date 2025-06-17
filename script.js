@@ -387,12 +387,12 @@ class RecipeSignupForm {
 
             const label = document.createElement('span');
             label.className = 'label';
-            label.textContent = 'Page';
+            label.textContent = 'p.'; // abbreviated label per design update
             row.appendChild(label);
 
             const pill = document.createElement('span');
             pill.className = 'page-pill';
-            pill.textContent = recipe.page;
+            pill.textContent = recipe.page; // page number only
             row.appendChild(pill);
 
             entry.appendChild(row);
@@ -720,7 +720,7 @@ class RecipeSignupForm {
         if (recipe.page) {
             const pageDiv = document.createElement('div');
             pageDiv.className = 'page-pill';
-            pageDiv.textContent = `Page ${recipe.page}`;
+            pageDiv.textContent = `p. ${recipe.page}`; // shorter label
             header.appendChild(pageDiv);
         }
 
