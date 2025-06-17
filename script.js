@@ -18,6 +18,69 @@ const PILL_COLORS = [
 const categoryColorMap = new Map();
 let nextColorIndex = 0;
 
+// -------------------------------------------------------------
+// Accent color extraction utilities
+// -------------------------------------------------------------
+function rgbToHsl(r, g, b) {
+    r /= 255; g /= 255; b /= 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h, s, l = (max + min) / 2;
+    if (max === min) {
+        h = s = 0;
+    } else {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch (max) {
+            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+            case g: h = (b - r) / d + 2; break;
+            default: h = (r - g) / d + 4; break;
+        }
+        h /= 6;
+    }
+    return [h, s, l];
+}
+
+function rgbToHex(r, g, b) {
+    const toHex = (n) => n.toString(16).padStart(2, '0');
+    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
+
+function extractAccentColor(img) {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const w = img.naturalWidth;
+    const h = img.naturalHeight;
+    canvas.width = w;
+    canvas.height = h;
+    ctx.drawImage(img, 0, 0, w, h);
+    const data = ctx.getImageData(0, 0, w, h).data;
+    let best = { sat: 0, r: 0, g: 0, b: 0 };
+    for (let i = 0; i < data.length; i += 40) {
+        const r = data[i];
+        const g = data[i + 1];
+        const b = data[i + 2];
+        const [, s, l] = rgbToHsl(r, g, b);
+        if (s > best.sat && l > 0.2 && l < 0.8) {
+            best = { sat: s, r, g, b };
+        }
+    }
+    return rgbToHex(best.r, best.g, best.b);
+}
+
+function setAccentFromImage(selector) {
+    const img = document.querySelector(selector);
+    if (!img) return;
+    if (img.complete) {
+        const color = extractAccentColor(img);
+        document.documentElement.style.setProperty('--accent', color);
+    } else {
+        img.onload = () => {
+            const color = extractAccentColor(img);
+            document.documentElement.style.setProperty('--accent', color);
+        };
+    }
+}
+
 /**
  * Render pastel category pills into the given container.
  * Each new category gets the next color from the palette.
@@ -703,6 +766,8 @@ class RecipeSignupForm {
 document.addEventListener('DOMContentLoaded', () => {
     new RecipeSignupForm();
     renderEmptyMenuMessage();
+    // pull accent color from the displayed book cover
+    setAccentFromImage('.cover-column img');
 });
 
 function renderEmptyMenuMessage() {
