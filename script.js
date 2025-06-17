@@ -43,6 +43,32 @@ function renderCategoryPills(categories, container) {
     });
 }
 
+// Course and diet helpers ---------------------------------------
+// Determine the course (main, side, dessert) from recipe categories
+function detectCourse(recipe) {
+    if (Array.isArray(recipe.categories)) {
+        for (const cat of recipe.categories) {
+            const c = String(cat).toLowerCase();
+            if (c.startsWith('dessert')) return 'dessert';
+            if (c.startsWith('main')) return 'main';
+            if (c.startsWith('side')) return 'side';
+        }
+    }
+    return '';
+}
+
+// Determine if a recipe is vegetarian or vegan via categories/flags
+function isVegRecipe(recipe) {
+    if (recipe.isVegan || recipe.isVeg) return true;
+    if (Array.isArray(recipe.categories)) {
+        return recipe.categories.some(cat => {
+            const c = String(cat).toLowerCase();
+            return c.startsWith('vegan') || c.startsWith('vegetarian');
+        });
+    }
+    return false;
+}
+
 class RecipeSignupForm {
     constructor() {
         this.members = [];
@@ -577,45 +603,67 @@ class RecipeSignupForm {
         const claimedRecipes = this.allRecipes.filter(r => r.claimed);
 
         claimedRecipes.forEach(r => {
-            const item = document.createElement('div');
-            item.className = 'menu-item';
-
-            const header = document.createElement('div');
-            header.className = 'menu-item-header';
-
-            const nameDiv = document.createElement('div');
-            nameDiv.className = 'recipe-name';
-            nameDiv.textContent = r.name;
-            header.appendChild(nameDiv);
-
-            let claimedBy = r.claimedBy || '';
-            if (!claimedBy && r.claimedByDiscordId) {
-                claimedBy = this.getMemberName(r.claimedByDiscordId) || r.claimedByDiscordId;
-            }
-            if (r.page) {
-                const pageDiv = document.createElement('div');
-                pageDiv.className = 'page-pill';
-                pageDiv.textContent = `Page ${r.page}`;
-                header.appendChild(pageDiv);
-            }
-
-            item.appendChild(header);
-
-            if (claimedBy) {
-                const claimDiv = document.createElement('div');
-                claimDiv.className = 'claimed-by';
-                claimDiv.textContent = `Claimed by ${claimedBy}`;
-                item.appendChild(claimDiv);
-            }
-
+            const item = this.renderDishCard(r);
             menuList.appendChild(item);
-            
-            // console.log("Recipe:", r.name, "claimedBy:", r.claimedBy, "claimedByDiscordId:", r.claimedByDiscordId);
         });
 
         if (claimedRecipes.length === 0) {
             renderEmptyMenuMessage();
         }
+    }
+
+    renderDishCard(recipe) {
+        const item = document.createElement('div');
+        item.className = 'menu-item dish-card';
+
+        const header = document.createElement('div');
+        header.className = 'menu-item-header';
+
+        const nameDiv = document.createElement('div');
+        nameDiv.className = 'recipe-name';
+        nameDiv.textContent = recipe.name;
+        header.appendChild(nameDiv);
+
+        if (recipe.page) {
+            const pageDiv = document.createElement('div');
+            pageDiv.className = 'page-pill';
+            pageDiv.textContent = `Page ${recipe.page}`;
+            header.appendChild(pageDiv);
+        }
+
+        item.appendChild(header);
+
+        let claimedBy = recipe.claimedBy || '';
+        if (!claimedBy && recipe.claimedByDiscordId) {
+            claimedBy = this.getMemberName(recipe.claimedByDiscordId) || recipe.claimedByDiscordId;
+        }
+        if (claimedBy) {
+            const claimDiv = document.createElement('div');
+            claimDiv.className = 'claimed-by';
+            claimDiv.textContent = `Claimed by ${claimedBy}`;
+            item.appendChild(claimDiv);
+        }
+
+        const course = detectCourse(recipe);
+        if (course) {
+            item.classList.add(`dish-card--${course}`);
+        }
+        if (isVegRecipe(recipe)) {
+            item.classList.add('dish-card--veg');
+            const flag = document.createElement('span');
+            flag.className = 'veg-flag';
+            flag.setAttribute('role', 'img');
+            flag.setAttribute('aria-label', 'Vegetarian');
+            flag.textContent = '🌱';
+            item.appendChild(flag);
+        }
+
+        return item;
+    }
+
+    getMemberName(discordId) {
+        const m = this.members.find(mem => mem.discordId === discordId);
+        return m ? m.displayName : '';
     }
 }
 

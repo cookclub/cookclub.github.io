@@ -21,6 +21,10 @@ body {
   --cover-width: clamp(320px, 40vw, 600px);
   /* soft neutral shade for badges */
   --neutral-200: #efefef;
+  /* course accent colors */
+  --course-main: #C9362E;
+  --course-side: #3DA351;
+  --course-dessert: #F4B84B;
 }
 
 .layout {
@@ -206,6 +210,38 @@ body {
   border-radius: 10px; /* reads as badge */
   display: inline-block;
   margin-left: 8px;
+}
+
+/* Dish cards ---------------------------------------------------- */
+.dish-card {
+  position: relative;
+  padding-left: 1rem;
+}
+
+.dish-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--course-color, transparent);
+}
+
+.dish-card--main    { --course-color: var(--course-main); }
+.dish-card--side    { --course-color: var(--course-side); }
+.dish-card--dessert { --course-color: var(--course-dessert); }
+
+.dish-card--veg {
+  position: relative;
+}
+
+.dish-card--veg .veg-flag {
+  position: absolute;
+  bottom: 4px;
+  right: 6px;
+  opacity: 0.8;
+  font-size: 1.15rem;
 }
 
 .cards {
