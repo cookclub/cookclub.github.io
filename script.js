@@ -720,7 +720,7 @@ class RecipeSignupForm {
         if (recipe.page) {
             const pageDiv = document.createElement('div');
             pageDiv.className = 'page-pill';
-            pageDiv.textContent = `p. ${recipe.page}`; // shorter label
+            pageDiv.textContent = `p${recipe.page}`; // shorter label
             header.appendChild(pageDiv);
         }
 
