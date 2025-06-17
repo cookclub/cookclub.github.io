@@ -407,7 +407,7 @@ class RecipeSignupForm {
 
             const label = document.createElement('span');
             label.className = 'label';
-            label.textContent = 'p'; // abbreviated label per design update
+            label.textContent = 'Page'; 
             row.appendChild(label);
 
             const pill = document.createElement('span');
