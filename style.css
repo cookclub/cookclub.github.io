@@ -25,6 +25,8 @@ body {
   --course-main: #C9362E;
   --course-side: #3DA351;
   --course-dessert: #F4B84B;
+  /* accent hue pulled from the current book cover */
+  --accent: #6A5AF9;
 }
 
 .layout {
@@ -288,7 +290,7 @@ body {
 
 .header-card hr {
   border: none;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid var(--accent);
   margin-top: 16px;
 }
 
@@ -316,7 +318,8 @@ textarea {
   width: 100%;
   padding: 12px 16px;
   font-size: 1rem;
-  border: 1px solid #e0e0e0;
+  /* light dashed border for a hand-drawn feel */
+  border: 0.75px dashed #C0C0C0;
   border-radius: 8px;
   color: #2B2B2B;
 }
@@ -324,7 +327,7 @@ textarea {
 input:focus,
 select:focus,
 textarea:focus {
-  outline: 2px solid #6A5AF9;
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
@@ -351,7 +354,7 @@ textarea {
 }
 
 .radio-card:focus-within {
-  outline: 2px solid #6A5AF9;
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
@@ -378,8 +381,8 @@ textarea {
 }
 
 .radio-card.selected {
-  border: 2px solid #6A5AF9;
-  background: rgba(106, 90, 249, 0.05);
+  border: 2px solid var(--accent);
+  background: rgba(0, 0, 0, 0.05);
 }
 
 .recipe-info {
@@ -398,7 +401,7 @@ button {
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  background: linear-gradient(90deg, #6A5AF9, #FF6A5A);
+  background: var(--accent);
 }
 
 button:disabled {
