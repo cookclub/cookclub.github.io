@@ -43,6 +43,44 @@ function renderCategoryPills(categories, container) {
     });
 }
 
+// Course and diet helpers ---------------------------------------
+const COURSE_KEYWORDS = {
+    dessert: ['cake', 'pie', 'cookie', 'pudding', 'tart', 'brownie'],
+    main: ['roast', 'steak', 'pasta', 'curry', 'lasagna'],
+    side: ['salad', 'slaw', 'soup', 'dip', 'side']
+};
+
+function detectCourse(recipe) {
+    if (recipe.course) {
+        const val = String(recipe.course).toLowerCase();
+        if (val.includes('dessert')) return 'dessert';
+        if (val.includes('main')) return 'main';
+        if (val.includes('side')) return 'side';
+    }
+    const name = String(recipe.name || '').toLowerCase();
+    for (const [course, words] of Object.entries(COURSE_KEYWORDS)) {
+        if (words.some(w => name.includes(w))) {
+            return course;
+        }
+    }
+    return '';
+}
+
+const VEG_KEYWORDS = ['vegan', 'vegetarian', 'tofu', 'broccoli', 'cauliflower'];
+const NON_VEG_WORDS = ['chicken', 'beef', 'pork', 'bacon', 'shrimp', 'turkey'];
+
+function isVegRecipe(recipe) {
+    if (recipe.isVegan || recipe.isVeg) {
+        return true;
+    }
+    if (recipe.isVegan === false || recipe.isVeg === false) {
+        return false;
+    }
+    const text = `${recipe.name || ''} ${recipe.description || ''}`.toLowerCase();
+    if (NON_VEG_WORDS.some(w => text.includes(w))) return false;
+    return VEG_KEYWORDS.some(w => text.includes(w));
+}
+
 class RecipeSignupForm {
     constructor() {
         this.members = [];
@@ -577,45 +615,67 @@ class RecipeSignupForm {
         const claimedRecipes = this.allRecipes.filter(r => r.claimed);
 
         claimedRecipes.forEach(r => {
-            const item = document.createElement('div');
-            item.className = 'menu-item';
-
-            const header = document.createElement('div');
-            header.className = 'menu-item-header';
-
-            const nameDiv = document.createElement('div');
-            nameDiv.className = 'recipe-name';
-            nameDiv.textContent = r.name;
-            header.appendChild(nameDiv);
-
-            let claimedBy = r.claimedBy || '';
-            if (!claimedBy && r.claimedByDiscordId) {
-                claimedBy = this.getMemberName(r.claimedByDiscordId) || r.claimedByDiscordId;
-            }
-            if (r.page) {
-                const pageDiv = document.createElement('div');
-                pageDiv.className = 'page-pill';
-                pageDiv.textContent = `Page ${r.page}`;
-                header.appendChild(pageDiv);
-            }
-
-            item.appendChild(header);
-
-            if (claimedBy) {
-                const claimDiv = document.createElement('div');
-                claimDiv.className = 'claimed-by';
-                claimDiv.textContent = `Claimed by ${claimedBy}`;
-                item.appendChild(claimDiv);
-            }
-
+            const item = this.renderDishCard(r);
             menuList.appendChild(item);
-            
-            // console.log("Recipe:", r.name, "claimedBy:", r.claimedBy, "claimedByDiscordId:", r.claimedByDiscordId);
         });
 
         if (claimedRecipes.length === 0) {
             renderEmptyMenuMessage();
         }
+    }
+
+    renderDishCard(recipe) {
+        const item = document.createElement('div');
+        item.className = 'menu-item dish-card';
+
+        const header = document.createElement('div');
+        header.className = 'menu-item-header';
+
+        const nameDiv = document.createElement('div');
+        nameDiv.className = 'recipe-name';
+        nameDiv.textContent = recipe.name;
+        header.appendChild(nameDiv);
+
+        if (recipe.page) {
+            const pageDiv = document.createElement('div');
+            pageDiv.className = 'page-pill';
+            pageDiv.textContent = `Page ${recipe.page}`;
+            header.appendChild(pageDiv);
+        }
+
+        item.appendChild(header);
+
+        let claimedBy = recipe.claimedBy || '';
+        if (!claimedBy && recipe.claimedByDiscordId) {
+            claimedBy = this.getMemberName(recipe.claimedByDiscordId) || recipe.claimedByDiscordId;
+        }
+        if (claimedBy) {
+            const claimDiv = document.createElement('div');
+            claimDiv.className = 'claimed-by';
+            claimDiv.textContent = `Claimed by ${claimedBy}`;
+            item.appendChild(claimDiv);
+        }
+
+        const course = detectCourse(recipe);
+        if (course) {
+            item.classList.add(`dish-card--${course}`);
+        }
+        if (isVegRecipe(recipe)) {
+            item.classList.add('dish-card--veg');
+            const flag = document.createElement('span');
+            flag.className = 'veg-flag';
+            flag.setAttribute('role', 'img');
+            flag.setAttribute('aria-label', 'Vegetarian');
+            flag.textContent = '🌱';
+            item.appendChild(flag);
+        }
+
+        return item;
+    }
+
+    getMemberName(discordId) {
+        const m = this.members.find(mem => mem.discordId === discordId);
+        return m ? m.displayName : '';
     }
 }
 
