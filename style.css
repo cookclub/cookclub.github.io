@@ -244,6 +244,38 @@ body {
   font-size: 1.15rem;
 }
 
+/* Dish cards ---------------------------------------------------- */
+.dish-card {
+  position: relative;
+  padding-left: 1rem;
+}
+
+.dish-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--course-color, transparent);
+}
+
+.dish-card--main    { --course-color: var(--course-main); }
+.dish-card--side    { --course-color: var(--course-side); }
+.dish-card--dessert { --course-color: var(--course-dessert); }
+
+.dish-card--veg {
+  position: relative;
+}
+
+.dish-card--veg .veg-flag {
+  position: absolute;
+  bottom: 4px;
+  right: 6px;
+  opacity: 0.8;
+  font-size: 1.15rem;
+}
+
 .cards {
   /* scrolling form content on the right */
   width: 100%;

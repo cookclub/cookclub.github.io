@@ -44,41 +44,29 @@ function renderCategoryPills(categories, container) {
 }
 
 // Course and diet helpers ---------------------------------------
-const COURSE_KEYWORDS = {
-    dessert: ['cake', 'pie', 'cookie', 'pudding', 'tart', 'brownie'],
-    main: ['roast', 'steak', 'pasta', 'curry', 'lasagna'],
-    side: ['salad', 'slaw', 'soup', 'dip', 'side']
-};
-
+// Determine the course (main, side, dessert) from recipe categories
 function detectCourse(recipe) {
-    if (recipe.course) {
-        const val = String(recipe.course).toLowerCase();
-        if (val.includes('dessert')) return 'dessert';
-        if (val.includes('main')) return 'main';
-        if (val.includes('side')) return 'side';
-    }
-    const name = String(recipe.name || '').toLowerCase();
-    for (const [course, words] of Object.entries(COURSE_KEYWORDS)) {
-        if (words.some(w => name.includes(w))) {
-            return course;
+    if (Array.isArray(recipe.categories)) {
+        for (const cat of recipe.categories) {
+            const c = String(cat).toLowerCase();
+            if (c.startsWith('dessert')) return 'dessert';
+            if (c.startsWith('main')) return 'main';
+            if (c.startsWith('side')) return 'side';
         }
     }
     return '';
 }
 
-const VEG_KEYWORDS = ['vegan', 'vegetarian', 'tofu', 'broccoli', 'cauliflower'];
-const NON_VEG_WORDS = ['chicken', 'beef', 'pork', 'bacon', 'shrimp', 'turkey'];
-
+// Determine if a recipe is vegetarian or vegan via categories/flags
 function isVegRecipe(recipe) {
-    if (recipe.isVegan || recipe.isVeg) {
-        return true;
+    if (recipe.isVegan || recipe.isVeg) return true;
+    if (Array.isArray(recipe.categories)) {
+        return recipe.categories.some(cat => {
+            const c = String(cat).toLowerCase();
+            return c.startsWith('vegan') || c.startsWith('vegetarian');
+        });
     }
-    if (recipe.isVegan === false || recipe.isVeg === false) {
-        return false;
-    }
-    const text = `${recipe.name || ''} ${recipe.description || ''}`.toLowerCase();
-    if (NON_VEG_WORDS.some(w => text.includes(w))) return false;
-    return VEG_KEYWORDS.some(w => text.includes(w));
+    return false;
 }
 
 class RecipeSignupForm {
