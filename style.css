@@ -153,6 +153,13 @@ body {
   padding: 1.5rem; /* consistent card spacing */
 }
 
+@media (min-width: 769px) {
+  .menu-card {
+    position: sticky; /* keep menu in view as the form scrolls */
+    top: 1.5rem;
+  }
+}
+
 /* Placeholder menu list styling */
 .menu-list {
   display: flex;
