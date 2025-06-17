@@ -46,9 +46,9 @@
                 </div>
                 <div class="form-group" id="recipeGroup" style="display:none;">
                     <label for="recipe">What are you cooking? *</label>
-                    <input id="recipe" name="recipe" list="recipe-list" placeholder="Start typing your recipe…">
-                    <datalist id="recipe-list"></datalist>
+                    <input id="recipe" name="recipe" placeholder="Select a recipe…" readonly>
                     <div class="recipe-entry" id="recipeEntry" style="display:none;"></div>
+                    <a href="#" id="changeRecipe" class="change-link" style="display:none;">Change</a>
                 </div>
                 <div class="form-group">
                     <label for="notes">Anything else we should know?</label>
@@ -71,6 +71,16 @@
         </div>
         </div>
     </div>
+    </div>
+
+    <div id="recipeModal" class="recipe-modal" aria-hidden="true">
+        <div class="recipe-modal-content">
+            <div class="recipe-modal-header">
+                <input type="text" id="recipeSearch" placeholder="Search recipes…">
+                <button type="button" id="recipeModalClose" class="close-modal">Close</button>
+            </div>
+            <div id="recipeModalList" class="recipe-modal-list"></div>
+        </div>
     </div>
 
     <script src="config.js"></script>

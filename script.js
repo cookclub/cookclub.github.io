@@ -180,9 +180,15 @@ class RecipeSignupForm {
         this.memberList = document.getElementById('member-list');
         this.cookingRadios = document.querySelectorAll('input[name="cooking"]');
         this.recipeInput = document.getElementById('recipe');
-        this.recipeList = document.getElementById('recipe-list');
         this.recipeGroup = document.getElementById('recipeGroup');
         this.recipeEntry = document.getElementById('recipeEntry');
+        this.changeRecipeLink = document.getElementById('changeRecipe');
+        this.recipeModal = document.getElementById('recipeModal');
+        this.recipeModalList = document.getElementById('recipeModalList');
+        this.recipeModalClose = document.getElementById('recipeModalClose');
+        this.recipeSearch = document.getElementById('recipeSearch');
+        this.cachedSearch = '';
+        this.cachedScroll = 0;
         this.submitBtn = document.getElementById('submitBtn');
         this.messageDiv = document.getElementById('message');
         this.notesField = document.getElementById('notes');
@@ -191,8 +197,26 @@ class RecipeSignupForm {
         this.cookingRadios.forEach(radio => {
             radio.addEventListener('change', () => this.handleCookingChange());
         });
-        this.recipeInput.addEventListener('input', () => this.handleRecipeChange());
-        this.recipeInput.addEventListener('change', () => this.handleRecipeChange());
+        this.recipeInput.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.openRecipeModal();
+        });
+        this.recipeInput.addEventListener('focus', (e) => {
+            e.preventDefault();
+            this.openRecipeModal();
+        });
+        if (this.changeRecipeLink) {
+            this.changeRecipeLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.openRecipeModal();
+            });
+        }
+        if (this.recipeModalClose) {
+            this.recipeModalClose.addEventListener('click', () => this.closeRecipeModal());
+        }
+        if (this.recipeSearch) {
+            this.recipeSearch.addEventListener('input', () => this.renderRecipeModalList());
+        }
         this.form.addEventListener('submit', (e) => this.handleSubmit(e));
         this.memberInput.addEventListener('input', () => this.validateForm());
         this.memberInput.addEventListener('change', () => this.validateForm());
@@ -313,16 +337,9 @@ class RecipeSignupForm {
     }
 
     populateRecipeDropdown() {
-        // Populate datalist for recipe names
-        if (this.recipeList) this.recipeList.innerHTML = '';
-
-        this.recipes.forEach(recipe => {
-            const option = document.createElement('option');
-            option.value = recipe.name;
-            this.recipeList.appendChild(option);
-        });
-
-        console.log('🍽️ Populated recipe list with', this.recipes.length, 'recipes');
+        // Render list in modal on initial load
+        this.renderRecipeModalList();
+        console.log('🍽️ Prepared recipe picker with', this.recipes.length, 'recipes');
     }
 
     getCookingValue() {
@@ -350,6 +367,7 @@ class RecipeSignupForm {
             this.recipeInput.value = '';
             this.recipeEntry.style.display = 'none';
             this.recipeEntry.innerHTML = '';
+            if (this.changeRecipeLink) this.changeRecipeLink.style.display = 'none';
         }
         
         this.validateForm();
@@ -362,9 +380,11 @@ class RecipeSignupForm {
         if (recipe) {
             this.renderRecipeEntry(recipe);
             this.recipeEntry.style.display = 'block';
+            if (this.changeRecipeLink) this.changeRecipeLink.style.display = 'block';
         } else {
             this.recipeEntry.style.display = 'none';
             this.recipeEntry.innerHTML = '';
+            if (this.changeRecipeLink) this.changeRecipeLink.style.display = 'none';
         }
 
         this.validateForm();
@@ -682,6 +702,7 @@ class RecipeSignupForm {
         this.recipeEntry.style.display = 'none';
         this.recipeEntry.innerHTML = '';
         this.recipeInput.required = false;
+        if (this.changeRecipeLink) this.changeRecipeLink.style.display = 'none';
         this.submitBtn.disabled = true;
         this.cookingRadios.forEach(r => r.parentElement.classList.remove('selected'));
         if (this.notesField) this.notesField.value = '';
@@ -754,6 +775,46 @@ class RecipeSignupForm {
         }
 
         return item;
+    }
+
+    openRecipeModal() {
+        if (!this.recipeModal) return;
+        this.recipeModal.classList.add('open');
+        this.recipeModal.setAttribute('aria-hidden', 'false');
+        if (this.recipeSearch) {
+            this.recipeSearch.value = this.cachedSearch;
+        }
+        this.renderRecipeModalList();
+        if (this.recipeModalList) {
+            this.recipeModalList.scrollTop = this.cachedScroll;
+        }
+    }
+
+    closeRecipeModal() {
+        if (!this.recipeModal) return;
+        this.cachedSearch = this.recipeSearch ? this.recipeSearch.value : '';
+        this.cachedScroll = this.recipeModalList ? this.recipeModalList.scrollTop : 0;
+        this.recipeModal.classList.remove('open');
+        this.recipeModal.setAttribute('aria-hidden', 'true');
+    }
+
+    renderRecipeModalList() {
+        if (!this.recipeModalList) return;
+        this.recipeModalList.innerHTML = '';
+        const query = (this.recipeSearch ? this.recipeSearch.value : '').toLowerCase();
+        const filtered = this.recipes.filter(r => r.name.toLowerCase().includes(query));
+        filtered.forEach(recipe => {
+            const item = document.createElement('div');
+            item.className = 'modal-recipe-item';
+            item.textContent = recipe.name;
+            item.addEventListener('click', () => {
+                this.recipeInput.value = recipe.name;
+                this.handleRecipeChange();
+                this.closeRecipeModal();
+                if (this.changeRecipeLink) this.changeRecipeLink.style.display = 'block';
+            });
+            this.recipeModalList.appendChild(item);
+        });
     }
 
     getMemberName(discordId) {

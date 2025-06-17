@@ -526,3 +526,81 @@ button:disabled {
   cursor: pointer;
   padding-left: 0;
 }
+
+/* Change recipe link */
+.change-link {
+  margin-top: 6px;
+  display: block;
+  font-size: 0.9rem;
+  color: #007aff;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Recipe picker modal / sheet */
+.recipe-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: none;
+}
+.recipe-modal.open {
+  display: block;
+}
+
+.recipe-modal-content {
+  position: absolute;
+  background: #fff;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  overflow-y: auto;
+}
+
+@media (min-width: 768px) {
+  .recipe-modal-content {
+    width: 600px;
+    height: auto;
+    max-height: 90vh;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 8px;
+  }
+}
+
+.recipe-modal-header {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.recipe-modal-header input {
+  flex: 1;
+}
+
+.recipe-modal-list {
+  padding: 1rem;
+}
+
+.modal-recipe-item {
+  padding: 0.75rem;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+}
+
+.modal-recipe-item:hover {
+  background: #f5f5f5;
+}
+
+.close-modal {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 1rem;
+  cursor: pointer;
+}
