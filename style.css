@@ -25,6 +25,7 @@ body {
   --course-main: #C9362E;
   --course-side: #3DA351;
   --course-dessert: #F4B84B;
+  --course-appetizer: #0070A3;
   /* accent hue pulled from the current book cover */
   --accent: #6A5AF9;
 }
@@ -172,6 +173,20 @@ body {
   padding: 0;
 }
 
+.dish-count {
+  font-weight: 600;
+  margin-top: 0.25rem;
+}
+
+.course-section + .course-section {
+  margin-top: 1rem;
+}
+
+.course-heading {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
 .menu-item {
   background: #fff;
   border: 1px solid #eee;
@@ -279,9 +294,10 @@ body {
   background: var(--course-color, transparent);
 }
 
-.dish-card--main    { --course-color: var(--course-main); }
-.dish-card--side    { --course-color: var(--course-side); }
-.dish-card--dessert { --course-color: var(--course-dessert); }
+.dish-card--main       { --course-color: var(--course-main); }
+.dish-card--side       { --course-color: var(--course-side); }
+.dish-card--dessert    { --course-color: var(--course-dessert); }
+.dish-card--appetizer  { --course-color: var(--course-appetizer); }
 
 .dish-card--veg {
   position: relative;
