@@ -44,6 +44,14 @@ const guestCodes = ["cltgalpals"];
     }
 })();
 
+/**
+ * Determine if the current viewer is a guest.
+ * This utility runs early so other UI steps can rely on it.
+ */
+function isGuest() {
+    return window.audienceType === 'guest';
+}
+
 // -------------------------------------------------------------
 // Accent color extraction utilities
 // -------------------------------------------------------------
