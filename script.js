@@ -631,20 +631,13 @@ class RecipeSignupForm {
         header.className = 'menu-item-header';
         header.setAttribute('aria-expanded', 'false');
 
+        const headerInfo = document.createElement('div');
+        headerInfo.className = 'menu-header-info';
+
         const nameDiv = document.createElement('div');
         nameDiv.className = 'recipe-name';
         nameDiv.textContent = recipe.name;
-
-        header.appendChild(nameDiv);
-
-        if (recipe.page) {
-            const pageDiv = document.createElement('div');
-            pageDiv.className = 'page-pill';
-            pageDiv.textContent = `p${recipe.page}`; // shorter label
-            header.appendChild(pageDiv);
-        }
-
-        item.appendChild(header);
+        headerInfo.appendChild(nameDiv);
 
         let claimedBy = recipe.claimedBy || '';
         if (!claimedBy && recipe.claimedByDiscordId) {
@@ -654,8 +647,19 @@ class RecipeSignupForm {
             const claimDiv = document.createElement('div');
             claimDiv.className = 'claimed-by';
             claimDiv.textContent = `Claimed by ${claimedBy}`;
-            item.appendChild(claimDiv);
+            headerInfo.appendChild(claimDiv);
         }
+
+        header.appendChild(headerInfo);
+
+        if (recipe.page) {
+            const pageDiv = document.createElement('div');
+            pageDiv.className = 'page-pill';
+            pageDiv.textContent = `p${recipe.page}`; // shorter label
+            header.appendChild(pageDiv);
+        }
+
+        item.appendChild(header);
 
         const course = detectCourse(recipe);
         if (course) {
