@@ -253,12 +253,19 @@ function findRecipeById(recipeId) {
 }
 
 /** Update the hash portion of the URL for routing. */
-function updateURL(recipeId) {
+let pendingNavSource = null;
+
+function updateURL(recipeId, source = 'url') {
+    pendingNavSource = source;
     if (recipeId) {
         window.location.hash = `#/recipe/${recipeId}`;
     } else {
         window.location.hash = '#/';
     }
+}
+
+function shouldShowModal(source) {
+    return source === 'url';
 }
 
 /** Parse the current hash and extract the recipe ID, if any. */
@@ -282,6 +289,84 @@ function closeAllRecipeCards() {
     });
 }
 
+let lastFocusedElement = null;
+
+function openRecipeDetailModal(recipeId) {
+    const modal = document.getElementById('recipeDetailModal');
+    const content = document.getElementById('recipeDetailContent');
+    const shareBtn = document.getElementById('shareRecipe');
+    if (!modal || !content) return;
+    const recipe = findRecipeById(recipeId);
+    if (!recipe) return;
+
+    content.innerHTML = '';
+
+    const title = document.createElement('h2');
+    title.textContent = getRecipeName(recipe);
+    content.appendChild(title);
+
+    const meta = buildRecipeDetails(recipe);
+    meta.style.marginTop = '16px';
+    content.appendChild(meta);
+
+    const claimDiv = document.createElement('div');
+    claimDiv.className = 'claim-status';
+    if (recipe.claimed) {
+        let claimedBy = recipe.claimedBy || '';
+        if (!claimedBy && recipe.claimedByDiscordId) {
+            const form = window.recipeSignupForm;
+            claimedBy = form ? form.getMemberName(recipe.claimedByDiscordId) || recipe.claimedByDiscordId : recipe.claimedByDiscordId;
+        }
+        claimDiv.textContent = `Claimed by ${claimedBy}`;
+    } else {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'share-btn';
+        btn.textContent = 'Claim this recipe';
+        btn.addEventListener('click', () => {
+            const form = window.recipeSignupForm;
+            if (form) {
+                form.recipeInput.value = getRecipeName(recipe);
+                form.handleRecipeChange();
+            }
+            closeRecipeDetailModal();
+            if (form && form.recipeInput) form.recipeInput.focus();
+        });
+        claimDiv.appendChild(btn);
+    }
+    claimDiv.style.marginTop = '16px';
+    content.appendChild(claimDiv);
+
+    if (shareBtn) {
+        shareBtn.textContent = 'Share';
+        shareBtn.onclick = () => {
+            const url = `${window.location.origin}${window.location.pathname}#/recipe/${recipeId}`;
+            navigator.clipboard.writeText(url).then(() => {
+                shareBtn.textContent = 'Copied!';
+                setTimeout(() => { shareBtn.textContent = 'Share'; }, 2000);
+            });
+        };
+    }
+
+    lastFocusedElement = document.activeElement;
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    const card = modal.querySelector('.recipe-detail-card');
+    if (card) {
+        card.focus();
+        trapFocus(modal);
+    }
+}
+
+function closeRecipeDetailModal() {
+    const modal = document.getElementById('recipeDetailModal');
+    if (!modal || !modal.classList.contains('open')) return;
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    if (lastFocusedElement) lastFocusedElement.focus();
+    updateURL('', 'modal');
+}
+
 /** Expand the card corresponding to the given recipe ID. */
 function openRecipeCard(recipeId) {
     const card = document.querySelector(`.dish-card[data-recipe-id="${recipeId}"]`);
@@ -297,12 +382,22 @@ function openRecipeCard(recipeId) {
 
 /** Respond to hash changes by opening the appropriate card. */
 function handleRouteChange() {
+    const source = pendingNavSource || 'url';
     const route = parseCurrentURL();
     if (route.type === 'recipe') {
-        openRecipeCard(route.id);
+        if (shouldShowModal(source)) {
+            openRecipeDetailModal(route.id);
+        } else {
+            openRecipeCard(route.id);
+        }
     } else {
-        closeAllRecipeCards();
+        if (shouldShowModal(source)) {
+            closeRecipeDetailModal();
+        } else {
+            closeAllRecipeCards();
+        }
     }
+    pendingNavSource = null;
 }
 
 class RecipeSignupForm {
@@ -892,9 +987,9 @@ class RecipeSignupForm {
             header.setAttribute('aria-expanded', expanded);
             details.style.display = expanded ? 'block' : 'none';
             if (expanded) {
-                updateURL(recipeId);
+                updateURL(recipeId, 'card');
             } else {
-                updateURL('');
+                updateURL('', 'card');
             }
         });
 
@@ -1031,6 +1126,20 @@ document.addEventListener('DOMContentLoaded', () => {
     handleRouteChange();
     // pull accent color from the displayed book cover
     setAccentFromImage('.cover-column img');
+
+    const detailModal = document.getElementById('recipeDetailModal');
+    const detailClose = document.getElementById('detailClose');
+    if (detailClose) detailClose.addEventListener('click', () => closeRecipeDetailModal());
+    if (detailModal) {
+        detailModal.addEventListener('click', (e) => {
+            if (e.target === detailModal) closeRecipeDetailModal();
+        });
+    }
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeRecipeDetailModal();
+        }
+    });
 });
 
 function updateDishCount(count) {
@@ -1171,5 +1280,30 @@ function buildRecipeDetails(recipe) {
     }
 
     return entry;
+}
+
+function trapFocus(modal) {
+    const focusableSelectors = 'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])';
+    const focusable = Array.from(modal.querySelectorAll(focusableSelectors));
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    modal.addEventListener('keydown', function(e) {
+        if (e.key === 'Tab') {
+            if (e.shiftKey) {
+                if (document.activeElement === first) {
+                    e.preventDefault();
+                    last.focus();
+                }
+            } else {
+                if (document.activeElement === last) {
+                    e.preventDefault();
+                    first.focus();
+                }
+            }
+        } else if (e.key === 'Escape') {
+            closeRecipeDetailModal();
+        }
+    });
 }
 
