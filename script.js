@@ -822,6 +822,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const switchToGuestBtn = document.getElementById('switch-to-guest-btn');
     const audienceField = document.getElementById('audienceType');
     const audienceCodeField = document.getElementById('audienceCode');
+    const welcomeEl = document.getElementById('welcomeMessage');
+    const memberInputField = document.getElementById('member');
+
+    // Show a short welcome below the subhead depending on audience type
+    function updateWelcome() {
+        if (!welcomeEl) return;
+        const isGuestAudience = audienceField && audienceField.value === 'guest';
+        if (isGuestAudience) {
+            welcomeEl.textContent =
+                "A special welcome to our guests! You've been invited by a friend of the club, and we're thrilled to have you.";
+        } else {
+            const name = memberInputField ? memberInputField.value.trim() : '';
+            const namePart = name ? `, ${name}` : '';
+            welcomeEl.textContent = `Welcome back${namePart}! So glad you're here again.`;
+        }
+    }
 
     function showMemberUI() {
         if (memberForm) memberForm.style.display = 'block';
@@ -830,6 +846,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (audienceCodeField) audienceCodeField.value = '';
         localStorage.removeItem('audienceMode');
         localStorage.removeItem('audienceCode');
+        updateWelcome(); // refresh greeting when switching modes
     }
 
     function showGuestUI(code = 'public') {
@@ -840,6 +857,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('audienceMode', 'guest');
         localStorage.setItem('audienceCode', code);
         console.log(`Showing Guest UI for code: ${code}`);
+        updateWelcome(); // refresh greeting when switching modes
     }
 
     if (guestCode) {
@@ -857,6 +875,11 @@ document.addEventListener('DOMContentLoaded', () => {
             newUrl.searchParams.set('g', 'public');
             window.location.href = newUrl.toString();
         });
+    }
+
+    if (memberInputField) {
+        memberInputField.addEventListener('input', updateWelcome);
+        memberInputField.addEventListener('change', updateWelcome);
     }
 
     new RecipeSignupForm();
