@@ -647,7 +647,7 @@ class RecipeSignupForm {
 
         const header = document.createElement('button');
         header.type = 'button';
-        const details = buildRecipeDetails(recipe, false);
+        header.className = 'menu-item-header';
         header.setAttribute('aria-expanded', 'false');
 
         const headerInfo = document.createElement('div');
