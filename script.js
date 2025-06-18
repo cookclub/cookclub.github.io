@@ -1102,18 +1102,27 @@ document.addEventListener('DOMContentLoaded', () => {
             showMemberUI();
         }
         if (audienceSelector) audienceSelector.style.display = 'none';
-        if (rsvpForm) rsvpForm.style.display = 'block';
+        if (rsvpForm) {
+            rsvpForm.style.display = 'block';
+            requestAnimationFrame(() => rsvpForm.classList.add('show'));
+        }
     }
 
     // When returning visitors have a stored selection, bypass chooser
     if (storedType === 'guest') {
         showGuestUI(localStorage.getItem('audienceCode') || guestCode || 'public');
         if (audienceSelector) audienceSelector.style.display = 'none';
-        if (rsvpForm) rsvpForm.style.display = 'block';
+        if (rsvpForm) {
+            rsvpForm.style.display = 'block';
+            requestAnimationFrame(() => rsvpForm.classList.add('show'));
+        }
     } else if (storedType === 'member') {
         showMemberUI();
         if (audienceSelector) audienceSelector.style.display = 'none';
-        if (rsvpForm) rsvpForm.style.display = 'block';
+        if (rsvpForm) {
+            rsvpForm.style.display = 'block';
+            requestAnimationFrame(() => rsvpForm.classList.add('show'));
+        }
     }
 
     if (guestBtn) guestBtn.addEventListener('click', () => handleAudienceChoice('guest'));
