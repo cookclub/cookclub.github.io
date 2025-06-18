@@ -23,26 +23,10 @@ let nextColorIndex = 0;
 const guestCodes = ["cltgalpals"];
 
 // -------------------------------------------------------------
-// Audience type detection
+// Audience type utilities
 // -------------------------------------------------------------
-(() => {
-    // Check for ?g= query param when the script loads
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get('g');
-    const stored = localStorage.getItem('audienceType');
-
-    if (code && guestCodes.includes(code.toLowerCase())) {
-        // Recognized guest code => treat as guest
-        window.audienceType = 'guest';
-        localStorage.setItem('audienceType', 'guest');
-    } else if (stored) {
-        // Reuse the previously stored audience type
-        window.audienceType = stored;
-    } else {
-        // Default to member for all other cases
-        window.audienceType = 'member';
-    }
-})();
+// Default to member until the visitor makes a choice
+window.audienceType = 'member';
 
 /**
  * Determine if the current viewer is a guest.
@@ -1080,6 +1064,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function showMemberUI() {
+        window.audienceType = 'member';
         if (memberForm) memberForm.style.display = 'block';
         if (guestForm) guestForm.style.display = 'none';
         if (audienceField) audienceField.value = 'member';
@@ -1090,6 +1075,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function showGuestUI(code = 'public') {
+        window.audienceType = 'guest';
         if (memberForm) memberForm.style.display = 'none';
         if (guestForm) guestForm.style.display = 'block';
         if (audienceField) audienceField.value = 'guest';
@@ -1100,14 +1086,23 @@ document.addEventListener('DOMContentLoaded', () => {
         updateWelcome(); // refresh greeting when switching modes
     }
 
-    if (guestCode) {
-        showGuestUI(guestCode);
-    } else if (localStorage.getItem('audienceMode') === 'guest') {
-        const storedCode = localStorage.getItem('audienceCode') || 'public';
-        showGuestUI(storedCode);
-    } else {
-        showMemberUI();
+    const rsvpForm = document.getElementById('rsvp-form');
+    const audienceSelector = document.getElementById('audience-selector');
+    const guestBtn = document.getElementById('audience-guest');
+    const memberBtn = document.getElementById('audience-member');
+
+    function handleAudienceChoice(type) {
+        if (type === 'guest') {
+            showGuestUI(guestCode || 'public');
+        } else {
+            showMemberUI();
+        }
+        if (audienceSelector) audienceSelector.style.display = 'none';
+        if (rsvpForm) rsvpForm.style.display = 'block';
     }
+
+    if (guestBtn) guestBtn.addEventListener('click', () => handleAudienceChoice('guest'));
+    if (memberBtn) memberBtn.addEventListener('click', () => handleAudienceChoice('member'));
 
     if (switchToGuestBtn) {
         switchToGuestBtn.addEventListener('click', () => {

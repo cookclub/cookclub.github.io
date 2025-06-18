@@ -19,6 +19,14 @@
                 <!-- Personalized welcome message will be populated by script.js -->
                 <p id="welcomeMessage" class="welcome-message" aria-live="polite"></p>
             </div>
+
+            <fieldset id="audience-selector" class="audience-selector">
+                <legend>We’re so glad you’re joining us! First, tell us how you’re arriving…</legend>
+                <button type="button" id="audience-guest" data-audience="guest">I’m a guest from CLT Gal Pals</button>
+                <button type="button" id="audience-member" data-audience="member">I’m a regular (Discord member)</button>
+            </fieldset>
+
+            <div id="rsvp-form" style="display:none;">
             <div class="main-container">
                 <div class="form-card">
             <form id="recipeForm" novalidate>
