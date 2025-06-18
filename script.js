@@ -217,8 +217,11 @@ class RecipeSignupForm {
         this.recipes = [];
         this.allRecipes = [];
         this.isLoading = false;
-        
+
         this.initializeForm();
+        if (isGuest()) {
+            this.configureForGuest();
+        }
         this.loadData();
     }
     
@@ -244,6 +247,9 @@ class RecipeSignupForm {
         this.submitBtn = document.getElementById('submitBtn');
         this.messageDiv = document.getElementById('message');
         this.notesField = document.getElementById('notes');
+        this.cookingGroup = document.getElementById('cookingGroup');
+        this.guestPrompt = document.getElementById('guestPrompt');
+        this.guestContact = document.getElementById('guestContact');
         
         // Add event listeners
         this.cookingRadios.forEach(radio => {
@@ -447,6 +453,15 @@ class RecipeSignupForm {
         }
 
         this.validateForm();
+    }
+
+    configureForGuest() {
+        if (this.cookingGroup) this.cookingGroup.style.display = 'none';
+        const yesRadio = this.form.querySelector('input[name="cooking"][value="yes"]');
+        if (yesRadio) yesRadio.checked = true;
+        if (this.guestPrompt) this.guestPrompt.style.display = 'block';
+        if (this.guestContact) this.guestContact.style.display = 'block';
+        this.handleCookingChange();
     }
 
     renderRecipeEntry(recipe) {
@@ -678,11 +693,19 @@ class RecipeSignupForm {
     
     resetForm() {
         this.form.reset();
-        this.recipeGroup.style.display = 'none';
-        this.recipeEntry.style.display = 'none';
-        this.recipeEntry.innerHTML = '';
-        this.recipeInput.required = false;
-        if (this.changeRecipeLink) this.changeRecipeLink.style.display = 'none';
+        if (isGuest()) {
+            const yesRadio = this.form.querySelector('input[name="cooking"][value="yes"]');
+            if (yesRadio) yesRadio.checked = true;
+            this.recipeEntry.innerHTML = '';
+            if (this.changeRecipeLink) this.changeRecipeLink.style.display = 'none';
+            this.handleCookingChange();
+        } else {
+            this.recipeGroup.style.display = 'none';
+            this.recipeEntry.style.display = 'none';
+            this.recipeEntry.innerHTML = '';
+            this.recipeInput.required = false;
+            if (this.changeRecipeLink) this.changeRecipeLink.style.display = 'none';
+        }
         this.submitBtn.disabled = true;
         this.cookingRadios.forEach(r => r.parentElement.classList.remove('selected'));
         if (this.notesField) this.notesField.value = '';
