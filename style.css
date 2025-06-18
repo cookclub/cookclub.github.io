@@ -619,22 +619,36 @@ button:disabled {
 #audience-selector {
   margin-bottom: 2rem;
   text-align: center;
+  border: none;
+  padding: 0;
+  background: none;
 }
 
-#audience-selector button {
-  margin: 0.25rem;
-  padding: 12px 16px;
+#audience-selector legend {
+  margin-bottom: 1rem;
   font-weight: 600;
-  border-radius: 8px;
-  border: 1px solid var(--accent);
-  background: white;
-  color: var(--accent);
-  cursor: pointer;
 }
 
-#audience-selector button:hover {
-  background: var(--accent);
-  color: #fff;
+.audience-button {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  margin: 0.5rem auto;
+  padding: 12px 20px;
+  min-height: 44px;
+  font-weight: 600;
+  font-size: 1rem;
+  color: #2B2B2B;
+  background: #fff6e6;
+  border: 1px solid #ffdca4;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: background-color 0.3s ease;
+}
+
+.audience-button:hover {
+  background: #ffdca4;
 }
 
 /* Recipe picker modal / sheet */
