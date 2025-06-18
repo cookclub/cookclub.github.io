@@ -647,7 +647,7 @@ class RecipeSignupForm {
 
         const header = document.createElement('button');
         header.type = 'button';
-        const details = buildRecipeDetails(recipe, false);
+        header.className = 'menu-item-header';
         header.setAttribute('aria-expanded', 'false');
 
         const headerInfo = document.createElement('div');
@@ -743,13 +743,11 @@ class RecipeSignupForm {
             item.addEventListener('click', () => {
                 this.recipeInput.value = recipe.name;
                 this.handleRecipeChange();
-function buildRecipeDetails(recipe, includeTitle = true) {
-    if (includeTitle) {
-        const title = document.createElement('div');
-        title.className = 'title';
-        title.textContent = recipe.name || '';
-        entry.appendChild(title);
-    }
+                this.closeRecipeModal();
+                if (this.changeRecipeLink) this.changeRecipeLink.style.display = 'block';
+            });
+            this.recipeModalList.appendChild(item);
+        });
     }
 
     getMemberName(discordId) {
