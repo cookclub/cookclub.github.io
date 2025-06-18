@@ -108,6 +108,17 @@
         </div>
     </div>
 
+    <!-- Full screen recipe detail modal -->
+    <div id="recipeDetailModal" class="recipe-detail-modal" aria-hidden="true" role="dialog">
+        <div class="recipe-detail-card" tabindex="-1">
+            <button type="button" id="detailClose" class="detail-close" aria-label="Close">×</button>
+            <div id="recipeDetailContent" class="recipe-detail-content"></div>
+            <div class="detail-actions">
+                <button type="button" id="shareRecipe" class="share-btn">Share</button>
+            </div>
+        </div>
+    </div>
+
     <script src="config.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="script.js"></script>
