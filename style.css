@@ -162,6 +162,7 @@ body {
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* subtle shadow */
   padding: 1.5rem; /* consistent card spacing */
+  position: relative; /* anchor for corner links */
 }
 
 @media (min-width: 769px) {
@@ -613,6 +614,13 @@ button:disabled {
   text-decoration: underline;
   cursor: pointer;
   padding: 0;
+}
+
+/* "Not you?" link positioned in the form card corner */
+.switch-audience {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
 }
 
 /* Audience selection step */
