@@ -369,7 +369,15 @@ function closeRecipeDetailModal() {
 
 /** Expand the card corresponding to the given recipe ID. */
 function openRecipeCard(recipeId) {
-    openRecipeDetailModal(recipeId);
+    const card = document.querySelector(`.menu-item[data-recipe-id="${recipeId}"]`);
+    if (!card) return;
+    closeAllRecipeCards();
+    const header = card.querySelector('.menu-item-header');
+    const details = card.querySelector('.recipe-details');
+    card.classList.add('open');
+    if (header) header.setAttribute('aria-expanded', 'true');
+    if (details) details.style.display = 'block';
+    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 /** Respond to hash changes by opening the appropriate card. */
@@ -975,15 +983,12 @@ class RecipeSignupForm {
         item.appendChild(details);
 
         header.addEventListener('click', () => {
-            const expanded = item.classList.toggle('open');
-            header.setAttribute('aria-expanded', expanded);
-            details.style.display = expanded ? 'block' : 'none';
-            if (expanded) {
-                updateURL(recipeId, 'card');
-            } else {
+            const current = parseCurrentURL();
+            if (current.type === 'recipe' && current.id === recipeId) {
                 updateURL('', 'card');
+            } else {
+                updateURL(recipeId, 'card');
             }
-            openRecipeDetailModal(recipeId);
         });
 
         return item;
