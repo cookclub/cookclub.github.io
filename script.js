@@ -369,15 +369,7 @@ function closeRecipeDetailModal() {
 
 /** Expand the card corresponding to the given recipe ID. */
 function openRecipeCard(recipeId) {
-    const card = document.querySelector(`.dish-card[data-recipe-id="${recipeId}"]`);
-    if (!card) return;
-    closeAllRecipeCards();
-    const header = card.querySelector('.menu-item-header');
-    const details = card.querySelector('.recipe-details');
-    card.classList.add('open');
-    if (header) header.setAttribute('aria-expanded', 'true');
-    if (details) details.style.display = 'block';
-    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    openRecipeDetailModal(recipeId);
 }
 
 /** Respond to hash changes by opening the appropriate card. */
@@ -991,6 +983,7 @@ class RecipeSignupForm {
             } else {
                 updateURL('', 'card');
             }
+            openRecipeDetailModal(recipeId);
         });
 
         return item;
