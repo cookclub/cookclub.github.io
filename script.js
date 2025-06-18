@@ -634,6 +634,19 @@ class RecipeSignupForm {
         const nameDiv = document.createElement('div');
         nameDiv.className = 'recipe-name';
         nameDiv.textContent = recipe.name;
+
+        let claimedBy = recipe.claimedBy || '';
+        if (!claimedBy && recipe.claimedByDiscordId) {
+            claimedBy = this.getMemberName(recipe.claimedByDiscordId) || recipe.claimedByDiscordId;
+        }
+        if (claimedBy) {
+            const br = document.createElement('br');
+            nameDiv.appendChild(br);
+            const claimSpan = document.createElement('span');
+            claimSpan.className = 'claimed-by';
+            claimSpan.textContent = `Claimed by ${claimedBy}`;
+            nameDiv.appendChild(claimSpan);
+        }
         header.appendChild(nameDiv);
 
         if (recipe.page) {
@@ -644,17 +657,6 @@ class RecipeSignupForm {
         }
 
         item.appendChild(header);
-
-        let claimedBy = recipe.claimedBy || '';
-        if (!claimedBy && recipe.claimedByDiscordId) {
-            claimedBy = this.getMemberName(recipe.claimedByDiscordId) || recipe.claimedByDiscordId;
-        }
-        if (claimedBy) {
-            const claimDiv = document.createElement('div');
-            claimDiv.className = 'claimed-by';
-            claimDiv.textContent = `Claimed by ${claimedBy}`;
-            item.appendChild(claimDiv);
-        }
 
         const course = detectCourse(recipe);
         if (course) {
