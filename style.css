@@ -84,6 +84,14 @@ body {
   color: #555;
 }
 
+/* Subtle line below the subhead for personalized greetings */
+.welcome-message {
+  font-size: 0.9rem;
+  font-style: italic;
+  color: #444;
+  margin-top: 0.25rem;
+}
+
 /* Wrapper grid for cover and content */
 .main-wrapper {
   display: grid;
