@@ -563,6 +563,18 @@ button:disabled {
   cursor: pointer;
 }
 
+/* Link-style button for audience switch */
+.switch-link {
+  margin: 0.5rem 0;
+  background: none;
+  border: none;
+  color: #007aff;
+  font-size: 0.9rem;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+}
+
 /* Recipe picker modal / sheet */
 .recipe-modal {
   position: fixed;
