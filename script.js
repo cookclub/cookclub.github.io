@@ -391,111 +391,7 @@ class RecipeSignupForm {
     }
 
     renderRecipeEntry(recipe) {
-        const entry = document.createElement('div');
-        entry.className = 'recipe-entry';
-
-        // Title
-        const title = document.createElement('div');
-        title.className = 'title';
-        title.textContent = recipe.name || '';
-        entry.appendChild(title);
-
-        // Page
-        if (recipe.page) {
-            const row = document.createElement('div');
-            row.className = 'meta-row';
-
-            const label = document.createElement('span');
-            label.className = 'label';
-            label.textContent = 'Page'; 
-            row.appendChild(label);
-
-            const pill = document.createElement('span');
-            pill.className = 'page-pill';
-            pill.textContent = recipe.page; // page number only
-            row.appendChild(pill);
-
-            entry.appendChild(row);
-        }
-
-        // Categories
-        let categories = recipe.categories;
-        if (Array.isArray(categories)) {
-            categories = categories.flatMap(cat => String(cat).split(';'));
-        } else if (typeof categories === 'string') {
-            categories = categories.split(';');
-        }
-        categories = categories.map(c => String(c).trim()).filter(Boolean);
-        if (Array.isArray(categories) && categories.length) {
-            const row = document.createElement('div');
-            row.className = 'meta-row';
-
-            const label = document.createElement('span');
-            label.className = 'label';
-            label.textContent = 'Categories';
-            row.appendChild(label);
-
-            const pillContainer = document.createElement('span');
-            row.appendChild(pillContainer);
-
-            // Render pastel pills for each category
-            renderCategoryPills(categories, pillContainer);
-
-            entry.appendChild(row);
-        }
-
-        // Ingredients
-        let ingredientsText = recipe.ingredients;
-        if (Array.isArray(ingredientsText)) {
-            ingredientsText = ingredientsText.join('; ');
-        }
-        if (ingredientsText) {
-            const row = document.createElement('div');
-            row.className = 'meta-row ingredients';
-
-            const label = document.createElement('span');
-            label.className = 'label';
-            label.textContent = 'Ingredients';
-            row.appendChild(label);
-
-            const textSpan = document.createElement('span');
-            textSpan.id = 'ingredient-text';
-            textSpan.className = 'ingredient-text collapsed';
-            textSpan.textContent = ingredientsText;
-            row.appendChild(textSpan);
-
-            const button = document.createElement('button');
-            button.type = 'button';
-            button.className = 'toggle-button';
-            button.setAttribute('aria-expanded', 'false');
-            button.setAttribute('aria-controls', 'ingredient-text');
-            button.textContent = 'Show more';
-            button.addEventListener('click', () => toggleIngredientText());
-            row.appendChild(button);
-
-            entry.appendChild(row);
-        }
-
-        // Accompaniments
-        let accompanimentsText = recipe.accompaniments;
-        if (Array.isArray(accompanimentsText)) {
-            accompanimentsText = accompanimentsText.join('; ');
-        }
-        if (accompanimentsText) {
-            const row = document.createElement('div');
-            row.className = 'meta-row';
-
-            const label = document.createElement('span');
-            label.className = 'label';
-            label.textContent = 'Accompaniments';
-            row.appendChild(label);
-
-            const textSpan = document.createElement('span');
-            textSpan.textContent = accompanimentsText;
-            row.appendChild(textSpan);
-
-            entry.appendChild(row);
-        }
+        const entry = buildRecipeDetails(recipe);
 
         this.recipeEntry.innerHTML = '';
         this.recipeEntry.appendChild(entry);
@@ -730,8 +626,10 @@ class RecipeSignupForm {
         const item = document.createElement('div');
         item.className = 'menu-item dish-card';
 
-        const header = document.createElement('div');
+        const header = document.createElement('button');
+        header.type = 'button';
         header.className = 'menu-item-header';
+        header.setAttribute('aria-expanded', 'false');
 
         const nameDiv = document.createElement('div');
         nameDiv.className = 'recipe-name';
@@ -773,6 +671,17 @@ class RecipeSignupForm {
             flag.textContent = '🌱';
             item.appendChild(flag);
         }
+
+        const details = buildRecipeDetails(recipe);
+        details.classList.add('recipe-details');
+        details.style.display = 'none';
+        item.appendChild(details);
+
+        header.addEventListener('click', () => {
+            const expanded = item.classList.toggle('open');
+            header.setAttribute('aria-expanded', expanded);
+            details.style.display = expanded ? 'block' : 'none';
+        });
 
         return item;
     }
@@ -856,5 +765,114 @@ function toggleIngredientText() {
     }
     button.textContent = expanded ? 'Show less' : 'Show more';
     button.setAttribute('aria-expanded', expanded);
+}
+
+// Build a DOM node with full recipe details
+function buildRecipeDetails(recipe) {
+    const entry = document.createElement('div');
+    entry.className = 'recipe-entry';
+
+    const title = document.createElement('div');
+    title.className = 'title';
+    title.textContent = recipe.name || '';
+    entry.appendChild(title);
+
+    if (recipe.page) {
+        const row = document.createElement('div');
+        row.className = 'meta-row';
+
+        const label = document.createElement('span');
+        label.className = 'label';
+        label.textContent = 'Page';
+        row.appendChild(label);
+
+        const pill = document.createElement('span');
+        pill.className = 'page-pill';
+        pill.textContent = recipe.page;
+        row.appendChild(pill);
+
+        entry.appendChild(row);
+    }
+
+    let categories = recipe.categories;
+    if (Array.isArray(categories)) {
+        categories = categories.flatMap(cat => String(cat).split(';'));
+    } else if (typeof categories === 'string') {
+        categories = categories.split(';');
+    }
+    categories = categories.map(c => String(c).trim()).filter(Boolean);
+    if (categories.length) {
+        const row = document.createElement('div');
+        row.className = 'meta-row';
+
+        const label = document.createElement('span');
+        label.className = 'label';
+        label.textContent = 'Categories';
+        row.appendChild(label);
+
+        const pillContainer = document.createElement('span');
+        row.appendChild(pillContainer);
+        renderCategoryPills(categories, pillContainer);
+
+        entry.appendChild(row);
+    }
+
+    let ingredientsText = recipe.ingredients;
+    if (Array.isArray(ingredientsText)) {
+        ingredientsText = ingredientsText.join('; ');
+    }
+    if (ingredientsText) {
+        const row = document.createElement('div');
+        row.className = 'meta-row';
+
+        const label = document.createElement('span');
+        label.className = 'label';
+        label.textContent = 'Ingredients';
+        row.appendChild(label);
+
+        const textSpan = document.createElement('span');
+        textSpan.textContent = ingredientsText;
+        row.appendChild(textSpan);
+
+        entry.appendChild(row);
+    }
+
+    let accompanimentsText = recipe.accompaniments;
+    if (Array.isArray(accompanimentsText)) {
+        accompanimentsText = accompanimentsText.join('; ');
+    }
+    if (accompanimentsText) {
+        const row = document.createElement('div');
+        row.className = 'meta-row';
+
+        const label = document.createElement('span');
+        label.className = 'label';
+        label.textContent = 'Accompaniments';
+        row.appendChild(label);
+
+        const textSpan = document.createElement('span');
+        textSpan.textContent = accompanimentsText;
+        row.appendChild(textSpan);
+
+        entry.appendChild(row);
+    }
+
+    if (recipe.note) {
+        const row = document.createElement('div');
+        row.className = 'meta-row';
+
+        const label = document.createElement('span');
+        label.className = 'label';
+        label.textContent = 'Note';
+        row.appendChild(label);
+
+        const textSpan = document.createElement('span');
+        textSpan.textContent = recipe.note;
+        row.appendChild(textSpan);
+
+        entry.appendChild(row);
+    }
+
+    return entry;
 }
 

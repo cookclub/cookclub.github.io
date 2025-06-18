@@ -185,6 +185,32 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+}
+
+.menu-item-header::after {
+  content: "\25BC"; /* downward triangle */
+  font-size: 0.8rem;
+  margin-left: 6px;
+  transition: transform 0.2s ease;
+}
+
+.menu-item.open .menu-item-header::after {
+  transform: rotate(180deg);
+}
+
+.recipe-details {
+  display: none;
+  margin-top: 0.75rem;
+}
+
+.menu-item.open .recipe-details {
+  display: block;
 }
 
 .menu-item:last-child {
