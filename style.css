@@ -795,6 +795,7 @@ button:disabled {
   display: none; /* Toggle to flex when activated */
   align-items: center;
   justify-content: center;
+  flex-direction: column;
   padding: 2rem;
   text-align: center;
   font-size: 1.25rem;
@@ -811,4 +812,68 @@ button:disabled {
     background: rgba(0, 0, 0, 0.85);
     color: #ffffff;
   }
+}
+
+/* Stirring spoon animation for the loading overlay */
+.loader {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.loader .pot {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 60px;
+  height: 36px;
+  background: var(--course-dessert);
+  border-radius: 0 0 30px 30px;
+  transform: translateX(-50%);
+}
+
+.loader .pot::before,
+.loader .pot::after {
+  content: '';
+  position: absolute;
+  top: 8px;
+  width: 12px;
+  height: 6px;
+  background: var(--course-dessert);
+  border-radius: 3px;
+}
+
+.loader .pot::before { left: -12px; }
+.loader .pot::after  { right: -12px; }
+
+.loader .spoon {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  width: 8px;
+  height: 38px;
+  background: var(--course-main);
+  border-radius: 4px;
+  transform-origin: bottom center;
+  animation: stir 2s ease-in-out infinite;
+  transform: translateX(-50%) rotate(-15deg);
+}
+
+.loader .spoon::after {
+  content: '';
+  position: absolute;
+  bottom: 34px;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  background: var(--course-main);
+  border-radius: 50%;
+  transform: translateX(-50%);
+}
+
+@keyframes stir {
+  0% { transform: translateX(-50%) rotate(-15deg); }
+  50% { transform: translateX(-50%) rotate(20deg); }
+ 100% { transform: translateX(-50%) rotate(-15deg); }
 }
