@@ -1044,10 +1044,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const memberForm = document.getElementById('member-form');
     const guestForm = document.getElementById('guest-form');
     const switchToGuestBtn = document.getElementById('switch-to-guest-btn');
+    const switchAudienceLink = document.getElementById('switch-audience');
     const audienceField = document.getElementById('audienceType');
     const audienceCodeField = document.getElementById('audienceCode');
     const welcomeEl = document.getElementById('welcomeMessage');
     const memberInputField = document.getElementById('member');
+    const storedType = localStorage.getItem('audienceType');
 
     // Show a short welcome below the subhead depending on audience type
     function updateWelcome() {
@@ -1069,8 +1071,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (guestForm) guestForm.style.display = 'none';
         if (audienceField) audienceField.value = 'member';
         if (audienceCodeField) audienceCodeField.value = '';
-        localStorage.removeItem('audienceMode');
-        localStorage.removeItem('audienceCode');
+        localStorage.setItem('audienceType', 'member'); // persist choice
+        localStorage.removeItem('audienceCode'); // clear stale guest code
+        if (switchAudienceLink) switchAudienceLink.style.display = 'block';
         updateWelcome(); // refresh greeting when switching modes
     }
 
@@ -1080,9 +1083,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (guestForm) guestForm.style.display = 'block';
         if (audienceField) audienceField.value = 'guest';
         if (audienceCodeField) audienceCodeField.value = code;
-        localStorage.setItem('audienceMode', 'guest');
+        localStorage.setItem('audienceType', 'guest'); // persist choice
         localStorage.setItem('audienceCode', code);
         console.log(`Showing Guest UI for code: ${code}`);
+        if (switchAudienceLink) switchAudienceLink.style.display = 'block';
         updateWelcome(); // refresh greeting when switching modes
     }
 
@@ -1101,6 +1105,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (rsvpForm) rsvpForm.style.display = 'block';
     }
 
+    // When returning visitors have a stored selection, bypass chooser
+    if (storedType === 'guest') {
+        showGuestUI(localStorage.getItem('audienceCode') || guestCode || 'public');
+        if (audienceSelector) audienceSelector.style.display = 'none';
+        if (rsvpForm) rsvpForm.style.display = 'block';
+    } else if (storedType === 'member') {
+        showMemberUI();
+        if (audienceSelector) audienceSelector.style.display = 'none';
+        if (rsvpForm) rsvpForm.style.display = 'block';
+    }
+
     if (guestBtn) guestBtn.addEventListener('click', () => handleAudienceChoice('guest'));
     if (memberBtn) memberBtn.addEventListener('click', () => handleAudienceChoice('member'));
 
@@ -1109,6 +1124,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const newUrl = new URL(window.location.href);
             newUrl.searchParams.set('g', 'public');
             window.location.href = newUrl.toString();
+        });
+    }
+
+    if (switchAudienceLink) {
+        switchAudienceLink.addEventListener('click', () => {
+            localStorage.removeItem('audienceType');
+            localStorage.removeItem('audienceCode');
+            window.location.reload();
         });
     }
 
