@@ -22,10 +22,26 @@
             <form id="recipeForm" novalidate>
                 <input type="hidden" id="eventName" name="eventName" readonly>
                 <input type="hidden" id="eventDate" name="eventDate" readonly>
-                <div class="form-group">
-                    <label for="member">Who are you? *</label>
-                    <input id="member" name="member" list="member-list" placeholder="Start typing your name…" required>
-                    <datalist id="member-list"></datalist>
+                <input type="hidden" id="audienceType" name="audienceType" value="member">
+
+                <div id="member-form">
+                    <div class="form-group">
+                        <label for="member">Who are you? *</label>
+                        <input id="member" name="member" list="member-list" placeholder="Start typing your name…" required>
+                        <datalist id="member-list"></datalist>
+                    </div>
+                    <button type="button" id="switch-to-guest-btn" class="switch-link">Not a Discord member? RSVP as a guest.</button>
+                </div>
+
+                <div id="guest-form" style="display:none;">
+                    <div class="form-group">
+                        <label for="guestName">Your Name: *</label>
+                        <input id="guestName" name="guestName" type="text" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="guestEmail">Your Email (optional):</label>
+                        <input id="guestEmail" name="guestEmail" type="email">
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>How are you joining? *</label>

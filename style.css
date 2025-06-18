@@ -185,6 +185,38 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+}
+
+.menu-header-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.menu-item-header::after {
+  content: "\25BC"; /* downward triangle */
+  font-size: 0.8rem;
+  margin-left: 6px;
+  transition: transform 0.2s ease;
+}
+
+.menu-item.open .menu-item-header::after {
+  transform: rotate(180deg);
+}
+
+.recipe-details {
+  display: none;
+  margin-top: 0.75rem;
+}
+
+.menu-item.open .recipe-details {
+  display: block;
 }
 
 .menu-item:last-child {
@@ -209,6 +241,7 @@ body {
 .menu-item .claimed-by {
   color: #555;
   font-size: 0.9rem;
+  margin-top: 2px;
 }
 
   .page-pill {
@@ -535,6 +568,18 @@ button:disabled {
   color: #007aff;
   text-decoration: underline;
   cursor: pointer;
+}
+
+/* Link-style button for audience switch */
+.switch-link {
+  margin: 0.5rem 0;
+  background: none;
+  border: none;
+  color: #007aff;
+  font-size: 0.9rem;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
 }
 
 /* Recipe picker modal / sheet */
