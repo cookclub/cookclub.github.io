@@ -480,12 +480,14 @@ class RecipeSignupForm {
     }
     
     async loadData() {
+        // Display the blocking overlay while we fetch recipes
+        showLoadingOverlay();
         this.showMessage('Loading data...', 'info');
-        
+
         try {
             // Load real data from Google Sheets
             await this.loadFromGoogleSheets();
-            
+
             this.populateMemberDropdown();
             this.populateRecipeDropdown();
             this.renderMenu();
@@ -500,6 +502,10 @@ class RecipeSignupForm {
             this.populateRecipeDropdown();
             this.renderMenu();
             this.hideMessage();
+        } finally {
+            // Overlay goes away once all dropdowns are ready
+            hideLoadingOverlay();
+            this.validateForm();
         }
     }
     
@@ -1303,5 +1309,33 @@ function trapFocus(modal) {
             closeRecipeDetailModal();
         }
     });
+}
+
+// -------------------------------------------------------------
+// Loading Overlay helpers
+// -------------------------------------------------------------
+
+/** Disable or enable all form controls during data fetch */
+function toggleFormDisabled(disabled) {
+    const form = document.getElementById('recipeForm');
+    if (!form) return;
+    const elements = form.querySelectorAll('input, button, textarea, select');
+    elements.forEach(el => {
+        el.disabled = disabled;
+    });
+}
+
+/** Show the full-page loading overlay */
+function showLoadingOverlay() {
+    const overlay = document.getElementById('loadingOverlay');
+    if (overlay) overlay.style.display = 'flex';
+    toggleFormDisabled(true);
+}
+
+/** Hide the loading overlay and re-enable the form */
+function hideLoadingOverlay() {
+    const overlay = document.getElementById('loadingOverlay');
+    if (overlay) overlay.style.display = 'none';
+    toggleFormDisabled(false);
 }
 
