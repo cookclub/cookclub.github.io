@@ -121,7 +121,10 @@
 
     <!-- Loading overlay shown while recipes load -->
     <div id="loadingOverlay" class="loading-overlay">
-        <p>Just a moment! We’re warming up the kitchen and gathering all the delicious recipes for you…</p>
+        <div class="loader" aria-hidden="true">
+            <div class="pot"><div class="spoon"></div></div>
+        </div>
+        <p class="loading-text">Just a moment! We’re warming up the kitchen and gathering all the delicious recipes for you…</p>
     </div>
 
     <script src="config.js"></script>
