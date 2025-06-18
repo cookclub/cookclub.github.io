@@ -162,6 +162,11 @@ function isVegRecipe(recipe) {
     return !!getVegStatus(recipe);
 }
 
+// Utility to get a recipe's display name, accommodating different property keys
+function getRecipeName(recipe) {
+    return recipe.name || recipe.title || '';
+}
+
 class RecipeSignupForm {
     constructor() {
         this.members = [];
@@ -386,7 +391,7 @@ class RecipeSignupForm {
     handleRecipeChange() {
         const inputName = this.recipeInput.value;
 
-        const recipe = this.recipes.find(r => r.name === inputName);
+        const recipe = this.recipes.find(r => getRecipeName(r) === inputName);
         if (recipe) {
             this.renderRecipeEntry(recipe);
             this.recipeEntry.style.display = 'block';
@@ -418,7 +423,7 @@ class RecipeSignupForm {
 
         const cookingValue = this.getCookingValue();
         const cookingSelected = cookingValue !== '';
-        const recipeSelected = cookingValue === 'no' || this.recipes.some(r => r.name === this.recipeInput.value);
+        const recipeSelected = cookingValue === 'no' || this.recipes.some(r => getRecipeName(r) === this.recipeInput.value);
 
         const isValid = nameValid && cookingSelected && recipeSelected;
         this.submitBtn.disabled = !isValid;
@@ -489,7 +494,7 @@ class RecipeSignupForm {
         const recipeInput = this.recipeInput.value.trim();
 
         const selectedRecipe = cookingFlag
-            ? this.recipes.find(r => r.name === recipeInput)
+            ? this.recipes.find(r => getRecipeName(r) === recipeInput)
             : null;
 
         const note      = this.notesField.value.trim();
@@ -504,7 +509,7 @@ class RecipeSignupForm {
             guestEmail  : audience === 'guest' && this.guestEmail ? this.guestEmail.value.trim() : '',
             cooking     : cookingFlag,
             recipeId    : selectedRecipe ? Number(selectedRecipe.id) : null,
-            recipeName  : selectedRecipe ? selectedRecipe.name : '',
+            recipeName  : selectedRecipe ? getRecipeName(selectedRecipe) : '',
             recordUrl,
             note,
             timestamp   : new Date().toISOString()
@@ -655,7 +660,7 @@ class RecipeSignupForm {
 
         const nameDiv = document.createElement('div');
         nameDiv.className = 'recipe-name';
-        nameDiv.textContent = recipe.name;
+        nameDiv.textContent = getRecipeName(recipe);
         headerInfo.appendChild(nameDiv);
 
         let claimedBy = recipe.claimedBy || '';
@@ -735,13 +740,13 @@ class RecipeSignupForm {
         if (!this.recipeModalList) return;
         this.recipeModalList.innerHTML = '';
         const query = (this.recipeSearch ? this.recipeSearch.value : '').toLowerCase();
-        const filtered = this.recipes.filter(r => r.name.toLowerCase().includes(query));
+        const filtered = this.recipes.filter(r => getRecipeName(r).toLowerCase().includes(query));
         filtered.forEach(recipe => {
             const item = document.createElement('div');
             item.className = 'modal-recipe-item';
-            item.textContent = recipe.name;
+            item.textContent = getRecipeName(recipe);
             item.addEventListener('click', () => {
-                this.recipeInput.value = recipe.name;
+                this.recipeInput.value = getRecipeName(recipe);
                 this.handleRecipeChange();
                 this.closeRecipeModal();
                 if (this.changeRecipeLink) this.changeRecipeLink.style.display = 'block';
@@ -838,7 +843,7 @@ function buildRecipeDetails(recipe) {
 
     const title = document.createElement('div');
     title.className = 'title';
-    title.textContent = recipe.name || '';
+    title.textContent = getRecipeName(recipe);
     entry.appendChild(title);
 
     if (recipe.page) {
