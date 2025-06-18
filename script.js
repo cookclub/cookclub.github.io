@@ -634,6 +634,7 @@ class RecipeSignupForm {
         const nameDiv = document.createElement('div');
         nameDiv.className = 'recipe-name';
         nameDiv.textContent = recipe.name;
+
         header.appendChild(nameDiv);
 
         if (recipe.page) {
