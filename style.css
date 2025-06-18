@@ -473,6 +473,16 @@ button:disabled {
   color: #0c5460;
 }
 
+.guest-info {
+  margin: 16px 0;
+}
+
+.guest-contact {
+  margin-top: 12px;
+  font-size: 0.9em;
+  text-align: center;
+}
+
 @media (max-width: 768px) {
   .main-wrapper {
     grid-template-columns: 1fr;
