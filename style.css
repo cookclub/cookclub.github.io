@@ -236,6 +236,9 @@ body {
 
 .menu-item .recipe-name {
   font-weight: 600;
+  font-size: 1.05rem; /* slightly larger for readability */
+  color: #2B2B2B;     /* explicit color for contrast */
+  margin-bottom: 2px; /* spacing above claimed-by line */
 }
 
 .menu-item .claimed-by {
