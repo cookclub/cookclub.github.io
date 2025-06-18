@@ -18,6 +18,10 @@ const PILL_COLORS = [
 const categoryColorMap = new Map();
 let nextColorIndex = 0;
 
+// Recognized guest codes passed via the "g" query parameter
+// Extend this array with new guest groups as needed
+const guestCodes = ["cltgalpals"];
+
 // -------------------------------------------------------------
 // Accent color extraction utilities
 // -------------------------------------------------------------
@@ -504,6 +508,7 @@ class RecipeSignupForm {
             eventName   : document.getElementById('eventName').value,
             eventDate   : document.getElementById('eventDate').value,
             audienceType: audience,
+            audienceCode: document.getElementById('audienceCode') ? document.getElementById('audienceCode').value : '',
             discordId   : audience === 'member' && member ? member.discordId : '',
             displayName : audience === 'member' && member ? member.displayName : (this.guestName ? this.guestName.value.trim() : ''),
             guestEmail  : audience === 'guest' && this.guestEmail ? this.guestEmail.value.trim() : '',
@@ -759,33 +764,44 @@ class RecipeSignupForm {
 // Initialize the form when the page loads
 document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
-    const guestCode = urlParams.get('g');
+    const paramCode = urlParams.get('g');
+    let guestCode = null;
+    if (paramCode) {
+        const normalized = paramCode.toLowerCase();
+        if (guestCodes.includes(normalized) || normalized === 'public') {
+            guestCode = normalized;
+        }
+    }
     const memberForm = document.getElementById('member-form');
     const guestForm = document.getElementById('guest-form');
     const switchToGuestBtn = document.getElementById('switch-to-guest-btn');
     const audienceField = document.getElementById('audienceType');
+    const audienceCodeField = document.getElementById('audienceCode');
 
     function showMemberUI() {
         if (memberForm) memberForm.style.display = 'block';
         if (guestForm) guestForm.style.display = 'none';
         if (audienceField) audienceField.value = 'member';
-        if (!guestCode) {
-            localStorage.removeItem('audienceMode');
-        }
+        if (audienceCodeField) audienceCodeField.value = '';
+        localStorage.removeItem('audienceMode');
+        localStorage.removeItem('audienceCode');
     }
 
     function showGuestUI(code = 'public') {
         if (memberForm) memberForm.style.display = 'none';
         if (guestForm) guestForm.style.display = 'block';
         if (audienceField) audienceField.value = 'guest';
+        if (audienceCodeField) audienceCodeField.value = code;
         localStorage.setItem('audienceMode', 'guest');
+        localStorage.setItem('audienceCode', code);
         console.log(`Showing Guest UI for code: ${code}`);
     }
 
     if (guestCode) {
         showGuestUI(guestCode);
     } else if (localStorage.getItem('audienceMode') === 'guest') {
-        showGuestUI('localStorage');
+        const storedCode = localStorage.getItem('audienceCode') || 'public';
+        showGuestUI(storedCode);
     } else {
         showMemberUI();
     }
