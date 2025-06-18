@@ -482,9 +482,9 @@ class RecipeSignupForm {
             // Submit to Google Apps Script
             await this.submitToGoogleSheets(formData);
             
-            this.showMessage(CONFIG.MESSAGES.SUCCESS, 'success');
+            this.showConfirmation();
             this.resetForm();
-            
+
             // Reload data to get updated recipe list
             await this.loadData();
             
@@ -649,6 +649,21 @@ class RecipeSignupForm {
     hideMessage() {
         this.messageDiv.style.display = 'none';
         this.messageDiv.className = 'message';
+    }
+
+    showConfirmation() {
+        const formCard = document.querySelector('.form-card');
+        const confirm = document.getElementById('confirmation');
+        if (!formCard || !confirm) return;
+        formCard.classList.add('fade-out');
+        formCard.addEventListener('transitionend', () => {
+            formCard.style.display = 'none';
+            confirm.style.display = 'block';
+            confirm.classList.add('fade-in');
+            if (window.confetti) {
+                window.confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } });
+            }
+        }, { once: true });
     }
     
     resetForm() {
