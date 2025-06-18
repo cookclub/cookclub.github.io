@@ -211,13 +211,110 @@ function getRecipeName(recipe) {
     return recipe.name || recipe.title || '';
 }
 
+// -------------------------------------------------------------
+// Recipe ID generation & lookup utilities
+// -------------------------------------------------------------
+
+/**
+ * Convert a string to a URL-safe slug.
+ * Lowercases, replaces non-alphanumerics with hyphens and trims extras.
+ */
+function slugify(text) {
+    return String(text)
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+}
+
+/**
+ * Build a unique, URL-safe identifier for a recipe.
+ * Combines page number and slugified name.
+ */
+function generateRecipeId(recipe) {
+    const page = recipe.page ? String(recipe.page) : '0';
+    const slug = slugify(getRecipeName(recipe));
+    return `${page}-${slug}`;
+}
+
+/**
+ * Lookup a recipe object from a generated ID.
+ * Falls back to matching only on the page number if needed.
+ */
+function findRecipeById(recipeId) {
+    if (!recipeId) return null;
+    const form = window.recipeSignupForm;
+    if (!form || !Array.isArray(form.allRecipes)) return null;
+    const exact = form.allRecipes.find(r => generateRecipeId(r) === recipeId);
+    if (exact) return exact;
+
+    const page = parseInt(recipeId.split('-')[0], 10);
+    if (isNaN(page)) return null;
+    return form.allRecipes.find(r => parseInt(r.page, 10) === page) || null;
+}
+
+/** Update the hash portion of the URL for routing. */
+function updateURL(recipeId) {
+    if (recipeId) {
+        window.location.hash = `#/recipe/${recipeId}`;
+    } else {
+        window.location.hash = '#/';
+    }
+}
+
+/** Parse the current hash and extract the recipe ID, if any. */
+function parseCurrentURL() {
+    const hash = window.location.hash || '';
+    const match = hash.match(/^#\/recipe\/(.+)$/);
+    if (match) {
+        return { type: 'recipe', id: match[1] };
+    }
+    return { type: 'home' };
+}
+
+/** Close all open recipe cards. */
+function closeAllRecipeCards() {
+    document.querySelectorAll('.dish-card.open').forEach(card => {
+        card.classList.remove('open');
+        const header = card.querySelector('.menu-item-header');
+        const details = card.querySelector('.recipe-details');
+        if (header) header.setAttribute('aria-expanded', 'false');
+        if (details) details.style.display = 'none';
+    });
+}
+
+/** Expand the card corresponding to the given recipe ID. */
+function openRecipeCard(recipeId) {
+    const card = document.querySelector(`.dish-card[data-recipe-id="${recipeId}"]`);
+    if (!card) return;
+    closeAllRecipeCards();
+    const header = card.querySelector('.menu-item-header');
+    const details = card.querySelector('.recipe-details');
+    card.classList.add('open');
+    if (header) header.setAttribute('aria-expanded', 'true');
+    if (details) details.style.display = 'block';
+    card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/** Respond to hash changes by opening the appropriate card. */
+function handleRouteChange() {
+    const route = parseCurrentURL();
+    if (route.type === 'recipe') {
+        openRecipeCard(route.id);
+    } else {
+        closeAllRecipeCards();
+    }
+}
+
 class RecipeSignupForm {
     constructor() {
         this.members = [];
         this.recipes = [];
         this.allRecipes = [];
         this.isLoading = false;
-        
+
+        // expose for routing helpers
+        window.recipeSignupForm = this;
+
         this.initializeForm();
         this.loadData();
     }
@@ -317,6 +414,7 @@ class RecipeSignupForm {
 
         this.members = CONFIG.SAMPLE_MEMBERS.filter(member => member.active);
         this.allRecipes = CONFIG.SAMPLE_RECIPES.map(r => ({ ...r }));
+        this.allRecipes.forEach(r => { r.urlId = generateRecipeId(r); });
         this.recipes = this.allRecipes.filter(recipe => !recipe.claimed);
     }
     
@@ -360,6 +458,7 @@ class RecipeSignupForm {
             // 4. Filter the clean arrays
             const activeMembers = members.filter(m => m.active);
             this.allRecipes = recipes.map(r => ({ ...r, id: parseInt(r.id, 10) }));
+            this.allRecipes.forEach(r => { r.urlId = generateRecipeId(r); });
             const availableRecipes = this.allRecipes.filter(r => !r.claimed);
             
             console.log('✅ Active members:', activeMembers.length);
@@ -726,11 +825,16 @@ class RecipeSignupForm {
         if (claimedRecipes.length === 0) {
             renderEmptyMenuMessage();
         }
+
+        // open any recipe referenced in the URL
+        handleRouteChange();
     }
 
     renderDishCard(recipe) {
         const item = document.createElement('div');
         item.className = 'menu-item dish-card';
+        const recipeId = recipe.urlId || generateRecipeId(recipe);
+        item.dataset.recipeId = recipeId;
 
         const header = document.createElement('button');
         header.type = 'button';
@@ -787,6 +891,11 @@ class RecipeSignupForm {
             const expanded = item.classList.toggle('open');
             header.setAttribute('aria-expanded', expanded);
             details.style.display = expanded ? 'block' : 'none';
+            if (expanded) {
+                updateURL(recipeId);
+            } else {
+                updateURL('');
+            }
         });
 
         return item;
@@ -917,6 +1026,9 @@ document.addEventListener('DOMContentLoaded', () => {
     new RecipeSignupForm();
     renderEmptyMenuMessage();
     updateDishCount(0);
+    // respond to initial hash route after menu renders
+    window.addEventListener('hashchange', handleRouteChange);
+    handleRouteChange();
     // pull accent color from the displayed book cover
     setAccentFromImage('.cover-column img');
 });
