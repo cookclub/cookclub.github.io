@@ -676,12 +676,7 @@ class RecipeSignupForm {
 
         header.appendChild(headerInfo);
 
-        if (recipe.page) {
-            const pageDiv = document.createElement('div');
-            pageDiv.className = 'page-pill';
-            pageDiv.textContent = `p${recipe.page}`; // shorter label
-            header.appendChild(pageDiv);
-        }
+        // Page number is shown within expanded details only
 
         item.appendChild(header);
 
@@ -841,10 +836,7 @@ function buildRecipeDetails(recipe) {
     const entry = document.createElement('div');
     entry.className = 'recipe-entry';
 
-    const title = document.createElement('div');
-    title.className = 'title';
-    title.textContent = getRecipeName(recipe);
-    entry.appendChild(title);
+    // Title already displayed in the card header
 
     if (recipe.page) {
         const row = document.createElement('div');
