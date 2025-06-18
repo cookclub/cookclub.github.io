@@ -301,7 +301,7 @@ function openRecipeDetailModal(recipeId) {
             const form = window.recipeSignupForm;
             claimedBy = form ? form.getMemberName(recipe.claimedByDiscordId) || recipe.claimedByDiscordId : recipe.claimedByDiscordId;
         }
-        claimDiv.textContent = `Claimed by ${claimedBy}`;
+        claimDiv.textContent = `Brought by ${claimedBy}`;
     } else {
         const btn = document.createElement('button');
         btn.type = 'button';
@@ -941,7 +941,7 @@ class RecipeSignupForm {
         if (claimedBy) {
             const claimDiv = document.createElement('div');
             claimDiv.className = 'claimed-by';
-            claimDiv.textContent = `Claimed by ${claimedBy}`;
+            claimDiv.textContent = `Brought by ${claimedBy}`;
             headerInfo.appendChild(claimDiv);
         }
 
