@@ -366,7 +366,7 @@ class RecipeSignupForm {
                 radio.parentElement.classList.remove('selected');
             }
         });
-        const isCooking = value === 'yes';
+        const entry = buildRecipeDetails(recipe, true);
         
         if (isCooking) {
             this.recipeGroup.style.display = 'block';
@@ -647,7 +647,7 @@ class RecipeSignupForm {
 
         const header = document.createElement('button');
         header.type = 'button';
-        header.className = 'menu-item-header';
+        const details = buildRecipeDetails(recipe, false);
         header.setAttribute('aria-expanded', 'false');
 
         const headerInfo = document.createElement('div');
@@ -743,11 +743,13 @@ class RecipeSignupForm {
             item.addEventListener('click', () => {
                 this.recipeInput.value = recipe.name;
                 this.handleRecipeChange();
-                this.closeRecipeModal();
-                if (this.changeRecipeLink) this.changeRecipeLink.style.display = 'block';
-            });
-            this.recipeModalList.appendChild(item);
-        });
+function buildRecipeDetails(recipe, includeTitle = true) {
+    if (includeTitle) {
+        const title = document.createElement('div');
+        title.className = 'title';
+        title.textContent = recipe.name || '';
+        entry.appendChild(title);
+    }
     }
 
     getMemberName(discordId) {
