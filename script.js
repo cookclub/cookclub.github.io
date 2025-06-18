@@ -142,13 +142,23 @@ function renderCategoryPills(categories, container) {
 
 // Course and diet helpers ---------------------------------------
 const COURSE_CATEGORIES = {
+    appetizer: ['Appetizer'],
     main: ['Main course', 'Stews & one-pot meals', 'Grills & BBQ', 'Rice dishes', 'Pasta, doughs & sauces'],
     side: ['Side dish', 'Salads', 'Sauces, general', 'Dressings & marinades'],
     dessert: ['Dessert']
 };
 
+const COURSE_ORDER = ['appetizer', 'main', 'side', 'dessert'];
+const COURSE_DISPLAY_NAMES = {
+    appetizer: 'Appetizers',
+    main: 'Main Courses',
+    side: 'Side Dishes',
+    dessert: 'Desserts'
+};
+
 const COURSE_KEYWORDS = {
     dessert: ['cake', 'pie', 'cookie', 'pudding', 'tart', 'brownie'],
+    appetizer: ['dip', 'starter', 'appetizer'],
     main: ['roast', 'steak', 'pasta', 'curry', 'lasagna', 'stew'],
     side: ['salad', 'slaw', 'soup', 'dip', 'side']
 };
@@ -685,10 +695,32 @@ class RecipeSignupForm {
 
         menuList.innerHTML = '';
         const claimedRecipes = this.allRecipes.filter(r => r.claimed);
+        updateDishCount(claimedRecipes.length);
 
+        const groups = {};
         claimedRecipes.forEach(r => {
-            const item = this.renderDishCard(r);
-            menuList.appendChild(item);
+            const key = detectCourse(r) || 'other';
+            if (!groups[key]) groups[key] = [];
+            groups[key].push(r);
+        });
+
+        COURSE_ORDER.forEach(course => {
+            const items = groups[course];
+            if (!items || items.length === 0) return;
+            const section = document.createElement('div');
+            section.className = 'course-section';
+
+            const heading = document.createElement('h3');
+            heading.className = 'course-heading';
+            heading.textContent = COURSE_DISPLAY_NAMES[course] || course;
+            section.appendChild(heading);
+
+            items.forEach(recipe => {
+                const item = this.renderDishCard(recipe);
+                section.appendChild(item);
+            });
+
+            menuList.appendChild(section);
         });
 
         if (claimedRecipes.length === 0) {
@@ -884,9 +916,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     new RecipeSignupForm();
     renderEmptyMenuMessage();
+    updateDishCount(0);
     // pull accent color from the displayed book cover
     setAccentFromImage('.cover-column img');
 });
+
+function updateDishCount(count) {
+    const el = document.getElementById('dishCount');
+    if (el) {
+        el.textContent = `${count} Dish${count === 1 ? '' : 'es'} Confirmed!`;
+    }
+}
 
 function renderEmptyMenuMessage() {
     const menuList = document.querySelector('.menu-list');
