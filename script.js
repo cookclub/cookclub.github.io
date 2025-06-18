@@ -253,12 +253,19 @@ function findRecipeById(recipeId) {
 }
 
 /** Update the hash portion of the URL for routing. */
-function updateURL(recipeId) {
+let pendingNavSource = null;
+
+function updateURL(recipeId, source = 'url') {
+    pendingNavSource = source;
     if (recipeId) {
         window.location.hash = `#/recipe/${recipeId}`;
     } else {
         window.location.hash = '#/';
     }
+}
+
+function shouldShowModal(source) {
+    return source === 'url';
 }
 
 /** Parse the current hash and extract the recipe ID, if any. */
@@ -357,7 +364,7 @@ function closeRecipeDetailModal() {
     modal.classList.remove('open');
     modal.setAttribute('aria-hidden', 'true');
     if (lastFocusedElement) lastFocusedElement.focus();
-    updateURL('');
+    updateURL('', 'modal');
 }
 
 /** Expand the card corresponding to the given recipe ID. */
@@ -367,12 +374,22 @@ function openRecipeCard(recipeId) {
 
 /** Respond to hash changes by opening the appropriate card. */
 function handleRouteChange() {
+    const source = pendingNavSource || 'url';
     const route = parseCurrentURL();
     if (route.type === 'recipe') {
-        openRecipeDetailModal(route.id);
+        if (shouldShowModal(source)) {
+            openRecipeDetailModal(route.id);
+        } else {
+            openRecipeCard(route.id);
+        }
     } else {
-        closeRecipeDetailModal();
+        if (shouldShowModal(source)) {
+            closeRecipeDetailModal();
+        } else {
+            closeAllRecipeCards();
+        }
     }
+    pendingNavSource = null;
 }
 
 class RecipeSignupForm {
@@ -958,9 +975,13 @@ class RecipeSignupForm {
         item.appendChild(details);
 
         header.addEventListener('click', () => {
-            const route = parseCurrentURL();
-            if (route.type !== 'recipe' || route.id !== recipeId) {
-                updateURL(recipeId);
+            const expanded = item.classList.toggle('open');
+            header.setAttribute('aria-expanded', expanded);
+            details.style.display = expanded ? 'block' : 'none';
+            if (expanded) {
+                updateURL(recipeId, 'card');
+            } else {
+                updateURL('', 'card');
             }
             openRecipeDetailModal(recipeId);
         });
