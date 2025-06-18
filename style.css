@@ -193,6 +193,12 @@ body {
   cursor: pointer;
 }
 
+.menu-header-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
 .menu-item-header::after {
   content: "\25BC"; /* downward triangle */
   font-size: 0.8rem;
@@ -235,6 +241,7 @@ body {
 .menu-item .claimed-by {
   color: #555;
   font-size: 0.9rem;
+  margin-top: 2px;
 }
 
   .page-pill {
