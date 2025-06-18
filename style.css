@@ -14,6 +14,11 @@ body {
   min-height: 100vh;
 }
 
+/* Serif font just for headings */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Fraunces', serif;
+}
+
 /* aspect ratio of the book cover (width / height) */
 :root {
   --cover-ratio: 0.806; /* natural width/height ratio of the book cover */
