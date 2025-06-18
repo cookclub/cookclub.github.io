@@ -23,6 +23,28 @@ let nextColorIndex = 0;
 const guestCodes = ["cltgalpals"];
 
 // -------------------------------------------------------------
+// Audience type detection
+// -------------------------------------------------------------
+(() => {
+    // Check for ?g= query param when the script loads
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('g');
+    const stored = localStorage.getItem('audienceType');
+
+    if (code && guestCodes.includes(code.toLowerCase())) {
+        // Recognized guest code => treat as guest
+        window.audienceType = 'guest';
+        localStorage.setItem('audienceType', 'guest');
+    } else if (stored) {
+        // Reuse the previously stored audience type
+        window.audienceType = stored;
+    } else {
+        // Default to member for all other cases
+        window.audienceType = 'member';
+    }
+})();
+
+// -------------------------------------------------------------
 // Accent color extraction utilities
 // -------------------------------------------------------------
 function rgbToHsl(r, g, b) {
