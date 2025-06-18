@@ -786,3 +786,29 @@ button:disabled {
     width: calc(100% - 20px);
   }
 }
+
+/* Full-page loading overlay - hidden by default
+   Shows a friendly message while data loads */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  display: none; /* Toggle to flex when activated */
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  font-size: 1.25rem;
+  line-height: 1.4;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  color: #2B2B2B;
+  z-index: 1200; /* above all content */
+}
+
+@media (prefers-color-scheme: dark) {
+  .loading-overlay {
+    background: rgba(0, 0, 0, 0.85);
+    color: #ffffff;
+  }
+}
