@@ -785,37 +785,63 @@ class RecipeSignupForm {
         };
     }
 
+    // async submitToGoogleSheets(formData) {
+    //     if (!CONFIG.SCRIPT_URL) {
+    //         throw new Error('Google Apps Script URL not configured');
+    //     }
+
+    //     console.log('📡 Submitting to Google Apps Script...');
+
+    //     // Send the form data as JSON so the server can parse it directly
+    //     const response = await fetch(CONFIG.SCRIPT_URL, {
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type': 'application/json'
+    //         },
+    //         body: JSON.stringify(formData)
+    //     });
+
+    //     if (!response.ok) {
+    //         throw new Error(`HTTP error! status: ${response.status}`);
+    //     }
+
+    //     const result = await response.json();
+    //     console.log('📥 Submission result:', result);
+
+    //     if (!result.success) {
+    //         throw new Error(result.error || result.message || 'Submission failed');
+    //     }
+
+    //     return result;
+    // }
+
     async submitToGoogleSheets(formData) {
         if (!CONFIG.SCRIPT_URL) {
             throw new Error('Google Apps Script URL not configured');
         }
-
+    
         console.log('📡 Submitting to Google Apps Script...');
-
-        // Send the form data as JSON so the server can parse it directly
+    
+        // Send JSON body WITHOUT Content-Type header
+        // This avoids CORS preflight while keeping clean JSON format
         const response = await fetch(CONFIG.SCRIPT_URL, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formData)
+            body: JSON.stringify(formData)  // Pure JSON, no headers
         });
-
+    
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-
+    
         const result = await response.json();
         console.log('📥 Submission result:', result);
-
+    
         if (!result.success) {
             throw new Error(result.error || result.message || 'Submission failed');
         }
-
+    
         return result;
     }
-
-
     
     // async submitToGoogleSheets(formData) {
     //     if (!CONFIG.SCRIPT_URL) {
