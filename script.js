@@ -769,13 +769,11 @@ class RecipeSignupForm {
         const note      = this.notesField.value.trim();
         const recordUrl = selectedRecipe ? (selectedRecipe.recordUrl || '') : '';
 
-        return {
+        const data = {
             eventName   : document.getElementById('eventName').value,
             eventDate   : document.getElementById('eventDate').value,
             audienceType: this.audienceType,
-            discordId   : member && this.audienceType === 'member' ? member.discordId : '',
             displayName : this.audienceType === 'member' && member ? member.displayName : this.nameInput.value.trim(),
-            email       : this.audienceType === 'guest' ? this.emailInput.value.trim() : '',
             cooking     : cookingFlag,
             recipeId    : selectedRecipe ? Number(selectedRecipe.id) : null,
             recipeName  : selectedRecipe ? getRecipeName(selectedRecipe) : '',
@@ -783,6 +781,15 @@ class RecipeSignupForm {
             note,
             timestamp   : new Date().toISOString()
         };
+
+        // Only include the discordId for members to avoid server-side validation errors
+        if (this.audienceType === 'member' && member) {
+            data.discordId = member.discordId;
+        } else if (this.audienceType === 'guest') {
+            data.email = this.emailInput.value.trim();
+        }
+
+        return data;
     }
 
     // async submitToGoogleSheets(formData) {
