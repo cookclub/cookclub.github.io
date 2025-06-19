@@ -121,6 +121,18 @@ const CONFIG = {
             claimed: false,
             claimedByDiscordId: '',
             claimedAt: ''
+        },
+        {
+            id: 9,
+            name: 'Cucumber Mint Cooler',
+            description: 'Refreshing sparkling drink',
+            page: 192,
+            categories: ['Beverages / drinks (no-alcohol)'],
+            ingredients: 'cucumber; mint; soda water; lime',
+            accompaniments: '',
+            claimed: false,
+            claimedByDiscordId: '',
+            claimedAt: ''
         }
     ],
     

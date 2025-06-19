@@ -31,6 +31,7 @@ h1, h2, h3, h4, h5, h6 {
   --course-side: #3DA351;
   --course-dessert: #F4B84B;
   --course-appetizer: #0070A3;
+  --course-drink: #4E5FA9;
   /* accent hue pulled from the current book cover */
   --accent: #6A5AF9;
 }
@@ -336,6 +337,7 @@ h1, h2, h3, h4, h5, h6 {
 .dish-card--side       { --course-color: var(--course-side); }
 .dish-card--dessert    { --course-color: var(--course-dessert); }
 .dish-card--appetizer  { --course-color: var(--course-appetizer); }
+.dish-card--drink      { --course-color: var(--course-drink); }
 
 .dish-card--veg {
   position: relative;

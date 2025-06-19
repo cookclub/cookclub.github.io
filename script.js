@@ -111,22 +111,25 @@ const COURSE_CATEGORIES = {
     appetizer: ['Appetizer'],
     main: ['Main course', 'Stews & one-pot meals', 'Grills & BBQ', 'Rice dishes', 'Pasta, doughs & sauces'],
     side: ['Side dish', 'Salads', 'Sauces, general', 'Dressings & marinades'],
-    dessert: ['Dessert']
+    dessert: ['Dessert'],
+    drink: ['Beverages / drinks (no-alcohol)']
 };
 
-const COURSE_ORDER = ['appetizer', 'main', 'side', 'dessert'];
+const COURSE_ORDER = ['appetizer', 'main', 'side', 'dessert', 'drink'];
 const COURSE_DISPLAY_NAMES = {
     appetizer: 'Appetizers',
     main: 'Main Courses',
     side: 'Side Dishes',
-    dessert: 'Desserts'
+    dessert: 'Desserts',
+    drink: 'Drinks'
 };
 
 const COURSE_KEYWORDS = {
     dessert: ['cake', 'pie', 'cookie', 'pudding', 'tart', 'brownie'],
     appetizer: ['dip', 'starter', 'appetizer'],
     main: ['roast', 'steak', 'pasta', 'curry', 'lasagna', 'stew'],
-    side: ['salad', 'slaw', 'soup', 'dip', 'side']
+    side: ['salad', 'slaw', 'soup', 'dip', 'side'],
+    drink: ['drink', 'beverage', 'juice', 'mocktail', 'smoothie']
 };
 
 const VEG_KEYWORDS = ['tofu', 'broccoli', 'cauliflower', 'tempeh', 'seitan'];
