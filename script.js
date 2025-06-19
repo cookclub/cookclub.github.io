@@ -715,10 +715,11 @@ class RecipeSignupForm {
             const formData = this.getFormData();
             console.log('📤 Submitting form data:', formData);
             
-            // Submit to Google Apps Script
-            await this.submitToGoogleSheets(formData);
+            // Submit to our RSVP API
+            await this.submitToApi(formData);
             
             this.showConfirmation();
+            this.showToast('Your RSVP is confirmed! 🎉');
             this.resetForm();
 
             // Reload data to get updated recipe list
@@ -785,35 +786,42 @@ class RecipeSignupForm {
         };
     }
 
-    async submitToGoogleSheets(formData) {
-      if (!CONFIG.SCRIPT_URL) {
-        throw new Error('Google Apps Script URL not configured');
-      }
-      
-      console.log('📡 Submitting to Google Apps Script...');
-      
-      // Create form data (no JSON, no custom headers = no CORS preflight)
-      const formBody = new URLSearchParams();
-      formBody.append('action', 'submitRSVP');
-      formBody.append('data', JSON.stringify(formData));
-      
-      const response = await fetch(CONFIG.SCRIPT_URL, {
-        method: 'POST',
-        body: formBody  // No headers = simple request
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const result = await response.json();
-      console.log('📥 Submission result:', result);
-      
-      if (!result.success) {
-        throw new Error(result.error || result.message || 'Submission failed');
-      }
-      
-      return result;
+    async submitToApi(formData) {
+        console.log('📡 Submitting to /api/rsvp...');
+
+        // Construct the payload using existing form values
+        const payload = {
+            userDisplayName: formData.displayName,
+            discordIdentifier: formData.discordId || null,
+            communicationPreference: formData.audienceType === 'member' ? 'discord' : 'email',
+            contactEmail: formData.audienceType === 'guest' ? formData.email : null,
+            dishDetails: {
+                cooking  : formData.cooking,
+                recipeId : formData.recipeId,
+                recipeName: formData.recipeName,
+                note     : formData.note,
+                recordUrl: formData.recordUrl
+            }
+        };
+
+        const response = await fetch('/api/rsvp', {
+            method : 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body   : JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        console.log('📥 Submission result:', result);
+
+        if (!result.success) {
+            throw new Error(result.error || result.message || 'Submission failed');
+        }
+
+        return result;
     }
 
 
@@ -883,6 +891,16 @@ class RecipeSignupForm {
     hideMessage() {
         this.messageDiv.style.display = 'none';
         this.messageDiv.className = 'message';
+    }
+
+    showToast(text) {
+        const toast = document.getElementById('toast');
+        if (!toast) return;
+        toast.textContent = text;
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 4000);
     }
 
     showConfirmation() {
