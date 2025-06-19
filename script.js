@@ -385,9 +385,6 @@ class RecipeSignupForm {
         this.form = document.getElementById('recipeForm');
         this.memberInput = document.getElementById('member');
         this.memberList = document.getElementById('member-list');
-        this.guestName = document.getElementById('guestName');
-        this.guestEmail = document.getElementById('guestEmail');
-        this.audienceField = document.getElementById('audienceType');
         this.cookingRadios = document.querySelectorAll('input[name="cooking"]');
         this.recipeInput = document.getElementById('recipe');
         this.recipeGroup = document.getElementById('recipeGroup');
@@ -430,13 +427,6 @@ class RecipeSignupForm {
         this.form.addEventListener('submit', (e) => this.handleSubmit(e));
         this.memberInput.addEventListener('input', () => this.validateForm());
         this.memberInput.addEventListener('change', () => this.validateForm());
-        if (this.guestName) {
-            this.guestName.addEventListener('input', () => this.validateForm());
-            this.guestName.addEventListener('change', () => this.validateForm());
-        }
-        if (this.guestEmail) {
-            this.guestEmail.addEventListener('input', () => this.validateForm());
-        }
         
         // Set event name
         document.getElementById('eventName').value = CONFIG.EVENT.name;
@@ -623,13 +613,7 @@ class RecipeSignupForm {
     }
     
     validateForm() {
-        const audience = this.audienceField ? this.audienceField.value : 'member';
-        let nameValid = false;
-        if (audience === 'member') {
-            nameValid = this.members.some(m => m.displayName === this.memberInput.value);
-        } else {
-            nameValid = this.guestName && this.guestName.value.trim() !== '';
-        }
+        const nameValid = this.memberInput.value.trim() !== '';
 
         const cookingValue = this.getCookingValue();
         const cookingSelected = cookingValue !== '';
@@ -698,7 +682,6 @@ class RecipeSignupForm {
     //     };
 
     getFormData() {
-        const audience    = this.audienceField ? this.audienceField.value : 'member';
         const member      = this.members.find(m => m.displayName === this.memberInput.value.trim());
         const cookingFlag = this.getCookingValue() === 'yes';
         const recipeInput = this.recipeInput.value.trim();
@@ -711,18 +694,16 @@ class RecipeSignupForm {
         const recordUrl = selectedRecipe ? (selectedRecipe.recordUrl || '') : '';
 
         return {
-            eventName   : document.getElementById('eventName').value,
-            eventDate   : document.getElementById('eventDate').value,
-            audienceType: audience,
-            discordId   : audience === 'member' && member ? member.discordId : '',
-            displayName : audience === 'member' && member ? member.displayName : (this.guestName ? this.guestName.value.trim() : ''),
-            guestEmail  : audience === 'guest' && this.guestEmail ? this.guestEmail.value.trim() : '',
-            cooking     : cookingFlag,
-            recipeId    : selectedRecipe ? Number(selectedRecipe.id) : null,
-            recipeName  : selectedRecipe ? getRecipeName(selectedRecipe) : '',
+            eventName  : document.getElementById('eventName').value,
+            eventDate  : document.getElementById('eventDate').value,
+            discordId  : member ? member.discordId : '',
+            displayName: member ? member.displayName : this.memberInput.value.trim(),
+            cooking    : cookingFlag,
+            recipeId   : selectedRecipe ? Number(selectedRecipe.id) : null,
+            recipeName : selectedRecipe ? getRecipeName(selectedRecipe) : '',
             recordUrl,
             note,
-            timestamp   : new Date().toISOString()
+            timestamp  : new Date().toISOString()
         };
     }
 
@@ -1013,60 +994,6 @@ class RecipeSignupForm {
 
 // Initialize the form when the page loads
 document.addEventListener('DOMContentLoaded', () => {
-    const memberForm = document.getElementById('member-form');
-    const guestForm = document.getElementById('guest-form');
-    const switchToGuestBtn = document.getElementById('switch-to-guest-btn');
-    const audienceField = document.getElementById('audienceType');
-    const welcomeEl = document.getElementById('welcomeMessage');
-    const memberInputField = document.getElementById('member');
-
-    // Show a short welcome below the subhead depending on audience type
-    function updateWelcome() {
-        if (!welcomeEl) return;
-        const isGuestAudience = audienceField && audienceField.value === 'guest';
-        if (isGuestAudience) {
-            welcomeEl.textContent =
-                "A special welcome to our guests! You've been invited by a friend of the club, and we're thrilled to have you.";
-        } else {
-            const name = memberInputField ? memberInputField.value.trim() : '';
-            const namePart = name ? `, ${name}` : '';
-            welcomeEl.textContent = `Welcome back${namePart}! So glad you're here again.`;
-        }
-    }
-
-    function showMemberUI() {
-        if (memberForm) memberForm.style.display = 'block';
-        if (guestForm) guestForm.style.display = 'none';
-        if (audienceField) audienceField.value = 'member';
-        updateWelcome(); // refresh greeting when switching modes
-    }
-
-    function showGuestUI() {
-        if (memberForm) memberForm.style.display = 'none';
-        if (guestForm) guestForm.style.display = 'block';
-        if (audienceField) audienceField.value = 'guest';
-        updateWelcome(); // refresh greeting when switching modes
-    }
-
-    const rsvpForm = document.getElementById('rsvp-form');
-
-    showMemberUI();
-    if (rsvpForm) {
-        rsvpForm.style.display = 'block';
-    }
-
-    if (switchToGuestBtn) {
-        switchToGuestBtn.addEventListener('click', () => {
-            showGuestUI();
-        });
-    }
-
-
-    if (memberInputField) {
-        memberInputField.addEventListener('input', updateWelcome);
-        memberInputField.addEventListener('change', updateWelcome);
-    }
-
     new RecipeSignupForm();
     renderEmptyMenuMessage();
     updateDishCount(0);
