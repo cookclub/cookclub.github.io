@@ -383,8 +383,14 @@ class RecipeSignupForm {
     initializeForm() {
         // Get form elements
         this.form = document.getElementById('recipeForm');
-        this.memberInput = document.getElementById('member');
-        this.memberList = document.getElementById('member-list');
+        this.nameSelectGroup = document.getElementById('nameSelectGroup');
+        this.nameInputGroup  = document.getElementById('nameInputGroup');
+        this.nameSelect  = document.getElementById('nameSelect');
+        this.nameInput   = document.getElementById('nameInput');
+        this.backToList  = document.getElementById('backToList');
+        this.emailGroup  = document.getElementById('emailGroup');
+        this.emailInput  = document.getElementById('email');
+        this.audienceType = 'member';
         this.cookingRadios = document.querySelectorAll('input[name="cooking"]');
         this.recipeInput = document.getElementById('recipe');
         this.recipeGroup = document.getElementById('recipeGroup');
@@ -425,8 +431,16 @@ class RecipeSignupForm {
             this.recipeSearch.addEventListener('input', () => this.renderRecipeModalList());
         }
         this.form.addEventListener('submit', (e) => this.handleSubmit(e));
-        this.memberInput.addEventListener('input', () => this.validateForm());
-        this.memberInput.addEventListener('change', () => this.validateForm());
+        this.nameSelect.addEventListener('change', () => this.handleNameChange());
+        this.nameInput.addEventListener('input', () => this.validateForm());
+        if (this.backToList) {
+            this.backToList.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.showNameSelect();
+            });
+        }
+
+        this.showNameSelect();
         
         // Set event name
         document.getElementById('eventName').value = CONFIG.EVENT.name;
@@ -539,14 +553,27 @@ class RecipeSignupForm {
     }
     
     populateMemberDropdown() {
-        // Populate datalist for member names
-        if (this.memberList) this.memberList.innerHTML = '';
+        if (!this.nameSelect) return;
+        this.nameSelect.innerHTML = '';
+
+        const placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.textContent = 'Select your name…';
+        placeholder.disabled = true;
+        placeholder.selected = true;
+        this.nameSelect.appendChild(placeholder);
 
         this.members.forEach(member => {
             const option = document.createElement('option');
-            option.value = member.displayName;
-            this.memberList.appendChild(option);
+            option.value = member.discordId;
+            option.textContent = member.displayName;
+            this.nameSelect.appendChild(option);
         });
+
+        const newOpt = document.createElement('option');
+        newOpt.value = 'new';
+        newOpt.textContent = "I'm new / type my name";
+        this.nameSelect.appendChild(newOpt);
 
         console.log('👥 Populated member list with', this.members.length, 'members');
     }
@@ -587,6 +614,45 @@ class RecipeSignupForm {
         
         this.validateForm();
     }
+
+    handleNameChange() {
+        if (this.nameSelect.value === 'new') {
+            this.showNameInput();
+        } else {
+            this.audienceType = 'member';
+            if (this.emailGroup) {
+                this.emailGroup.style.display = 'none';
+                this.emailInput.required = false;
+                this.emailInput.value = '';
+            }
+            this.validateForm();
+        }
+    }
+
+    showNameInput() {
+        this.audienceType = 'guest';
+        if (this.nameSelectGroup) this.nameSelectGroup.style.display = 'none';
+        if (this.nameInputGroup) this.nameInputGroup.style.display = 'block';
+        if (this.emailGroup) {
+            this.emailGroup.style.display = 'block';
+            this.emailInput.required = true;
+        }
+        this.nameSelect.value = '';
+        this.validateForm();
+    }
+
+    showNameSelect() {
+        this.audienceType = 'member';
+        if (this.nameSelectGroup) this.nameSelectGroup.style.display = 'block';
+        if (this.nameInputGroup) this.nameInputGroup.style.display = 'none';
+        if (this.emailGroup) {
+            this.emailGroup.style.display = 'none';
+            this.emailInput.required = false;
+            this.emailInput.value = '';
+        }
+        this.nameInput.value = '';
+        this.validateForm();
+    }
     
     handleRecipeChange() {
         const inputName = this.recipeInput.value;
@@ -613,13 +679,21 @@ class RecipeSignupForm {
     }
     
     validateForm() {
-        const nameValid = this.memberInput.value.trim() !== '';
+        let nameValid = false;
+        let emailValid = true;
+
+        if (this.audienceType === 'member') {
+            nameValid = this.nameSelect.value && this.nameSelect.value !== 'new';
+        } else {
+            nameValid = this.nameInput.value.trim() !== '';
+            emailValid = this.emailInput.value.trim() !== '' && this.emailInput.checkValidity();
+        }
 
         const cookingValue = this.getCookingValue();
         const cookingSelected = cookingValue !== '';
         const recipeSelected = cookingValue === 'no' || this.recipes.some(r => getRecipeName(r) === this.recipeInput.value);
 
-        const isValid = nameValid && cookingSelected && recipeSelected;
+        const isValid = nameValid && cookingSelected && recipeSelected && emailValid;
         this.submitBtn.disabled = !isValid;
 
         return isValid;
@@ -682,7 +756,7 @@ class RecipeSignupForm {
     //     };
 
     getFormData() {
-        const member      = this.members.find(m => m.displayName === this.memberInput.value.trim());
+        const member      = this.members.find(m => m.discordId === this.nameSelect.value);
         const cookingFlag = this.getCookingValue() === 'yes';
         const recipeInput = this.recipeInput.value.trim();
 
@@ -694,16 +768,18 @@ class RecipeSignupForm {
         const recordUrl = selectedRecipe ? (selectedRecipe.recordUrl || '') : '';
 
         return {
-            eventName  : document.getElementById('eventName').value,
-            eventDate  : document.getElementById('eventDate').value,
-            discordId  : member ? member.discordId : '',
-            displayName: member ? member.displayName : this.memberInput.value.trim(),
-            cooking    : cookingFlag,
-            recipeId   : selectedRecipe ? Number(selectedRecipe.id) : null,
-            recipeName : selectedRecipe ? getRecipeName(selectedRecipe) : '',
+            eventName   : document.getElementById('eventName').value,
+            eventDate   : document.getElementById('eventDate').value,
+            audienceType: this.audienceType,
+            discordId   : member && this.audienceType === 'member' ? member.discordId : '',
+            displayName : this.audienceType === 'member' && member ? member.displayName : this.nameInput.value.trim(),
+            email       : this.audienceType === 'guest' ? this.emailInput.value.trim() : '',
+            cooking     : cookingFlag,
+            recipeId    : selectedRecipe ? Number(selectedRecipe.id) : null,
+            recipeName  : selectedRecipe ? getRecipeName(selectedRecipe) : '',
             recordUrl,
             note,
-            timestamp  : new Date().toISOString()
+            timestamp   : new Date().toISOString()
         };
     }
 
@@ -824,6 +900,7 @@ class RecipeSignupForm {
     
     resetForm() {
         this.form.reset();
+        this.showNameSelect();
         this.recipeGroup.style.display = 'none';
         this.recipeEntry.style.display = 'none';
         this.recipeEntry.innerHTML = '';
