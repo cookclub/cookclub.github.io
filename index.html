@@ -29,16 +29,9 @@
                 <p id="welcomeMessage" class="welcome-message" aria-live="polite"></p>
             </div>
 
-            <fieldset id="audience-selector" class="audience-selector">
-                <legend>We’re so glad you’re joining us! First, tell us how you’re arriving…</legend>
-                <button type="button" id="audience-guest" class="audience-button" data-audience="guest">🎟️ I’m a guest from CLT Gal Pals</button>
-                <button type="button" id="audience-member" class="audience-button" data-audience="member">🥄 I’m a regular (Discord member)</button>
-            </fieldset>
-
-            <div id="rsvp-form" style="display:none;">
+            <div id="rsvp-form">
             <div class="main-container">
                 <div class="form-card">
-            <button type="button" id="switch-audience" class="switch-link switch-audience" style="display:none;">Not you? Switch</button>
             <form id="recipeForm" novalidate>
                 <input type="hidden" id="eventName" name="eventName" readonly>
                 <input type="hidden" id="eventDate" name="eventDate" readonly>
