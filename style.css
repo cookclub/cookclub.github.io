@@ -658,17 +658,7 @@ button:disabled {
 }
 
 
-/* Animate RSVP form when revealed */
-#rsvp-form {
-  opacity: 0;
-  transform: translateY(-10px);
-  transition: opacity 0.4s ease, transform 0.4s ease;
-}
 
-#rsvp-form.show {
-  opacity: 1;
-  transform: translateY(0);
-}
 
 
 /* Recipe picker modal / sheet */
