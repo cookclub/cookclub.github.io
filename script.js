@@ -1044,7 +1044,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const memberForm = document.getElementById('member-form');
     const guestForm = document.getElementById('guest-form');
     const switchToGuestBtn = document.getElementById('switch-to-guest-btn');
-    const switchAudienceLink = document.getElementById('switch-audience');
     const audienceField = document.getElementById('audienceType');
     const audienceCodeField = document.getElementById('audienceCode');
     const welcomeEl = document.getElementById('welcomeMessage');
@@ -1073,7 +1072,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (audienceCodeField) audienceCodeField.value = '';
         localStorage.setItem('audienceType', 'member'); // persist choice
         localStorage.removeItem('audienceCode'); // clear stale guest code
-        if (switchAudienceLink) switchAudienceLink.style.display = 'block';
         updateWelcome(); // refresh greeting when switching modes
     }
 
@@ -1086,47 +1084,21 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('audienceType', 'guest'); // persist choice
         localStorage.setItem('audienceCode', code);
         console.log(`Showing Guest UI for code: ${code}`);
-        if (switchAudienceLink) switchAudienceLink.style.display = 'block';
         updateWelcome(); // refresh greeting when switching modes
     }
 
     const rsvpForm = document.getElementById('rsvp-form');
-    const audienceSelector = document.getElementById('audience-selector');
-    const guestBtn = document.getElementById('audience-guest');
-    const memberBtn = document.getElementById('audience-member');
 
-    function handleAudienceChoice(type) {
-        if (type === 'guest') {
-            showGuestUI(guestCode || 'public');
-        } else {
-            showMemberUI();
-        }
-        if (audienceSelector) audienceSelector.style.display = 'none';
-        if (rsvpForm) {
-            rsvpForm.style.display = 'block';
-            requestAnimationFrame(() => rsvpForm.classList.add('show'));
-        }
-    }
-
-    // When returning visitors have a stored selection, bypass chooser
-    if (storedType === 'guest') {
-        showGuestUI(localStorage.getItem('audienceCode') || guestCode || 'public');
-        if (audienceSelector) audienceSelector.style.display = 'none';
-        if (rsvpForm) {
-            rsvpForm.style.display = 'block';
-            requestAnimationFrame(() => rsvpForm.classList.add('show'));
-        }
-    } else if (storedType === 'member') {
+    const initialType = guestCode ? 'guest' : (storedType || 'member');
+    if (initialType === 'guest') {
+        showGuestUI(guestCode || localStorage.getItem('audienceCode') || 'public');
+    } else {
         showMemberUI();
-        if (audienceSelector) audienceSelector.style.display = 'none';
-        if (rsvpForm) {
-            rsvpForm.style.display = 'block';
-            requestAnimationFrame(() => rsvpForm.classList.add('show'));
-        }
     }
-
-    if (guestBtn) guestBtn.addEventListener('click', () => handleAudienceChoice('guest'));
-    if (memberBtn) memberBtn.addEventListener('click', () => handleAudienceChoice('member'));
+    if (rsvpForm) {
+        rsvpForm.style.display = 'block';
+        requestAnimationFrame(() => rsvpForm.classList.add('show'));
+    }
 
     if (switchToGuestBtn) {
         switchToGuestBtn.addEventListener('click', () => {
@@ -1136,13 +1108,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if (switchAudienceLink) {
-        switchAudienceLink.addEventListener('click', () => {
-            localStorage.removeItem('audienceType');
-            localStorage.removeItem('audienceCode');
-            window.location.reload();
-        });
-    }
 
     if (memberInputField) {
         memberInputField.addEventListener('input', updateWelcome);

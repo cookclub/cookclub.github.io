@@ -657,44 +657,6 @@ button:disabled {
   padding: 0;
 }
 
-/* "Not you?" link positioned in the form card corner */
-.switch-audience {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-}
-
-/* Audience selection step */
-#audience-selector {
-  margin-bottom: 2rem;
-  text-align: center;
-  border: none;
-  padding: 0;
-  background: none;
-}
-
-#audience-selector legend {
-  margin-bottom: 1rem;
-  font-weight: 600;
-}
-
-.audience-button {
-  display: block;
-  width: 100%;
-  max-width: 320px;
-  margin: 0.5rem auto;
-  padding: 12px 20px;
-  min-height: 44px;
-  font-weight: 600;
-  font-size: 1rem;
-  color: #2B2B2B;
-  background: #fff6e6;
-  border: 1px solid #ffdca4;
-  border-radius: 10px;
-  cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  transition: background-color 0.3s ease;
-}
 
 /* Animate RSVP form when revealed */
 #rsvp-form {
@@ -708,9 +670,6 @@ button:disabled {
   transform: translateY(0);
 }
 
-.audience-button:hover {
-  background: #ffdca4;
-}
 
 /* Recipe picker modal / sheet */
 .recipe-modal {
