@@ -563,17 +563,19 @@ class RecipeSignupForm {
         placeholder.selected = true;
         this.nameSelect.appendChild(placeholder);
 
+        this.nameSelect.appendChild(placeholder);
+        
+        const newOpt = document.createElement('option');
+        newOpt.value = 'new';
+        newOpt.textContent = "I'm new / type my name";
+        this.nameSelect.appendChild(newOpt);
+        
         this.members.forEach(member => {
             const option = document.createElement('option');
             option.value = member.discordId;
             option.textContent = member.displayName;
             this.nameSelect.appendChild(option);
         });
-
-        const newOpt = document.createElement('option');
-        newOpt.value = 'new';
-        newOpt.textContent = "I'm new / type my name";
-        this.nameSelect.appendChild(newOpt);
 
         console.log('👥 Populated member list with', this.members.length, 'members');
     }
