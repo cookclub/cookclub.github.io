@@ -22,35 +22,9 @@ let nextColorIndex = 0;
 // Extend this array with new guest groups as needed
 const guestCodes = ["cltgalpals"];
 
-// -------------------------------------------------------------
-// Audience type detection
-// -------------------------------------------------------------
-(() => {
-    // Check for ?g= query param when the script loads
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get('g');
-    const stored = localStorage.getItem('audienceType');
-
-    if (code && guestCodes.includes(code.toLowerCase())) {
-        // Recognized guest code => treat as guest
-        window.audienceType = 'guest';
-        localStorage.setItem('audienceType', 'guest');
-    } else if (stored) {
-        // Reuse the previously stored audience type
-        window.audienceType = stored;
-    } else {
-        // Default to member for all other cases
-        window.audienceType = 'member';
-    }
-})();
-
-/**
- * Determine if the current viewer is a guest.
- * This utility runs early so other UI steps can rely on it.
- */
-function isGuest() {
-    return window.audienceType === 'guest';
-}
+// Audience codes (e.g., special invite links)
+// Extend this array with new guest groups as needed
+const guestCodes = ["cltgalpals"]; // recognized codes in ?g=
 
 // -------------------------------------------------------------
 // Accent color extraction utilities
@@ -449,17 +423,19 @@ class RecipeSignupForm {
     validateForm() {
         const audience = this.audienceField ? this.audienceField.value : 'member';
         let nameValid = false;
+        let emailValid = true;
         if (audience === 'member') {
             nameValid = this.members.some(m => m.displayName === this.memberInput.value);
         } else {
             nameValid = this.guestName && this.guestName.value.trim() !== '';
+            emailValid = this.guestEmail && this.guestEmail.value.trim() !== '' && this.guestEmail.checkValidity();
         }
 
         const cookingValue = this.getCookingValue();
         const cookingSelected = cookingValue !== '';
         const recipeSelected = cookingValue === 'no' || this.recipes.some(r => getRecipeName(r) === this.recipeInput.value);
 
-        const isValid = nameValid && cookingSelected && recipeSelected;
+        const isValid = nameValid && emailValid && cookingSelected && recipeSelected;
         this.submitBtn.disabled = !isValid;
 
         return isValid;
@@ -677,6 +653,9 @@ class RecipeSignupForm {
         this.cookingRadios.forEach(r => r.parentElement.classList.remove('selected'));
         if (this.notesField) this.notesField.value = '';
         document.getElementById('eventName').value = CONFIG.EVENT.name;
+        // Reset name input UI back to member mode
+        const evt = new Event('resetMode');
+        document.dispatchEvent(evt);
     }
     
     renderMenu() {
@@ -817,13 +796,18 @@ document.addEventListener('DOMContentLoaded', () => {
             guestCode = normalized;
         }
     }
-    const memberForm = document.getElementById('member-form');
-    const guestForm = document.getElementById('guest-form');
-    const switchToGuestBtn = document.getElementById('switch-to-guest-btn');
+    const showCustomNameBtn = document.getElementById('showCustomName');
+    const backToListBtn = document.getElementById('backToList');
+    const nameSelectGroup = document.getElementById('nameSelectGroup');
+    const customNameGroup = document.getElementById('customNameGroup');
+    const emailGroup = document.getElementById('emailGroup');
     const audienceField = document.getElementById('audienceType');
     const audienceCodeField = document.getElementById('audienceCode');
     const welcomeEl = document.getElementById('welcomeMessage');
     const memberInputField = document.getElementById('member');
+    const guestNameField = document.getElementById('guestName');
+    const guestEmailField = document.getElementById('guestEmail');
+    let formInstance = null;
 
     // Show a short welcome below the subhead depending on audience type
     function updateWelcome() {
@@ -839,50 +823,53 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function showMemberUI() {
-        if (memberForm) memberForm.style.display = 'block';
-        if (guestForm) guestForm.style.display = 'none';
+    function activateMemberMode() {
         if (audienceField) audienceField.value = 'member';
         if (audienceCodeField) audienceCodeField.value = '';
-        localStorage.removeItem('audienceMode');
-        localStorage.removeItem('audienceCode');
-        updateWelcome(); // refresh greeting when switching modes
+        if (nameSelectGroup) nameSelectGroup.style.display = 'block';
+        if (customNameGroup) customNameGroup.style.display = 'none';
+        if (emailGroup) {
+            emailGroup.style.display = 'none';
+            if (guestEmailField) guestEmailField.required = false;
+        }
+        updateWelcome();
+        if (formInstance) formInstance.validateForm();
     }
 
-    function showGuestUI(code = 'public') {
-        if (memberForm) memberForm.style.display = 'none';
-        if (guestForm) guestForm.style.display = 'block';
+    function activateGuestMode(code = 'public') {
         if (audienceField) audienceField.value = 'guest';
         if (audienceCodeField) audienceCodeField.value = code;
-        localStorage.setItem('audienceMode', 'guest');
-        localStorage.setItem('audienceCode', code);
-        console.log(`Showing Guest UI for code: ${code}`);
-        updateWelcome(); // refresh greeting when switching modes
+        if (nameSelectGroup) nameSelectGroup.style.display = 'none';
+        if (customNameGroup) customNameGroup.style.display = 'block';
+        if (emailGroup) {
+            emailGroup.style.display = 'block';
+            if (guestEmailField) guestEmailField.required = true;
+        }
+        updateWelcome();
+        if (formInstance) formInstance.validateForm();
     }
 
     if (guestCode) {
-        showGuestUI(guestCode);
-    } else if (localStorage.getItem('audienceMode') === 'guest') {
-        const storedCode = localStorage.getItem('audienceCode') || 'public';
-        showGuestUI(storedCode);
+        activateGuestMode(guestCode);
     } else {
-        showMemberUI();
+        activateMemberMode();
     }
 
-    if (switchToGuestBtn) {
-        switchToGuestBtn.addEventListener('click', () => {
-            const newUrl = new URL(window.location.href);
-            newUrl.searchParams.set('g', 'public');
-            window.location.href = newUrl.toString();
-        });
+    if (showCustomNameBtn) {
+        showCustomNameBtn.addEventListener('click', () => activateGuestMode('public'));
     }
+    if (backToListBtn) {
+        backToListBtn.addEventListener('click', activateMemberMode);
+    }
+
+    document.addEventListener('resetMode', activateMemberMode);
 
     if (memberInputField) {
         memberInputField.addEventListener('input', updateWelcome);
         memberInputField.addEventListener('change', updateWelcome);
     }
 
-    new RecipeSignupForm();
+    formInstance = new RecipeSignupForm();
     renderEmptyMenuMessage();
     // pull accent color from the displayed book cover
     setAccentFromImage('.cover-column img');
