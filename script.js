@@ -491,7 +491,20 @@ class RecipeSignupForm {
         await new Promise(resolve => setTimeout(resolve, 1000));
 
         this.members = CONFIG.SAMPLE_MEMBERS.filter(member => member.active);
-        this.allRecipes = CONFIG.SAMPLE_RECIPES.map(r => ({ ...r }));
+        this.allRecipes = CONFIG.SAMPLE_RECIPES.map(r => {
+            const recipe = { ...r };
+            recipe.claimedByDiscordId = recipe.claimedByDiscordId || '';
+            recipe.claimedByInstagramId = recipe.claimedByInstagramId || '';
+            if (recipe.claimed) {
+                const name = recipe.claimerName || recipe.claimedBy || '';
+                recipe.claimerName = name;
+                recipe.displayName = name;
+            } else {
+                recipe.claimerName = '';
+                recipe.displayName = '';
+            }
+            return recipe;
+        });
         this.allRecipes.forEach(r => { r.urlId = generateRecipeId(r); });
         this.recipes = this.allRecipes.filter(recipe => !recipe.claimed);
     }
@@ -535,8 +548,25 @@ class RecipeSignupForm {
             
             // 4. Filter the clean arrays
             const activeMembers = members.filter(m => m.active);
-            this.allRecipes = recipes.map(r => ({ ...r, id: parseInt(r.id, 10) }));
-            this.allRecipes.forEach(r => { r.urlId = generateRecipeId(r); });
+            this.allRecipes = recipes.map(r => {
+                const recipe = { ...r, id: parseInt(r.id, 10) };
+                recipe.claimedByDiscordId = recipe.claimedByDiscordId || '';
+                recipe.claimedByInstagramId = recipe.claimedByInstagramId || '';
+                if (recipe.claimed) {
+                    let name = recipe.claimerName || recipe.displayName || recipe.claimedBy || '';
+                    if (!name && recipe.claimedByDiscordId) {
+                        const m = activeMembers.find(mem => mem.discordId === recipe.claimedByDiscordId);
+                        if (m) name = m.displayName;
+                    }
+                    recipe.claimerName = name;
+                    recipe.displayName = name;
+                } else {
+                    recipe.claimerName = '';
+                    recipe.displayName = '';
+                }
+                recipe.urlId = generateRecipeId(recipe);
+                return recipe;
+            });
             const availableRecipes = this.allRecipes.filter(r => !r.claimed);
             
             console.log('✅ Active members:', activeMembers.length);
