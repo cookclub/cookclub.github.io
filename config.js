@@ -35,8 +35,9 @@ const CONFIG = {
             ingredients: 'romaine lettuce; croutons; parmesan; Caesar dressing',
             accompaniments: 'extra parmesan; lemon wedges',
             claimed: true,
-            claimedBy: 'AliceChef',
+            claimerName: 'AliceChef',
             claimedByDiscordId: '123456789012345678',
+            claimedByInstagramId: '',
             claimedAt: ''
         },
         {
@@ -48,8 +49,9 @@ const CONFIG = {
             ingredients: 'baguette; garlic; butter; parsley',
             accompaniments: 'marinara sauce',
             claimed: true,
-            claimedBy: 'Guest Cook',
+            claimerName: 'Guest Cook',
             claimedByDiscordId: '',
+            claimedByInstagramId: '',
             claimedAt: ''
         },
         {
@@ -61,8 +63,9 @@ const CONFIG = {
             ingredients: 'chocolate; flour; sugar; eggs; butter',
             accompaniments: 'vanilla ice cream',
             claimed: false,
-            claimedBy: '',
+            claimerName: '',
             claimedByDiscordId: '',
+            claimedByInstagramId: '',
             claimedAt: ''
         },
         {
@@ -74,8 +77,9 @@ const CONFIG = {
             ingredients: 'assorted vegetables; soy sauce; sesame oil',
             accompaniments: 'steamed rice',
             claimed: false,
-            claimedBy: '',
+            claimerName: '',
             claimedByDiscordId: '',
+            claimedByInstagramId: '',
             claimedAt: ''
         },
         {
@@ -87,8 +91,9 @@ const CONFIG = {
             ingredients: 'mixed fresh fruit',
             accompaniments: 'honey yogurt dip',
             claimed: false,
-            claimedBy: '',
+            claimerName: '',
             claimedByDiscordId: '',
+            claimedByInstagramId: '',
             claimedAt: ''
         },
         {
@@ -100,8 +105,9 @@ const CONFIG = {
             ingredients: 'pasta; seasonal vegetables; olive oil; parmesan',
             accompaniments: 'crusty bread',
             claimed: false,
-            claimedBy: '',
+            claimerName: '',
             claimedByDiscordId: '',
+            claimedByInstagramId: '',
             claimedAt: ''
         },
         {
@@ -113,8 +119,9 @@ const CONFIG = {
             ingredients: 'chicken wings; hot sauce; butter',
             accompaniments: 'celery sticks; blue cheese dip',
             claimed: false,
-            claimedBy: '',
+            claimerName: '',
             claimedByDiscordId: '',
+            claimedByInstagramId: '',
             claimedAt: ''
         },
         {
@@ -126,8 +133,9 @@ const CONFIG = {
             ingredients: 'assorted cheese; crackers; fruit',
             accompaniments: 'fig jam; sliced baguette',
             claimed: false,
-            claimedBy: '',
+            claimerName: '',
             claimedByDiscordId: '',
+            claimedByInstagramId: '',
             claimedAt: ''
         },
         {
@@ -139,7 +147,9 @@ const CONFIG = {
             ingredients: 'cucumber; mint; soda water; lime',
             accompaniments: '',
             claimed: false,
+            claimerName: '',
             claimedByDiscordId: '',
+            claimedByInstagramId: '',
             claimedAt: ''
         }
     ],
