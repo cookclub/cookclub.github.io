@@ -387,7 +387,7 @@ class RecipeSignupForm {
         this.initializeForm();
         this.loadData();
     }
-    
+
     initializeForm() {
         // Get form elements
         this.form = document.getElementById('recipeForm');
@@ -455,7 +455,63 @@ class RecipeSignupForm {
         document.getElementById('eventName').value = CONFIG.EVENT.name;
         
         // Set event date
-        document.getElementById('eventDate').value = CONFIG.EVENT.date;        
+        document.getElementById('eventDate').value = CONFIG.EVENT.date;
+    }
+
+    normalizeRecipeData(recipes, members) {
+        const memberMap = new Map(members.map(m => [m.discordId, m.displayName]));
+
+        return recipes.map(r => {
+            const recipe = { ...r, id: parseInt(r.id, 10) };
+
+            // STREAMLINED ATTRIBUTION: Create single claimer object
+            recipe.claimer = this.createClaimerObject(r, memberMap);
+
+            // Keep legacy fields for backward compatibility during transition
+            recipe.claimerName = recipe.claimer.name;
+            recipe.claimedByDiscordId = recipe.claimer.type === 'member' ? recipe.claimer.id : '';
+            recipe.claimedByInstagramId = recipe.claimer.type === 'instagram' ? recipe.claimer.id : '';
+
+            recipe.urlId = generateRecipeId(recipe);
+            return recipe;
+        });
+    }
+
+    createClaimerObject(recipe, memberMap) {
+        if (!recipe.claimed) {
+            return { name: '', type: 'none', id: '' };
+        }
+
+        if (recipe.claimerName) {
+            if (recipe.claimedByDiscordId) {
+                return { name: recipe.claimerName, type: 'member', id: recipe.claimedByDiscordId };
+            } else if (recipe.claimedByInstagramId) {
+                return { name: recipe.claimerName, type: 'instagram', id: recipe.claimedByInstagramId };
+            }
+            return { name: recipe.claimerName, type: 'guest', id: '' };
+        }
+
+        if (recipe.claimedByDiscordId) {
+            const memberName = memberMap.get(recipe.claimedByDiscordId);
+            return { name: memberName || recipe.claimedByDiscordId, type: 'member', id: recipe.claimedByDiscordId };
+        }
+
+        if (recipe.claimedByInstagramId) {
+            const handle = recipe.claimedByInstagramId.startsWith('@')
+                ? recipe.claimedByInstagramId
+                : `@${recipe.claimedByInstagramId}`;
+            return { name: handle, type: 'instagram', id: recipe.claimedByInstagramId };
+        }
+
+        if (recipe.claimedBy) {
+            return { name: recipe.claimedBy, type: 'guest', id: '' };
+        }
+
+        if (recipe.memberName) {
+            return { name: recipe.memberName, type: 'guest', id: '' };
+        }
+
+        return { name: 'Unknown', type: 'unknown', id: '' };
     }
     
     async loadData() {
@@ -492,19 +548,9 @@ class RecipeSignupForm {
         // Simulate API delay
         await new Promise(resolve => setTimeout(resolve, 1000));
 
-        this.members = CONFIG.SAMPLE_MEMBERS.filter(member => member.active);
-        this.allRecipes = CONFIG.SAMPLE_RECIPES.map(r => {
-            const recipe = { ...r };
-            recipe.claimedByDiscordId = recipe.claimedByDiscordId || '';
-            recipe.claimedByInstagramId = recipe.claimedByInstagramId || '';
-            // Some older sample objects use "claimedBy" instead of
-            // "claimerName". Normalize here so downstream code can rely on
-            // claimerName being present when a recipe is claimed.
-            const rawName = r.claimerName || r.claimedBy || '';
-            recipe.claimerName = recipe.claimed ? rawName : '';
-            return recipe;
-        });
-        this.allRecipes.forEach(r => { r.urlId = generateRecipeId(r); });
+        const activeMembers = CONFIG.SAMPLE_MEMBERS.filter(member => member.active);
+        this.members = activeMembers;
+        this.allRecipes = this.normalizeRecipeData(CONFIG.SAMPLE_RECIPES, activeMembers);
         this.recipes = this.allRecipes.filter(recipe => !recipe.claimed);
     }
     
@@ -547,26 +593,9 @@ class RecipeSignupForm {
             
             // 4. Filter the clean arrays
             const activeMembers = members.filter(m => m.active);
-            this.allRecipes = recipes.map(r => {
-                const recipe = { ...r, id: parseInt(r.id, 10) };
-                recipe.claimedByDiscordId = recipe.claimedByDiscordId || '';
-                recipe.claimedByInstagramId = recipe.claimedByInstagramId || '';
-                // Normalize incoming data: API may send either "claimedBy" or
-                // "claimerName" to indicate who picked the dish.
-                const baseName = r.claimerName || r.claimedBy || '';
-                if (recipe.claimed) {
-                    let name = baseName;
-                    if (!name && recipe.claimedByDiscordId) {
-                        const m = activeMembers.find(mem => mem.discordId === recipe.claimedByDiscordId);
-                        if (m) name = m.displayName;
-                    }
-                    recipe.claimerName = name;
-                } else {
-                    recipe.claimerName = '';
-                }
-                recipe.urlId = generateRecipeId(recipe);
-                return recipe;
-            });
+
+            // UPDATED: Use new normalization method
+            this.allRecipes = this.normalizeRecipeData(recipes, activeMembers);
             const availableRecipes = this.allRecipes.filter(r => !r.claimed);
             
             console.log('✅ Active members:', activeMembers.length);
@@ -819,12 +848,35 @@ class RecipeSignupForm {
             data.discordId = member.discordId;
         }
 
-        // Instagram handle is optional and shown only for guests
-        if (this.audienceType === 'guest') {
-            data.instagramHandle = this.instagramInput.value.trim();
+        // FIXED: Properly handle Instagram handle for guests
+        if (this.audienceType === 'guest' && this.instagramInput.value.trim()) {
+            let handle = this.instagramInput.value.trim();
+            if (!handle.startsWith('@')) {
+                handle = `@${handle}`;
+            }
+            data.instagramHandle = handle;
         }
 
         return data;
+    }
+
+    getClaimerDisplay(recipe) {
+        if (!recipe.claimer || !recipe.claimer.name) {
+            return 'Unknown';
+        }
+
+        const { name, type } = recipe.claimer;
+
+        switch (type) {
+            case 'member':
+                return name;
+            case 'instagram':
+                return name.startsWith('@') ? name : `@${name}`;
+            case 'guest':
+                return name;
+            default:
+                return 'Unknown';
+        }
     }
 
     // async submitToGoogleSheets(formData) {
@@ -1042,28 +1094,17 @@ class RecipeSignupForm {
         nameDiv.textContent = getRecipeName(recipe);
         headerInfo.appendChild(nameDiv);
 
-        // Determine the display name of the person who claimed this recipe.
-        // Start with any name fields provided directly on the recipe object.
-        // "claimedBy" is kept for backward compatibility with older payloads.
-        let claimedBy = recipe.claimerName || recipe.claimedBy || '';
-        // Look up Discord member names when we only have their ID.
-        if (!claimedBy && recipe.claimedByDiscordId) {
-            claimedBy = this.getMemberName(recipe.claimedByDiscordId) || recipe.claimedByDiscordId;
-        }
-        // Also support Instagram guests who may not have a Discord ID.
-        if (!claimedBy && recipe.claimedByInstagramId) {
-            claimedBy = recipe.claimedByInstagramId;
-        }
-        // Final fallback so something is always shown.
-        if (!claimedBy) {
-            claimedBy = recipe.memberName || 'Unknown';
-        }
-        if (claimedBy) {
+        // SIMPLIFIED: Use new claimer display logic
+        const claimedBy = this.getClaimerDisplay(recipe);
+        if (claimedBy && claimedBy !== 'Unknown') {
             const claimDiv = document.createElement('div');
             claimDiv.className = 'claimed-by';
-            if (!recipe.claimedByDiscordId) {
+            
+            // Add guest styling for non-members
+            if (recipe.claimer.type !== 'member') {
                 claimDiv.classList.add('guest');
             }
+            
             claimDiv.textContent = `from ${claimedBy}`;
             headerInfo.appendChild(claimDiv);
         }
