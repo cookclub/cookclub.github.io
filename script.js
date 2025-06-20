@@ -281,7 +281,7 @@ function openRecipeDetailModal(recipeId) {
     const claimDiv = document.createElement('div');
     claimDiv.className = 'claim-status';
     if (recipe.claimed) {
-        let claimedBy = recipe.claimerName || recipe.claimedBy || recipe.displayName || '';
+        let claimedBy = recipe.claimerName || '';
         if (!claimedBy && recipe.claimedByDiscordId) {
             const form = window.recipeSignupForm;
             claimedBy = form ? form.getMemberName(recipe.claimedByDiscordId) || recipe.claimedByDiscordId : recipe.claimedByDiscordId;
@@ -495,14 +495,7 @@ class RecipeSignupForm {
             const recipe = { ...r };
             recipe.claimedByDiscordId = recipe.claimedByDiscordId || '';
             recipe.claimedByInstagramId = recipe.claimedByInstagramId || '';
-            if (recipe.claimed) {
-                const name = recipe.claimerName || recipe.claimedBy || '';
-                recipe.claimerName = name;
-                recipe.displayName = name;
-            } else {
-                recipe.claimerName = '';
-                recipe.displayName = '';
-            }
+            recipe.claimerName = recipe.claimed ? (recipe.claimerName || '') : '';
             return recipe;
         });
         this.allRecipes.forEach(r => { r.urlId = generateRecipeId(r); });
@@ -553,16 +546,14 @@ class RecipeSignupForm {
                 recipe.claimedByDiscordId = recipe.claimedByDiscordId || '';
                 recipe.claimedByInstagramId = recipe.claimedByInstagramId || '';
                 if (recipe.claimed) {
-                    let name = recipe.claimerName || recipe.displayName || recipe.claimedBy || '';
+                    let name = recipe.claimerName || '';
                     if (!name && recipe.claimedByDiscordId) {
                         const m = activeMembers.find(mem => mem.discordId === recipe.claimedByDiscordId);
                         if (m) name = m.displayName;
                     }
                     recipe.claimerName = name;
-                    recipe.displayName = name;
                 } else {
                     recipe.claimerName = '';
-                    recipe.displayName = '';
                 }
                 recipe.urlId = generateRecipeId(recipe);
                 return recipe;
@@ -1042,9 +1033,20 @@ class RecipeSignupForm {
         nameDiv.textContent = getRecipeName(recipe);
         headerInfo.appendChild(nameDiv);
 
-        let claimedBy = recipe.claimerName || recipe.claimedBy || recipe.displayName || '';
+        // Determine the display name of the person who claimed this recipe.
+        // Start with any name fields provided directly on the recipe object.
+        let claimedBy = recipe.claimerName || '';
+        // Look up Discord member names when we only have their ID.
         if (!claimedBy && recipe.claimedByDiscordId) {
             claimedBy = this.getMemberName(recipe.claimedByDiscordId) || recipe.claimedByDiscordId;
+        }
+        // Also support Instagram guests who may not have a Discord ID.
+        if (!claimedBy && recipe.claimedByInstagramId) {
+            claimedBy = recipe.claimedByInstagramId;
+        }
+        // Final fallback so something is always shown.
+        if (!claimedBy) {
+            claimedBy = recipe.memberName || 'Unknown';
         }
         if (claimedBy) {
             const claimDiv = document.createElement('div');
