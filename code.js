@@ -1601,19 +1601,26 @@ function recordRSVP(formData) {
     
     const id = Date.now();
     
+    const discordId = formData.audienceType === 'member'
+      ? (formData.discordId || '')
+      : '';
+    const instagram = formData.audienceType === 'guest'
+      ? (formData.instagramHandle || '')
+      : '';
+
     const newRow = [
       id,                                           // A: Claim ID
-      formData.cooking ? 'Cook' : 'Guest',         // B: RSVP Type
-      formData.recipeName || '',                   // C: Recipe
-      formData.cooking ? formData.recipeId : '',   // D: RecipeID
-      formData.displayName,                        // E: Member Name
-      formData.discordId || '',                    // F: Discord_ID (empty for guests)
-      formData.instagramHandle || '',              // M: Instagram Handle 
+      formData.cooking ? 'Cook' : 'Guest',          // B: RSVP Type
+      formData.recipeName || '',                    // C: Recipe
+      formData.cooking ? formData.recipeId : '',    // D: RecipeID
+      formData.displayName,                         // E: Member Name
+      discordId,                                    // F: Discord ID
+      instagram,                                    // G: Instagram Handle
       formData.audienceType === 'member' ? 'yes' : 'no', // H: Is Discord
-      new Date(),                                  // I: Timestamp
-      formData.eventName || CONFIG.EVENT_NAME,     // J: Event
-      formData.eventDate || CONFIG.EVENT_DATE,     // K: Event Date
-      formData.note || ''                          // L: Notes
+      new Date(),                                   // I: Timestamp
+      formData.eventName || CONFIG.EVENT_NAME,      // J: Event
+      formData.eventDate || CONFIG.EVENT_DATE,      // K: Event Date
+      formData.note || ''                           // L: Notes
     ];
     
     rsvpsSheet.appendRow(newRow);
