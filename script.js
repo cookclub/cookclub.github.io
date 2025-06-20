@@ -391,8 +391,9 @@ class RecipeSignupForm {
         this.nameSelect  = document.getElementById('nameSelect');
         this.nameInput   = document.getElementById('nameInput');
         this.backToList  = document.getElementById('backToList');
-        this.emailGroup  = document.getElementById('emailGroup');
-        this.emailInput  = document.getElementById('email');
+        // Instagram handle field shown when a guest enters their name
+        this.instagramGroup = document.getElementById('instagramGroup');
+        this.instagramInput = document.getElementById('instagramHandle');
         this.audienceType = 'member';
         this.cookingRadios = document.querySelectorAll('input[name="cooking"]');
         this.recipeInput = document.getElementById('recipe');
@@ -625,10 +626,9 @@ class RecipeSignupForm {
             this.showNameInput();
         } else {
             this.audienceType = 'member';
-            if (this.emailGroup) {
-                this.emailGroup.style.display = 'none';
-                this.emailInput.required = false;
-                this.emailInput.value = '';
+            if (this.instagramGroup) {
+                this.instagramGroup.style.display = 'none';
+                this.instagramInput.value = '';
             }
             this.validateForm();
         }
@@ -638,9 +638,8 @@ class RecipeSignupForm {
         this.audienceType = 'guest';
         if (this.nameSelectGroup) this.nameSelectGroup.style.display = 'none';
         if (this.nameInputGroup) this.nameInputGroup.style.display = 'block';
-        if (this.emailGroup) {
-            this.emailGroup.style.display = 'block';
-            this.emailInput.required = true;
+        if (this.instagramGroup) {
+            this.instagramGroup.style.display = 'block';
         }
         this.nameSelect.value = '';
         this.validateForm();
@@ -650,10 +649,9 @@ class RecipeSignupForm {
         this.audienceType = 'member';
         if (this.nameSelectGroup) this.nameSelectGroup.style.display = 'block';
         if (this.nameInputGroup) this.nameInputGroup.style.display = 'none';
-        if (this.emailGroup) {
-            this.emailGroup.style.display = 'none';
-            this.emailInput.required = false;
-            this.emailInput.value = '';
+        if (this.instagramGroup) {
+            this.instagramGroup.style.display = 'none';
+            this.instagramInput.value = '';
         }
         this.nameInput.value = '';
         this.validateForm();
@@ -685,20 +683,18 @@ class RecipeSignupForm {
     
     validateForm() {
         let nameValid = false;
-        let emailValid = true;
 
         if (this.audienceType === 'member') {
             nameValid = this.nameSelect.value && this.nameSelect.value !== 'new';
         } else {
             nameValid = this.nameInput.value.trim() !== '';
-            emailValid = this.emailInput.value.trim() !== '' && this.emailInput.checkValidity();
         }
 
         const cookingValue = this.getCookingValue();
         const cookingSelected = cookingValue !== '';
         const recipeSelected = cookingValue === 'no' || this.recipes.some(r => getRecipeName(r) === this.recipeInput.value);
 
-        const isValid = nameValid && cookingSelected && recipeSelected && emailValid;
+        const isValid = nameValid && cookingSelected && recipeSelected;
         this.submitBtn.disabled = !isValid;
 
         return isValid;
@@ -788,8 +784,11 @@ class RecipeSignupForm {
         // Only include the discordId for members to avoid server-side validation errors
         if (this.audienceType === 'member' && member) {
             data.discordId = member.discordId;
-        } else if (this.audienceType === 'guest') {
-            data.email = this.emailInput.value.trim();
+        }
+
+        // Instagram handle is optional and shown only for guests
+        if (this.audienceType === 'guest') {
+            data.instagramHandle = this.instagramInput.value.trim();
         }
 
         return data;
