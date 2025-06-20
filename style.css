@@ -211,6 +211,16 @@ h1, h2, h3, h4, h5, h6 {
   margin-top: 1rem;
 }
 
+.course-section {
+  padding-bottom: 1rem;              /* space before divider */
+  border-bottom: 1px solid #eaeaea;  /* faint line between sections */
+}
+
+.course-section:last-child {
+  border-bottom: none;               /* avoid extra line at end */
+  padding-bottom: 0;
+}
+
 .course-heading {
   font-size: 1.1rem;
   margin-bottom: 0.5rem;
