@@ -127,16 +127,6 @@ h1, h2, h3, h4, h5, h6 {
   background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.6) 100%);
 }
 
-.mobile-hero-overlay h1 {
-  font-size: 1.5rem;
-  margin: 0 1rem 0.5rem;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
-}
-
-.scroll-down {
-  font-size: 1.75rem;
-  animation: bounce 1.6s infinite;
-}
 .cover-column img {
   width: 100%;
   height: auto;
@@ -542,16 +532,8 @@ button:disabled {
     text-align: center;
   }
 
-  .hero-text h1 {
-    display: none; /* headline appears in overlay */
-  }
-
   .mobile-hero-overlay {
     display: flex;
-  }
-
-  .scroll-down {
-    display: block;
   }
 }
 
