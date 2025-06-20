@@ -1408,8 +1408,12 @@ function doPost(e) {
         return createResponse(false, 'This recipe has already been claimed. Please choose another one.');
       }
       
-      // Mark recipe as claimed
-      markRecipeAsClaimed(formData.recipeId, formData.discordId || 'guest');
+      // Mark recipe as claimed. Store the Discord ID for members or the
+      // guest's name directly if no Discord ID was provided.
+      markRecipeAsClaimed(
+        formData.recipeId,
+        formData.discordId || formData.displayName
+      );
     }
     
     // ─── NEW: light validation for Instagram handle ───
@@ -1999,7 +2003,7 @@ function checkDuplicateRecipe(recipeId) {
 /**
  * Mark a recipe as claimed
  */
-function markRecipeAsClaimed(recipeId, discordId) {
+function markRecipeAsClaimed(recipeId, claimedBy) {
   try {
     const spreadsheet = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
     const recipesSheet = spreadsheet.getSheetByName(CONFIG.SHEETS.RECIPES);
@@ -2009,7 +2013,10 @@ function markRecipeAsClaimed(recipeId, discordId) {
       if (String(recipesData[i][COLUMNS.RECIPES.ID]) === String(recipeId)) {
         const row = i + 1; // Convert to 1-based indexing
         recipesSheet.getRange(row, COLUMNS.RECIPES.CLAIMED + 1).setValue(true);
-        recipesSheet.getRange(row, COLUMNS.RECIPES.CLAIMED_BY + 1).setValue(discordId);
+        // Store either the member's Discord ID or the guest name
+        recipesSheet
+          .getRange(row, COLUMNS.RECIPES.CLAIMED_BY + 1)
+          .setValue(claimedBy);
         recipesSheet.getRange(row, COLUMNS.RECIPES.TIMESTAMP + 1).setValue(new Date());
         break;
       }
@@ -2118,9 +2125,16 @@ function getFormData() {
       claimed:     false,
       book:        row[COLUMNS.RECIPES.BOOK]   || '',
       author:      row[COLUMNS.RECIPES.AUTHOR] || '',
-      recordUrl:   row[COLUMNS.RECIPES.RECORD_URL],   
+      recordUrl:   row[COLUMNS.RECIPES.RECORD_URL],
       claimed:     claimed === true || claimed === 'TRUE' || claimed === 'true',
-      claimedBy: memberMap[row[COLUMNS.RECIPES.CLAIMED_BY]] || '' // Resolve name
+      // Resolve the name. If the value matches a member's Discord ID, use
+      // their display name; otherwise assume it's already a plain name (guest).
+      claimedBy: (function() {
+        const raw = row[COLUMNS.RECIPES.CLAIMED_BY] || '';
+        return memberMap[raw] || raw;
+      })(),
+      // Preserve the raw Discord ID for members so the client can link it.
+      claimedByDiscordId: memberMap[row[COLUMNS.RECIPES.CLAIMED_BY]] ? row[COLUMNS.RECIPES.CLAIMED_BY] : ''
     });
     }
     
