@@ -301,13 +301,13 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 0.9rem;
   margin-top: 2px;
 }
-
+/* 
 /* light indicator for guest claimers so theme can target later */
 .menu-item .claimed-by.guest {
   font-style: italic;
   opacity: 0.9;
 }
-
+ */
   .page-pill {
     font-size: 12px; /* small but legible */
     font-weight: 500;
