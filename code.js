@@ -2070,6 +2070,20 @@ function getFormData() {
     const recipesSheet = spreadsheet.getSheetByName(CONFIG.SHEETS.RECIPES);
     const recipesData = recipesSheet.getDataRange().getValues();
     const recipes = [];
+
+    // Map recipeId -> claimer name from RSVP sheet (most recent entry wins)
+    const rsvpsSheet = spreadsheet.getSheetByName(CONFIG.SHEETS.RSVPS);
+    const rsvpsData = rsvpsSheet.getDataRange().getValues();
+    const claimerMap = {};
+    for (let i = 1; i < rsvpsData.length; i++) {
+      const row = rsvpsData[i];
+      const rId = String(row[COLUMNS.RSVPS.RECIPE_ID] || '').trim();
+      const name = (row[COLUMNS.RSVPS.MEMBER_NAME] || row[COLUMNS.RSVPS.NAME] || '').toString().trim();
+      if (rId && name) {
+        claimerMap[rId] = name; // last occurrence wins
+      }
+    }
+    const missingNames = [];
     
     console.log('Recipes data rows:', recipesData.length);
     console.log('First recipe row:', recipesData[1]); // Log for debugging
@@ -2131,14 +2145,31 @@ function getFormData() {
       // their display name; otherwise assume it's already a plain name (guest).
       claimedBy: (function() {
         const raw = row[COLUMNS.RECIPES.CLAIMED_BY] || '';
-        return memberMap[raw] || raw;
+        let name = memberMap[raw] || raw;
+        if (!name && claimerMap[String(recipeId)]) {
+          name = claimerMap[String(recipeId)];
+        }
+        if (claimed && !name) missingNames.push(recipeId);
+        return name;
       })(),
       // Preserve the raw Discord ID for members so the client can link it.
-      claimedByDiscordId: memberMap[row[COLUMNS.RECIPES.CLAIMED_BY]] ? row[COLUMNS.RECIPES.CLAIMED_BY] : ''
+      claimedByDiscordId: memberMap[row[COLUMNS.RECIPES.CLAIMED_BY]] ? row[COLUMNS.RECIPES.CLAIMED_BY] : '',
+      // convenience for the client
+      claimerName: (function() {
+        const raw = row[COLUMNS.RECIPES.CLAIMED_BY] || '';
+        let name = memberMap[raw] || raw;
+        if (!name && claimerMap[String(recipeId)]) {
+          name = claimerMap[String(recipeId)];
+        }
+        return name;
+      })()
     });
     }
     
     console.log('Available recipes found:', recipes.length);
+    if (missingNames.length > 0) {
+      console.warn('Missing claimer names for recipes:', missingNames.join(', '));
+    }
     
     return createResponse(true, 'Data retrieved successfully', {
       members: members,

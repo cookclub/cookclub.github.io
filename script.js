@@ -281,12 +281,15 @@ function openRecipeDetailModal(recipeId) {
     const claimDiv = document.createElement('div');
     claimDiv.className = 'claim-status';
     if (recipe.claimed) {
-        let claimedBy = recipe.claimedBy || recipe.displayName || '';
+        let claimedBy = recipe.claimerName || recipe.claimedBy || recipe.displayName || '';
         if (!claimedBy && recipe.claimedByDiscordId) {
             const form = window.recipeSignupForm;
             claimedBy = form ? form.getMemberName(recipe.claimedByDiscordId) || recipe.claimedByDiscordId : recipe.claimedByDiscordId;
         }
         claimDiv.textContent = `from ${claimedBy}`;
+        if (!recipe.claimedByDiscordId) {
+            claimDiv.classList.add('guest');
+        }
     } else {
         const btn = document.createElement('button');
         btn.type = 'button';
@@ -1009,13 +1012,16 @@ class RecipeSignupForm {
         nameDiv.textContent = getRecipeName(recipe);
         headerInfo.appendChild(nameDiv);
 
-        let claimedBy = recipe.claimedBy || recipe.displayName || '';
+        let claimedBy = recipe.claimerName || recipe.claimedBy || recipe.displayName || '';
         if (!claimedBy && recipe.claimedByDiscordId) {
             claimedBy = this.getMemberName(recipe.claimedByDiscordId) || recipe.claimedByDiscordId;
         }
         if (claimedBy) {
             const claimDiv = document.createElement('div');
             claimDiv.className = 'claimed-by';
+            if (!recipe.claimedByDiscordId) {
+                claimDiv.classList.add('guest');
+            }
             claimDiv.textContent = `from ${claimedBy}`;
             headerInfo.appendChild(claimDiv);
         }
