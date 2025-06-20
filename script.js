@@ -1042,9 +1042,20 @@ class RecipeSignupForm {
         nameDiv.textContent = getRecipeName(recipe);
         headerInfo.appendChild(nameDiv);
 
+        // Determine the display name of the person who claimed this recipe.
+        // Start with any name fields provided directly on the recipe object.
         let claimedBy = recipe.claimerName || recipe.claimedBy || recipe.displayName || '';
+        // Look up Discord member names when we only have their ID.
         if (!claimedBy && recipe.claimedByDiscordId) {
             claimedBy = this.getMemberName(recipe.claimedByDiscordId) || recipe.claimedByDiscordId;
+        }
+        // Also support Instagram guests who may not have a Discord ID.
+        if (!claimedBy && recipe.claimedByInstagramId) {
+            claimedBy = recipe.claimedByInstagramId;
+        }
+        // Final fallback so something is always shown.
+        if (!claimedBy) {
+            claimedBy = recipe.memberName || 'Unknown';
         }
         if (claimedBy) {
             const claimDiv = document.createElement('div');
