@@ -281,7 +281,7 @@ function openRecipeDetailModal(recipeId) {
     const claimDiv = document.createElement('div');
     claimDiv.className = 'claim-status';
     if (recipe.claimed) {
-        let claimedBy = recipe.claimedBy || '';
+        let claimedBy = recipe.claimedBy || recipe.displayName || '';
         if (!claimedBy && recipe.claimedByDiscordId) {
             const form = window.recipeSignupForm;
             claimedBy = form ? form.getMemberName(recipe.claimedByDiscordId) || recipe.claimedByDiscordId : recipe.claimedByDiscordId;
@@ -1009,7 +1009,7 @@ class RecipeSignupForm {
         nameDiv.textContent = getRecipeName(recipe);
         headerInfo.appendChild(nameDiv);
 
-        let claimedBy = recipe.claimedBy || '';
+        let claimedBy = recipe.claimedBy || recipe.displayName || '';
         if (!claimedBy && recipe.claimedByDiscordId) {
             claimedBy = this.getMemberName(recipe.claimedByDiscordId) || recipe.claimedByDiscordId;
         }
