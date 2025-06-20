@@ -180,6 +180,25 @@ function getRecipeName(recipe) {
     return recipe.name || recipe.title || '';
 }
 
+// Retrieve the display name of the person who claimed a recipe.
+// Accepts an optional lookup callback for Discord IDs.
+function getClaimerName(recipe, lookupFn) {
+    let name =
+        recipe.claimerName ||
+        recipe.displayName ||
+        recipe.memberName ||
+        recipe.claimedBy ||
+        '';
+
+    if (!name && recipe.claimedByDiscordId && typeof lookupFn === 'function') {
+        name = lookupFn(recipe.claimedByDiscordId) || recipe.claimedByDiscordId;
+    }
+    if (!name && recipe.claimedByInstagramId) {
+        name = recipe.claimedByInstagramId;
+    }
+    return name;
+}
+
 // -------------------------------------------------------------
 // Recipe ID generation & lookup utilities
 // -------------------------------------------------------------
@@ -281,13 +300,10 @@ function openRecipeDetailModal(recipeId) {
     const claimDiv = document.createElement('div');
     claimDiv.className = 'claim-status';
     if (recipe.claimed) {
+        const form = window.recipeSignupForm;
         // Prefer the normalized claimerName field but fall back to older
         // "claimedBy" property if present.
-        let claimedBy = recipe.claimerName || recipe.claimedBy || '';
-        if (!claimedBy && recipe.claimedByDiscordId) {
-            const form = window.recipeSignupForm;
-            claimedBy = form ? form.getMemberName(recipe.claimedByDiscordId) || recipe.claimedByDiscordId : recipe.claimedByDiscordId;
-        }
+        let claimedBy = getClaimerName(recipe, form ? form.getMemberName.bind(form) : null);
         claimDiv.textContent = `from ${claimedBy}`;
         if (!recipe.claimedByDiscordId) {
             claimDiv.classList.add('guest');
@@ -500,7 +516,7 @@ class RecipeSignupForm {
             // Some older sample objects use "claimedBy" instead of
             // "claimerName". Normalize here so downstream code can rely on
             // claimerName being present when a recipe is claimed.
-            const rawName = r.claimerName || r.claimedBy || '';
+            const rawName = r.claimerName || r.displayName || r.memberName || r.claimedBy || '';
             recipe.claimerName = recipe.claimed ? rawName : '';
             return recipe;
         });
@@ -553,7 +569,7 @@ class RecipeSignupForm {
                 recipe.claimedByInstagramId = recipe.claimedByInstagramId || '';
                 // Normalize incoming data: API may send either "claimedBy" or
                 // "claimerName" to indicate who picked the dish.
-                const baseName = r.claimerName || r.claimedBy || '';
+                const baseName = r.claimerName || r.displayName || r.memberName || r.claimedBy || '';
                 if (recipe.claimed) {
                     let name = baseName;
                     if (!name && recipe.claimedByDiscordId) {
@@ -1043,20 +1059,9 @@ class RecipeSignupForm {
         headerInfo.appendChild(nameDiv);
 
         // Determine the display name of the person who claimed this recipe.
-        // Start with any name fields provided directly on the recipe object.
-        // "claimedBy" is kept for backward compatibility with older payloads.
-        let claimedBy = recipe.claimerName || recipe.claimedBy || '';
-        // Look up Discord member names when we only have their ID.
-        if (!claimedBy && recipe.claimedByDiscordId) {
-            claimedBy = this.getMemberName(recipe.claimedByDiscordId) || recipe.claimedByDiscordId;
-        }
-        // Also support Instagram guests who may not have a Discord ID.
-        if (!claimedBy && recipe.claimedByInstagramId) {
-            claimedBy = recipe.claimedByInstagramId;
-        }
-        // Final fallback so something is always shown.
+        let claimedBy = getClaimerName(recipe, this.getMemberName.bind(this));
         if (!claimedBy) {
-            claimedBy = recipe.memberName || 'Unknown';
+            claimedBy = 'Unknown';
         }
         if (claimedBy) {
             const claimDiv = document.createElement('div');
