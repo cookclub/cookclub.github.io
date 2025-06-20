@@ -34,8 +34,9 @@ const CONFIG = {
             categories: ['Salad'],
             ingredients: 'romaine lettuce; croutons; parmesan; Caesar dressing',
             accompaniments: 'extra parmesan; lemon wedges',
-            claimed: false,
-            claimedByDiscordId: '',
+            claimed: true,
+            claimedBy: 'AliceChef',
+            claimedByDiscordId: '123456789012345678',
             claimedAt: ''
         },
         {
@@ -46,7 +47,8 @@ const CONFIG = {
             categories: ['Side'],
             ingredients: 'baguette; garlic; butter; parsley',
             accompaniments: 'marinara sauce',
-            claimed: false,
+            claimed: true,
+            claimedBy: 'Guest Cook',
             claimedByDiscordId: '',
             claimedAt: ''
         },
@@ -59,6 +61,7 @@ const CONFIG = {
             ingredients: 'chocolate; flour; sugar; eggs; butter',
             accompaniments: 'vanilla ice cream',
             claimed: false,
+            claimedBy: '',
             claimedByDiscordId: '',
             claimedAt: ''
         },
@@ -71,6 +74,7 @@ const CONFIG = {
             ingredients: 'assorted vegetables; soy sauce; sesame oil',
             accompaniments: 'steamed rice',
             claimed: false,
+            claimedBy: '',
             claimedByDiscordId: '',
             claimedAt: ''
         },
@@ -83,6 +87,7 @@ const CONFIG = {
             ingredients: 'mixed fresh fruit',
             accompaniments: 'honey yogurt dip',
             claimed: false,
+            claimedBy: '',
             claimedByDiscordId: '',
             claimedAt: ''
         },
@@ -95,6 +100,7 @@ const CONFIG = {
             ingredients: 'pasta; seasonal vegetables; olive oil; parmesan',
             accompaniments: 'crusty bread',
             claimed: false,
+            claimedBy: '',
             claimedByDiscordId: '',
             claimedAt: ''
         },
@@ -107,6 +113,7 @@ const CONFIG = {
             ingredients: 'chicken wings; hot sauce; butter',
             accompaniments: 'celery sticks; blue cheese dip',
             claimed: false,
+            claimedBy: '',
             claimedByDiscordId: '',
             claimedAt: ''
         },
@@ -119,6 +126,7 @@ const CONFIG = {
             ingredients: 'assorted cheese; crackers; fruit',
             accompaniments: 'fig jam; sliced baguette',
             claimed: false,
+            claimedBy: '',
             claimedByDiscordId: '',
             claimedAt: ''
         },
