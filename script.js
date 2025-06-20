@@ -281,7 +281,9 @@ function openRecipeDetailModal(recipeId) {
     const claimDiv = document.createElement('div');
     claimDiv.className = 'claim-status';
     if (recipe.claimed) {
-        let claimedBy = recipe.claimerName || '';
+        // Prefer the normalized claimerName field but fall back to older
+        // "claimedBy" property if present.
+        let claimedBy = recipe.claimerName || recipe.claimedBy || '';
         if (!claimedBy && recipe.claimedByDiscordId) {
             const form = window.recipeSignupForm;
             claimedBy = form ? form.getMemberName(recipe.claimedByDiscordId) || recipe.claimedByDiscordId : recipe.claimedByDiscordId;
@@ -495,7 +497,11 @@ class RecipeSignupForm {
             const recipe = { ...r };
             recipe.claimedByDiscordId = recipe.claimedByDiscordId || '';
             recipe.claimedByInstagramId = recipe.claimedByInstagramId || '';
-            recipe.claimerName = recipe.claimed ? (recipe.claimerName || '') : '';
+            // Some older sample objects use "claimedBy" instead of
+            // "claimerName". Normalize here so downstream code can rely on
+            // claimerName being present when a recipe is claimed.
+            const rawName = r.claimerName || r.claimedBy || '';
+            recipe.claimerName = recipe.claimed ? rawName : '';
             return recipe;
         });
         this.allRecipes.forEach(r => { r.urlId = generateRecipeId(r); });
@@ -545,8 +551,11 @@ class RecipeSignupForm {
                 const recipe = { ...r, id: parseInt(r.id, 10) };
                 recipe.claimedByDiscordId = recipe.claimedByDiscordId || '';
                 recipe.claimedByInstagramId = recipe.claimedByInstagramId || '';
+                // Normalize incoming data: API may send either "claimedBy" or
+                // "claimerName" to indicate who picked the dish.
+                const baseName = r.claimerName || r.claimedBy || '';
                 if (recipe.claimed) {
-                    let name = recipe.claimerName || '';
+                    let name = baseName;
                     if (!name && recipe.claimedByDiscordId) {
                         const m = activeMembers.find(mem => mem.discordId === recipe.claimedByDiscordId);
                         if (m) name = m.displayName;
@@ -1035,7 +1044,8 @@ class RecipeSignupForm {
 
         // Determine the display name of the person who claimed this recipe.
         // Start with any name fields provided directly on the recipe object.
-        let claimedBy = recipe.claimerName || '';
+        // "claimedBy" is kept for backward compatibility with older payloads.
+        let claimedBy = recipe.claimerName || recipe.claimedBy || '';
         // Look up Discord member names when we only have their ID.
         if (!claimedBy && recipe.claimedByDiscordId) {
             claimedBy = this.getMemberName(recipe.claimedByDiscordId) || recipe.claimedByDiscordId;
