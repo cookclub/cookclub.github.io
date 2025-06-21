@@ -48,11 +48,12 @@ const COLUMNS = {
     RECIPE_ID: 3,
     CLAIMER_ID: 4,     // Discord ID or Instagram handle
     CLAIMER_NAME: 5,   // Friendly display name (may be blank)
-    IS_DISCORD: 6,
-    TIMESTAMP: 7,
-    EVENT: 8,
-    EVENT_DATE: 9,
-    NOTES: 10
+    INSTAGRAM_HANDLE: 6,
+    IS_DISCORD: 7,
+    TIMESTAMP: 8,
+    EVENT: 9,
+    EVENT_DATE: 10,
+    NOTES: 11
   }
 };
 
@@ -246,11 +247,12 @@ function recordRSVP(formData) {
       formData.cooking ? formData.recipeId : '',    // D: RecipeID
       formData.claimerId || '',                     // E: Claimer ID
       formData.claimerDisplayName || '',            // F: Claimer Name
-      formData.audienceType === 'member' ? 'yes' : 'no', // J: Is Discord
-      new Date(),                                   // K: Timestamp
-      formData.eventName || CONFIG.EVENT_NAME,      // L: Event
-      formData.eventDate || CONFIG.EVENT_DATE,      // M: Event Date
-      formData.note || ''                           // N: Notes
+      instagram,                                    // G: Instagram handle
+      formData.audienceType === 'member' ? 'yes' : 'no', // H: Is Discord
+      new Date(),                                   // I: Timestamp
+      formData.eventName || CONFIG.EVENT_NAME,      // J: Event
+      formData.eventDate || CONFIG.EVENT_DATE,      // K: Event Date
+      formData.note || ''                           // L: Notes
     ];
     
     rsvpsSheet.appendRow(newRow);
