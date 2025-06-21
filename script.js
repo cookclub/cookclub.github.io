@@ -399,6 +399,8 @@ class RecipeSignupForm {
         // Instagram handle field shown when a guest enters their name
         this.instagramGroup = document.getElementById('instagramGroup');
         this.instagramInput = document.getElementById('instagramHandle');
+        this.nameLabel = document.getElementById('nameLabel');
+        this.nameHelp  = document.getElementById('nameHelp');
         this.audienceType = 'member';
         this.cookingRadios = document.querySelectorAll('input[name="cooking"]');
         this.recipeInput = document.getElementById('recipe');
@@ -449,7 +451,12 @@ class RecipeSignupForm {
             });
         }
 
-        this.showNameSelect();
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('audience') === 'instagram') {
+            this.showInstagramSignup();
+        } else {
+            this.showNameSelect();
+        }
         
         // Set event name
         document.getElementById('eventName').value = CONFIG.EVENT.name;
@@ -702,7 +709,28 @@ class RecipeSignupForm {
         if (this.nameInputGroup) this.nameInputGroup.style.display = 'block';
         if (this.instagramGroup) {
             this.instagramGroup.style.display = 'block';
+            this.instagramInput.required = false;
         }
+        if (this.nameHelp) this.nameHelp.style.display = 'none';
+        if (this.nameLabel) this.nameLabel.textContent = 'Your Name *';
+        const igLabel = document.getElementById('instagramLabel');
+        if (igLabel) igLabel.textContent = 'Instagram handle (optional)';
+        this.nameSelect.value = '';
+        this.validateForm();
+    }
+
+    showInstagramSignup() {
+        this.audienceType = 'instagram';
+        if (this.nameSelectGroup) this.nameSelectGroup.style.display = 'none';
+        if (this.nameInputGroup) this.nameInputGroup.style.display = 'block';
+        if (this.instagramGroup) {
+            this.instagramGroup.style.display = 'block';
+            this.instagramInput.required = true;
+        }
+        if (this.nameHelp) this.nameHelp.style.display = 'block';
+        if (this.nameLabel) this.nameLabel.textContent = 'Name (optional)';
+        const igLabel = document.getElementById('instagramLabel');
+        if (igLabel) igLabel.textContent = 'Instagram handle (required \u2013 used privately, never shown)';
         this.nameSelect.value = '';
         this.validateForm();
     }
@@ -714,8 +742,13 @@ class RecipeSignupForm {
         if (this.instagramGroup) {
             this.instagramGroup.style.display = 'none';
             this.instagramInput.value = '';
+            this.instagramInput.required = false;
         }
         this.nameInput.value = '';
+        if (this.nameHelp) this.nameHelp.style.display = 'none';
+        if (this.nameLabel) this.nameLabel.textContent = 'Your Name *';
+        const igLabel2 = document.getElementById('instagramLabel');
+        if (igLabel2) igLabel2.textContent = 'Instagram handle (optional)';
         this.validateForm();
     }
     
@@ -748,6 +781,8 @@ class RecipeSignupForm {
 
         if (this.audienceType === 'member') {
             nameValid = this.nameSelect.value && this.nameSelect.value !== 'new';
+        } else if (this.audienceType === 'instagram') {
+            nameValid = true; // optional name
         } else {
             nameValid = this.nameInput.value.trim() !== '';
         }
@@ -756,7 +791,12 @@ class RecipeSignupForm {
         const cookingSelected = cookingValue !== '';
         const recipeSelected = cookingValue === 'no' || this.recipes.some(r => getRecipeName(r) === this.recipeInput.value);
 
-        const isValid = nameValid && cookingSelected && recipeSelected;
+        let handleValid = true;
+        if (this.audienceType === 'instagram') {
+            handleValid = this.instagramInput.value.trim() !== '';
+        }
+
+        const isValid = nameValid && cookingSelected && recipeSelected && handleValid;
         this.submitBtn.disabled = !isValid;
 
         return isValid;
@@ -848,8 +888,8 @@ class RecipeSignupForm {
             data.discordId = member.discordId;
         }
 
-        // FIXED: Properly handle Instagram handle for guests
-        if (this.audienceType === 'guest' && this.instagramInput.value.trim()) {
+        // FIXED: Properly handle Instagram handle for guests and instagram audience
+        if ((this.audienceType === 'guest' || this.audienceType === 'instagram') && this.instagramInput.value.trim()) {
             let handle = this.instagramInput.value.trim();
             if (!handle.startsWith('@')) {
                 handle = `@${handle}`;
@@ -1031,7 +1071,12 @@ class RecipeSignupForm {
     
     resetForm() {
         this.form.reset();
-        this.showNameSelect();
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('audience') === 'instagram') {
+            this.showInstagramSignup();
+        } else {
+            this.showNameSelect();
+        }
         this.recipeGroup.style.display = 'none';
         this.recipeEntry.style.display = 'none';
         this.recipeEntry.innerHTML = '';
