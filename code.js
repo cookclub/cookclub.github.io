@@ -46,11 +46,8 @@ const COLUMNS = {
     RSVP_TYPE: 1,
     RECIPE: 2,
     RECIPE_ID: 3,
-    // New unified claimer fields --------------------------
     CLAIMER_ID: 4,     // Discord ID or Instagram handle
     CLAIMER_NAME: 5,   // Friendly display name (may be blank)
-
-    // Existing attendee/legacy fields ---------------------
     IS_DISCORD: 6,
     TIMESTAMP: 7,
     EVENT: 8,
