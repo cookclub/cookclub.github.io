@@ -18,6 +18,9 @@ const PILL_COLORS = [
 const categoryColorMap = new Map();
 let nextColorIndex = 0;
 
+// Determine which audience this page is serving (default to Discord)
+const AUDIENCE = new URLSearchParams(window.location.search).get('audience') || 'discord';
+
 // -------------------------------------------------------------
 // Accent color extraction utilities
 // -------------------------------------------------------------
@@ -775,6 +778,13 @@ class RecipeSignupForm {
         try {
             const formData = this.getFormData();
             console.log('📤 Submitting form data:', formData);
+
+            // Guard against missing Instagram handle when required
+            const claimerId = formData.instagramHandle || formData.discordId || '';
+            if (AUDIENCE === 'instagram' && claimerId === '') {
+                this.showMessage('Instagram handle is required for guest RSVPs', 'error');
+                return;
+            }
             
             // Submit to Google Apps Script
             await this.submitToGoogleSheets(formData);
@@ -842,6 +852,10 @@ class RecipeSignupForm {
             note,
             timestamp   : new Date().toISOString()
         };
+
+        // New claimer information for RSVP payload
+        data.claimerDisplayName = this.nameInput.value.trim();
+        data.claimerId = this.instagramInput.value.trim() || (member ? member.discordId : '');
 
         // Only include the discordId for members to avoid server-side validation errors
         if (this.audienceType === 'member' && member) {
