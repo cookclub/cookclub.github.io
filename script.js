@@ -866,7 +866,7 @@ class RecipeSignupForm {
         }
 
         // Include Instagram handle for guests or Instagram audience
-        if ((this.audienceType === 'guest' || this.audienceType === 'instagram') && this.instagramInput.value.trim()) {
+        if ((this.audienceType === 'instagram') && this.instagramInput.value.trim()) {
             let handle = this.instagramInput.value.trim();
             if (!handle.startsWith('@')) {
                 handle = `@${handle}`;
