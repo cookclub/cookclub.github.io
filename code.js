@@ -111,7 +111,7 @@ function doPost(e) {
       if (CONFIG.DISCORD_WEBHOOK_URL) {
         sendDiscordNotification(formData);
       }
-    } else if (formData.audienceType === 'guest') {
+    } else if (formData.audienceType === 'guest' || formData.audienceType === 'instagram') {
       // Send email confirmation for guests
       sendGuestEmail(formData);
       
@@ -201,13 +201,15 @@ function validateSubmission(formData) {
       return { valid: false, error: 'Invalid member – Discord ID not found in member list' };
     }
 
-  } else if (formData.audienceType === 'guest') {
+  } else if (formData.audienceType === 'guest' || formData.audienceType === 'instagram') {
 
-    // Guests have no extra mandatory fields now.
-    // (Add guest-specific checks here later if needed.)
+    if (formData.audienceType === 'instagram' && !formData.instagramHandle) {
+      return { valid: false, error: 'Instagram handle is required for Instagram audience' };
+    }
+
 
   } else {
-    return { valid: false, error: 'Invalid audience type – must be "member" or "guest"' };
+    return { valid: false, error: 'Invalid audience type – must be "member", "guest", or "instagram"' };
   }
 
   /* ── Optional Instagram handle check ─────────── */
@@ -234,7 +236,7 @@ function recordRSVP(formData) {
     const discordId = formData.audienceType === 'member'
       ? (formData.discordId || '')
       : '';
-    const instagram = formData.audienceType === 'guest'
+    const instagram = (formData.audienceType === 'guest' || formData.audienceType === 'instagram')
       ? (formData.instagramHandle || '')
       : '';
 
