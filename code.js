@@ -240,21 +240,21 @@ function recordRSVP(formData) {
       ? (formData.instagramHandle || '')
       : '';
 
-    const newRow = [
-      id,                                           // A: Claim ID
-      formData.cooking ? 'Cook' : 'Guest',          // B: RSVP Type
-      formData.recipeName || '',                    // C: Recipe
-      formData.cooking ? formData.recipeId : '',    // D: RecipeID
-      formData.claimerId || '',                     // E: Claimer ID
-      formData.claimerDisplayName || '',            // F: Claimer Name
-      instagram,                                    // G: Instagram handle
-      formData.audienceType === 'member' ? 'yes' : 'no', // H: Is Discord
-      new Date(),                                   // I: Timestamp
-      formData.eventName || CONFIG.EVENT_NAME,      // J: Event
-      formData.eventDate || CONFIG.EVENT_DATE,      // K: Event Date
-      formData.note || ''                           // L: Notes
-    ];
-    
+    // Build the row explicitly so each column position is populated
+    const newRow = new Array(Object.keys(COLUMNS.RSVPS).length).fill('');
+    newRow[COLUMNS.RSVPS.CLAIM_ID]        = id;                              // A
+    newRow[COLUMNS.RSVPS.RSVP_TYPE]       = formData.cooking ? 'Cook' : 'Guest';
+    newRow[COLUMNS.RSVPS.RECIPE]          = formData.recipeName || '';
+    newRow[COLUMNS.RSVPS.RECIPE_ID]       = formData.cooking ? formData.recipeId : '';
+    newRow[COLUMNS.RSVPS.CLAIMER_ID]      = formData.claimerId || '';
+    newRow[COLUMNS.RSVPS.CLAIMER_NAME]    = formData.claimerDisplayName || '';
+    newRow[COLUMNS.RSVPS.INSTAGRAM_HANDLE]= instagram;
+    newRow[COLUMNS.RSVPS.IS_DISCORD]      = formData.audienceType === 'member' ? 'yes' : 'no';
+    newRow[COLUMNS.RSVPS.TIMESTAMP]       = new Date();
+    newRow[COLUMNS.RSVPS.EVENT]           = formData.eventName || CONFIG.EVENT_NAME;
+    newRow[COLUMNS.RSVPS.EVENT_DATE]      = formData.eventDate || CONFIG.EVENT_DATE;
+    newRow[COLUMNS.RSVPS.NOTES]           = formData.note || '';
+
     rsvpsSheet.appendRow(newRow);
   } catch (error) {
     console.error('Error recording RSVP:', error);
