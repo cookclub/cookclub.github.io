@@ -400,6 +400,13 @@ class RecipeSignupForm {
         this.instagramGroup = document.getElementById('instagramGroup');
         this.instagramInput = document.getElementById('instagramHandle');
         this.audienceType = 'member';
+
+        // Check URL query param to set audience type (e.g., ?audience=instagram)
+        const params = new URLSearchParams(window.location.search);
+        const audParam = params.get('audience');
+        if (audParam === 'instagram') {
+            this.audienceType = 'instagram';
+        }
         this.cookingRadios = document.querySelectorAll('input[name="cooking"]');
         this.recipeInput = document.getElementById('recipe');
         this.recipeGroup = document.getElementById('recipeGroup');
@@ -449,7 +456,13 @@ class RecipeSignupForm {
             });
         }
 
-        this.showNameSelect();
+        if (this.audienceType === 'instagram') {
+            if (this.nameSelectGroup) this.nameSelectGroup.style.display = 'none';
+            if (this.nameInputGroup) this.nameInputGroup.style.display = 'block';
+            if (this.instagramGroup) this.instagramGroup.style.display = 'block';
+        } else {
+            this.showNameSelect();
+        }
         
         // Set event name
         document.getElementById('eventName').value = CONFIG.EVENT.name;
@@ -752,11 +765,15 @@ class RecipeSignupForm {
             nameValid = this.nameInput.value.trim() !== '';
         }
 
+        // Instagram handle required only when audience is "instagram"
+        this.instagramInput.required = this.audienceType === 'instagram';
+        const igValid = this.audienceType !== 'instagram' || this.instagramInput.value.trim() !== '';
+
         const cookingValue = this.getCookingValue();
         const cookingSelected = cookingValue !== '';
         const recipeSelected = cookingValue === 'no' || this.recipes.some(r => getRecipeName(r) === this.recipeInput.value);
 
-        const isValid = nameValid && cookingSelected && recipeSelected;
+        const isValid = nameValid && cookingSelected && recipeSelected && igValid;
         this.submitBtn.disabled = !isValid;
 
         return isValid;
@@ -848,8 +865,8 @@ class RecipeSignupForm {
             data.discordId = member.discordId;
         }
 
-        // FIXED: Properly handle Instagram handle for guests
-        if (this.audienceType === 'guest' && this.instagramInput.value.trim()) {
+        // Include Instagram handle for guests or Instagram audience
+        if ((this.audienceType === 'instagram') && this.instagramInput.value.trim()) {
             let handle = this.instagramInput.value.trim();
             if (!handle.startsWith('@')) {
                 handle = `@${handle}`;
