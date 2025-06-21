@@ -861,11 +861,21 @@ class RecipeSignupForm {
     }
 
     getClaimerDisplay(recipe) {
-        if (!recipe.claimer || !recipe.claimer.name) {
+        if (!recipe.claimer) {
             return 'Unknown';
         }
 
         const { name, type } = recipe.claimer;
+
+        if (!name) {
+            // When a recipe is claimed by a guest but their name wasn't
+            // recorded properly, fall back to the generic "Guest" label so
+            // the menu still shows who is bringing the dish.
+            if (recipe.claimed && type === 'guest') {
+                return 'Guest';
+            }
+            return 'Unknown';
+        }
 
         switch (type) {
             case 'member':

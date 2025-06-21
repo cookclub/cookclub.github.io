@@ -564,7 +564,12 @@ function getFormData() {
         if (!name && claimerMap[String(recipeId)]) {
           name = claimerMap[String(recipeId)];
         }
-        if (claimed && !name) missingNames.push(recipeId);
+        if (claimed && !name) {
+          missingNames.push(recipeId);
+          // Use a generic placeholder so the front-end can still show
+          // that the dish was claimed by an unnamed guest.
+          name = 'Guest';
+        }
         return name;
       })(),
       // Preserve the raw Discord ID for members so the client can link it.
@@ -575,6 +580,9 @@ function getFormData() {
         let name = memberMap[raw] || raw;
         if (!name && claimerMap[String(recipeId)]) {
           name = claimerMap[String(recipeId)];
+        }
+        if (claimed && !name) {
+          name = 'Guest';
         }
         return name;
       })()
