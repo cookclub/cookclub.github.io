@@ -51,14 +51,11 @@ const COLUMNS = {
     CLAIMER_NAME: 5,   // Friendly display name (may be blank)
 
     // Existing attendee/legacy fields ---------------------
-    MEMBER_NAME: 6,
-    DISCORD_ID: 7,
-    INSTAGRAM_ID: 8,
-    IS_DISCORD: 9,
-    TIMESTAMP: 10,
-    EVENT: 11,
-    EVENT_DATE: 12,
-    NOTES: 13
+    IS_DISCORD: 6,
+    TIMESTAMP: 7,
+    EVENT: 8,
+    EVENT_DATE: 9,
+    NOTES: 10
   }
 };
 
@@ -236,21 +233,6 @@ function recordRSVP(formData) {
     const spreadsheet = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
     const rsvpsSheet = spreadsheet.getSheetByName(CONFIG.SHEETS.RSVPS);
 
-    // ---------------------------------------------------------------
-    // One-time migration: ensure new claimer columns exist
-    // ---------------------------------------------------------------
-    const headerRow = rsvpsSheet.getRange(1, 1, 1, rsvpsSheet.getLastColumn()).getValues()[0];
-    if (headerRow.indexOf('CLAIMER_ID') === -1) {
-      // Insert column right after RECIPE_ID (D)
-      rsvpsSheet.insertColumnsAfter(COLUMNS.RSVPS.RECIPE_ID + 1, 1);
-      rsvpsSheet.getRange(1, COLUMNS.RSVPS.CLAIMER_ID + 1).setValue('CLAIMER_ID');
-    }
-    if (headerRow.indexOf('CLAIMER_NAME') === -1) {
-      // Insert immediately after CLAIMER_ID (E)
-      rsvpsSheet.insertColumnsAfter(COLUMNS.RSVPS.CLAIMER_ID + 1, 1);
-      rsvpsSheet.getRange(1, COLUMNS.RSVPS.CLAIMER_NAME + 1).setValue('CLAIMER_NAME');
-    }
-
     const id = Date.now();
 
     const discordId = formData.audienceType === 'member'
@@ -267,9 +249,6 @@ function recordRSVP(formData) {
       formData.cooking ? formData.recipeId : '',    // D: RecipeID
       formData.claimerId || '',                     // E: Claimer ID
       formData.claimerDisplayName || '',            // F: Claimer Name
-      formData.displayName,                         // G: Member Name (legacy)
-      discordId,                                    // H: Discord ID
-      instagram,                                    // I: Instagram Handle
       formData.audienceType === 'member' ? 'yes' : 'no', // J: Is Discord
       new Date(),                                   // K: Timestamp
       formData.eventName || CONFIG.EVENT_NAME,      // L: Event
@@ -519,7 +498,7 @@ function getFormData() {
       const rId = String(row[COLUMNS.RSVPS.RECIPE_ID] || '').trim();
       // Prefer the new CLAIMER_NAME column but fall back to MEMBER_NAME for
       // older entries so existing data still resolves correctly.
-      const name = (row[COLUMNS.RSVPS.CLAIMER_NAME] || row[COLUMNS.RSVPS.MEMBER_NAME] || '').toString().trim();
+      const name = (row[COLUMNS.RSVPS.CLAIMER_NAME] || '').toString().trim();
       if (rId && name) {
         claimerMap[rId] = name; // last occurrence wins
       }
