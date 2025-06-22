@@ -578,15 +578,16 @@ class RecipeSignupForm {
                 throw new Error(raw.message || 'API returned error');
             }
             
-            // 2. Guard against unexpected shapes
-            if (!raw.data || !Array.isArray(raw.data.members) || !Array.isArray(raw.data.recipes)) {
-                console.error('❌ Unexpected payload shape. Expected: {success: true, data: {members: [], recipes: []}}');
+            // 2. Guard against unexpected shapes (expects objects keyed by ID)
+            if (!raw.data || typeof raw.data.users !== 'object' || typeof raw.data.recipes !== 'object') {
+                console.error('❌ Unexpected payload shape. Expected: {success: true, data: {users: {}, recipes: {}}}');
                 console.error('❌ Received:', raw);
                 throw new Error('Unexpected payload shape');
             }
-            
-            // 3. Destructure the nested data envelope
-            const { members, recipes } = raw.data;
+
+            // 3. Convert the objects to arrays for existing logic
+            const members = Object.values(raw.data.users);
+            const recipes = Object.values(raw.data.recipes);
             
             console.log('📊 Members found:', members.length);
             console.log('🍽️ Recipes found:', recipes.length);
