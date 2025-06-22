@@ -21,40 +21,64 @@ const CONFIG = {
   }
 };
 
-// Your existing COLUMNS mapping stays the same
+// COLUMNS mapping
 const COLUMNS = {
-  MEMBERS: {
-    MEMBER_NAME: 0,
-    DISCORD_ID: 1,
-    STATUS: 2
+  USERS: {
+    USER_ID: 0,
+    USER_TYPE: 1,
+    DISPLAY_NAME: 2,
+    DISCORD_ID: 3,
+    INSTAGRAM_HANDLE: 4,
+    EMAIL: 5,
+    STATUS: 6,
+    JOINED_DATE: 7,
+    NOTES: 8
+  },
+  EVENTS: {
+    EVENT_ID: 0,
+    EVENT_NAME: 1,
+    EVENT_DATE: 2,
+    COOKBOOK_TITLE: 3,
+    BOOK_PICKER_USER_ID: 4,
+    STATUS: 5,
+    MAX_ATTENDEES: 6,
+    RSVP_DEADLINE: 7,
+    LOCATION: 8,
+    NOTES: 9
   },
   RECIPES: {
-    ID: 0,
-    RECIPE_TITLE: 1,
-    PAGE: 2,
-    BOOK: 3,
-    AUTHOR: 4,
-    CATEGORIES: 5,
-    INGREDIENTS: 6,
-    ACCOMPANIMENTS: 7,
-    TIMESTAMP: 8,
-    CLAIMED: 9,
-    CLAIMED_BY: 10,
-    RECORD_URL: 11
+    RECIPE_ID: 0,
+    COOKBOOK_TITLE: 1,
+    RECIPE_NAME: 2,
+    PAGE_NUMBER: 3,
+    CATEGORY: 4,
+    INGREDIENTS: 5,
+    ACCOMPANIMENTS: 6,
+    DIETARY_TAGS: 7,
+    NOTES: 8,
+    RECORD_URL: 9
   },
   RSVPS: {
+    RSVP_ID: 0,
+    EVENT_ID: 1,
+    USER_ID: 2,
+    RESPONSE_TYPE: 3,
+    GUEST_COUNT: 4,
+    DIETARY_RESTRICTIONS: 5,
+    SUBMITTED_AT: 6,
+    STATUS: 7,
+    NOTES: 8
+    // Columns 9–11 appear unused or placeholder
+  },
+  CLAIMS: {
     CLAIM_ID: 0,
-    RSVP_TYPE: 1,
-    RECIPE: 2,
-    RECIPE_ID: 3,
-    MEMBER_NAME: 4,
-    DISCORD_ID: 5,
-    INSTAGRAM_ID: 6,
-    IS_DISCORD: 7,
-    TIMESTAMP: 8,
-    EVENT: 9,
-    EVENT_DATE: 10,
-    NOTES: 11
+    EVENT_ID: 1,
+    RECIPE_ID: 2,
+    USER_ID: 3,
+    CLAIMED_AT: 4,
+    STATUS: 5,
+    MODIFICATIONS: 6,
+    NOTES: 7
   }
 };
 
