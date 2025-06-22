@@ -12,7 +12,7 @@ const CONFIG = {
         EVENTS: 'Events',
         RECIPES: 'Recipes',
         RSVPS: 'RSVPs',
-        CLAIMS: 'Claims'
+        RECIPE_CLAIMS: 'Claims'
     },
     
     // API endpoints for reading data (using Google Sheets public API)
