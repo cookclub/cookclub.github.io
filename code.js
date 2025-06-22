@@ -399,10 +399,10 @@ function verifyMember(discordId) {
     const spreadsheet = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
     const membersSheet = spreadsheet.getSheetByName(CONFIG.SHEETS.USERS);
     const membersData = membersSheet.getDataRange().getValues();
-    
+
     for (let i = 1; i < membersData.length; i++) {
-      const memberDiscordId = String(membersData[i][COLUMNS.MEMBERS.DISCORD_ID]);
-      const status = membersData[i][COLUMNS.MEMBERS.STATUS];
+      const memberDiscordId = String(membersData[i][COLUMNS.USERS.DISCORD_ID]);
+      const status = membersData[i][COLUMNS.USERS.STATUS];
       
       if (memberDiscordId === String(discordId) && 
           (status === true || status === 'TRUE' || status === 'true')) {
@@ -424,6 +424,9 @@ function checkDuplicateRecipe(recipeId) {
   try {
     const spreadsheet = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
     const recipesSheet = spreadsheet.getSheetByName(CONFIG.SHEETS.RECIPES);
+    if (!recipesSheet) {
+      throw new Error('Recipes sheet not found');
+    }
     const recipesData = recipesSheet.getDataRange().getValues();
     
     for (let i = 1; i < recipesData.length; i++) {
@@ -447,6 +450,9 @@ function markRecipeAsClaimed(recipeId, claimedBy) {
   try {
     const spreadsheet = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
     const recipesSheet = spreadsheet.getSheetByName(CONFIG.SHEETS.RECIPES);
+    if (!recipesSheet) {
+      throw new Error('Recipes sheet not found');
+    }
     const recipesData = recipesSheet.getDataRange().getValues();
     
     for (let i = 1; i < recipesData.length; i++) {
@@ -479,7 +485,10 @@ function markRecipeAsClaimed(recipeId, claimedBy) {
  */
 function parseSheet(spreadsheet, sheetName) {
   const sheet = spreadsheet.getSheetByName(sheetName);
-  if (!sheet) return [];
+  if (!sheet) {
+    console.error('Sheet not found:', sheetName);
+    return [];
+  }
 
   const values = sheet.getDataRange().getValues();
   if (values.length < 2) return [];
