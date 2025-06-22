@@ -82,6 +82,14 @@ const COLUMNS = {
   }
 };
 
+function debugSheetNames() {
+  const spreadsheet = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+  const sheets = spreadsheet.getSheets();
+  console.log('Available sheets:');
+  sheets.forEach(sheet => {
+    console.log('- ' + sheet.getName());
+  });
+}
 
 /**
  * UPDATED: Handle POST requests with proper member/guest flow
