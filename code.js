@@ -7,12 +7,13 @@
 const CONFIG = {
   SPREADSHEET_ID: '1ycT-jM3Glz7naJ7DY66pCRlXIiHBv6UpZ0dlSfyH_gg',
   SHEETS: {
-    MEMBERS: 'Members',
+    USERS: 'Users',
+    EVENTS: 'Events',
     RECIPES: 'Recipes',
-    RSVPS: 'RSVPs'
+    RSVPS: 'RSVPs',
+    RECIPE_CLAIMS: 'Claims'
   },
-  EVENT_NAME: 'That Sounds So Good: 100 Real-Life Recipes for Every Day of the Week',
-  EVENT_DATE: '2025-06-21',
+  CURRENT_EVENT_ID: 'EVT_2025_07',
 
   get DISCORD_WEBHOOK_URL() {
     const scriptProperties = PropertiesService.getScriptProperties();
