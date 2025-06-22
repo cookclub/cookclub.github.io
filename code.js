@@ -530,48 +530,84 @@ function mapById(arr) {
   return map;
 }
 
+function getUsersForDropdown() {
+  try {
+    const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+    const sheet = ss.getSheetByName(CONFIG.SHEETS.USERS);
+    if (!sheet) throw new Error('Users sheet not found');
+
+    const values = sheet.getDataRange().getValues();
+    const users = [];
+    for (let i = 1; i < values.length; i++) {
+      const active = values[i][COLUMNS.USERS.STATUS];
+      const isActive = active === true || String(active).toLowerCase() === 'true' || String(active).toLowerCase() === 'active';
+      if (isActive) {
+        users.push({
+          displayName: String(values[i][COLUMNS.USERS.DISPLAY_NAME]),
+          discordId: String(values[i][COLUMNS.USERS.DISCORD_ID]),
+          active: true
+        });
+      }
+    }
+    return users;
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    return [];
+  }
+}
+
+function getAvailableRecipes(eventId) {
+  try {
+    const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+    const sheet = ss.getSheetByName(CONFIG.SHEETS.RECIPES);
+    if (!sheet) throw new Error('Recipes sheet not found');
+
+    const recipes = parseSheet(ss, CONFIG.SHEETS.RECIPES);
+    return recipes.filter(r => {
+      const claimed = r.claimed || r.CLAIMED;
+      return !(claimed === true || String(claimed).toLowerCase() === 'true');
+    });
+  } catch (error) {
+    console.error('Error fetching recipes:', error);
+    return [];
+  }
+}
+
+function getCurrentEvent() {
+  try {
+    const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+    const sheet = ss.getSheetByName(CONFIG.SHEETS.EVENTS);
+    if (!sheet) throw new Error('Events sheet not found');
+
+    const events = parseSheet(ss, CONFIG.SHEETS.EVENTS);
+    const evt = events.find(e => String(e.eventId || e.EVENT_ID) === String(CONFIG.CURRENT_EVENT_ID));
+    if (!evt) return null;
+
+    return {
+      id: evt.eventId || evt.EVENT_ID,
+      name: evt.eventName || evt.EVENT_NAME,
+      date: evt.eventDate || evt.EVENT_DATE,
+      cookbookTitle: evt.cookbookTitle || evt.COOKBOOK_TITLE,
+      location: evt.location || evt.LOCATION,
+      notes: evt.notes || evt.NOTES
+    };
+  } catch (error) {
+    console.error('Error fetching current event:', error);
+    return null;
+  }
+}
+
 function getFormData() {
   try {
-    const spreadsheet = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+    const users = getUsersForDropdown();
+    const recipes = getAvailableRecipes(CONFIG.CURRENT_EVENT_ID);
+    const currentEvent = getCurrentEvent();
 
-    // ─── Read five sheets generically ──────────────────────────────
-    const users   = parseSheet(spreadsheet, CONFIG.SHEETS.USERS);
-    const events  = parseSheet(spreadsheet, CONFIG.SHEETS.EVENTS);
-    const recipes = parseSheet(spreadsheet, CONFIG.SHEETS.RECIPES);
-    const rsvps   = parseSheet(spreadsheet, CONFIG.SHEETS.RSVPS);
-    const claims  = parseSheet(spreadsheet, CONFIG.SHEETS.RECIPE_CLAIMS);
-
-    // ─── Normalize each set by ID for easier lookups ───────────────
-    const data = {
-      users:   mapById(users),
-      events:  mapById(events),
-      recipes: mapById(recipes),
-      rsvps:   mapById(rsvps),
-      claims:  mapById(claims)
-    };
-
-    // ─── Basic relationship linking (best-effort) ──────────────────
-    Object.values(data.rsvps).forEach(r => {
-      const uId = r.userId || r.DISCORD_ID;
-      const eId = r.eventId || r.EVENT;
-      const rcId = r.recipeId || r.RECIPE_ID;
-      if (uId && data.users[uId]) r.user = data.users[uId];
-      if (eId && data.events[eId]) r.event = data.events[eId];
-      if (rcId && data.recipes[rcId]) r.recipe = data.recipes[rcId];
+    return createResponse(true, 'Data loaded', {
+      users: users,
+      recipes: recipes,
+      event: currentEvent
     });
-
-    Object.values(data.claims).forEach(c => {
-      const uId = c.userId || c.DISCORD_ID;
-      const eId = c.eventId || c.EVENT;
-      const rcId = c.recipeId || c.RECIPE_ID;
-      if (uId && data.users[uId]) c.user = data.users[uId];
-      if (eId && data.events[eId]) c.event = data.events[eId];
-      if (rcId && data.recipes[rcId]) c.recipe = data.recipes[rcId];
-    });
-
-    return createResponse(true, 'Data retrieved successfully', data);
-
-    
   } catch (error) {
     console.error('Error getting form data:', error);
     return createResponse(false, 'Failed to load data: ' + error.message);
