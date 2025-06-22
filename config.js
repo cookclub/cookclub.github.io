@@ -6,11 +6,13 @@ const CONFIG = {
     // Google Apps Script Web App URL
     SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbzwJyBZxKmowav0SOHl7tzcSEJ5XlbU2NFYkXaz5lI6bN5zySqi4wzTOmTg5lirSnl5/exec',
     
-    // Sheet names
+    // Sheet names (keep in sync with the backend)
     SHEETS: {
-        MEMBERS: 'Members',
-        RECIPES: 'Recipes', 
-        RSVPS: 'RSVPs'
+        USERS: 'Users',
+        EVENTS: 'Events',
+        RECIPES: 'Recipes',
+        RSVPS: 'RSVPs',
+        CLAIMS: 'Claims'
     },
     
     // API endpoints for reading data (using Google Sheets public API)

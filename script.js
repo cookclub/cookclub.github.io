@@ -588,7 +588,7 @@ class RecipeSignupForm {
             // 3. Destructure the nested data envelope
             const { members, recipes } = raw.data;
             
-            console.log('📊 Members found:', members.length);
+            console.log('📊 Users found:', members.length);
             console.log('🍽️ Recipes found:', recipes.length);
             
             // 4. Filter the clean arrays
