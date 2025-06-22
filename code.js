@@ -447,158 +447,86 @@ function markRecipeAsClaimed(recipeId, claimedBy) {
 /**
  * Get form data (members and available recipes) with enhanced descriptions
  */
+
+/**
+ * Read a sheet and return an array of objects where keys come from the
+ * header row. Useful for generic sheet parsing when column positions may
+ * change.
+ */
+function parseSheet(spreadsheet, sheetName) {
+  const sheet = spreadsheet.getSheetByName(sheetName);
+  if (!sheet) return [];
+
+  const values = sheet.getDataRange().getValues();
+  if (values.length < 2) return [];
+
+  const headers = values[0].map(h => String(h).trim());
+  const rows = [];
+  for (let i = 1; i < values.length; i++) {
+    const row = {};
+    headers.forEach((h, idx) => {
+      row[h] = values[i][idx];
+    });
+    rows.push(row);
+  }
+  return rows;
+}
+
+/**
+ * Convert an array of objects into a map keyed by an "id" column if present.
+ */
+function mapById(arr) {
+  const map = {};
+  arr.forEach(obj => {
+    const id = obj.id || obj.ID || obj.Id;
+    if (id !== undefined && id !== '') {
+      map[id] = obj;
+    }
+  });
+  return map;
+}
+
 function getFormData() {
   try {
     const spreadsheet = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
-    
-    // Get active members
-    const membersSheet = spreadsheet.getSheetByName(CONFIG.SHEETS.MEMBERS);
-    const membersData = membersSheet.getDataRange().getValues();
-    const members = [];
 
-    console.log('Members data rows:', membersData.length);
-    console.log('First member row:', membersData[1]); // Log for debugging
-    
-    for (let i = 1; i < membersData.length; i++) { // Skip header row
-      const row = membersData[i];
-      const status = row[COLUMNS.MEMBERS.STATUS];
-      const discordId = row[COLUMNS.MEMBERS.DISCORD_ID];
-      const memberName = row[COLUMNS.MEMBERS.MEMBER_NAME];
-      
-      console.log(`Row ${i}: Status=${status}, DiscordID=${discordId}, Name=${memberName}`);
-      
-      if (status === true || status === 'TRUE' || status === 'true') {
-        members.push({
-          discordId: String(discordId), // Ensure it's a string
-          displayName: memberName,
-          active: true
-        });
-      }
-    }
-    
-    const memberMap = {};
-    for (const member of members) {
-      memberMap[member.discordId] = member.displayName;
-    }
-    console.log('Active members found:', members.length);
-    
-    // Get recipes (claimed and available) with enhanced descriptions
-    const recipesSheet = spreadsheet.getSheetByName(CONFIG.SHEETS.RECIPES);
-    const recipesData = recipesSheet.getDataRange().getValues();
-    const recipes = [];
+    // ─── Read five sheets generically ──────────────────────────────
+    const users   = parseSheet(spreadsheet, CONFIG.SHEETS.USERS);
+    const events  = parseSheet(spreadsheet, CONFIG.SHEETS.EVENTS);
+    const recipes = parseSheet(spreadsheet, CONFIG.SHEETS.RECIPES);
+    const rsvps   = parseSheet(spreadsheet, CONFIG.SHEETS.RSVPS);
+    const claims  = parseSheet(spreadsheet, CONFIG.SHEETS.RECIPE_CLAIMS);
 
-    // Map recipeId -> claimer name from RSVP sheet (most recent entry wins)
-    const rsvpsSheet = spreadsheet.getSheetByName(CONFIG.SHEETS.RSVPS);
-    const rsvpsData = rsvpsSheet.getDataRange().getValues();
-    const claimerMap = {};
-    for (let i = 1; i < rsvpsData.length; i++) {
-      const row = rsvpsData[i];
-      const rId = String(row[COLUMNS.RSVPS.RECIPE_ID] || '').trim();
-      const name = (row[COLUMNS.RSVPS.MEMBER_NAME] || row[COLUMNS.RSVPS.NAME] || '').toString().trim();
-      if (rId && name) {
-        claimerMap[rId] = name; // last occurrence wins
-      }
-    }
-    const missingNames = [];
-    
-    console.log('Recipes data rows:', recipesData.length);
-    console.log('First recipe row:', recipesData[1]); // Log for debugging
-    
-    for (let i = 1; i < recipesData.length; i++) { // Skip header row
-      const row = recipesData[i];
-      const claimed = row[COLUMNS.RECIPES.CLAIMED];
-      const recipeId = row[COLUMNS.RECIPES.ID];
-      const recipeName      = row[COLUMNS.RECIPES.RECIPE_TITLE];
+    // ─── Normalize each set by ID for easier lookups ───────────────
+    const data = {
+      users:   mapById(users),
+      events:  mapById(events),
+      recipes: mapById(recipes),
+      rsvps:   mapById(rsvps),
+      claims:  mapById(claims)
+    };
 
-      console.log(`Recipe ${i}: ID=${recipeId}, Name=${recipeName}, Claimed=${claimed}`);
-    
-      // parse out the raw sheet values
-      const rawCategories   = row[COLUMNS.RECIPES.CATEGORIES] || '';
-      const rawIngredients  = row[COLUMNS.RECIPES.INGREDIENTS] || '';
-      const rawAccompaniments  = row[COLUMNS.RECIPES.ACCOMPANIMENTS] || '';
-      const recipePage      = row[COLUMNS.RECIPES.PAGE] || '';
-
-      // Create enhanced description
-      let description = '';
-      if (row[COLUMNS.RECIPES.PAGE]) description += `Page ${row[COLUMNS.RECIPES.PAGE]}`;
-      if (row[COLUMNS.RECIPES.CATEGORIES]) {
-        if (description) description += ' | ';
-        description += `Categories: ${row[COLUMNS.RECIPES.CATEGORIES]}`;
-      }
-      if (row[COLUMNS.RECIPES.INGREDIENTS]) {
-        if (description) description += ' | ';
-        // Truncate ingredients if too long
-        const ingredients = String(row[COLUMNS.RECIPES.INGREDIENTS]);
-        const truncatedIngredients = ingredients.length > 100 ? 
-          ingredients.substring(0, 100) + '...' : ingredients;
-        description += `Ingredients: ${truncatedIngredients}`;
-      }
-      if (row[COLUMNS.RECIPES.ACCOMPANIMENTS]) {
-        if (description) description += ' | ';
-        description += `Accompaniments: ${row[COLUMNS.RECIPES.ACCOMPANIMENTS]}`;
-      }
-
-    // **NEW:** only split on semicolons, preserve commas inside each category
-    const categories = String(rawCategories)
-      .split(';')                   // ← split only at semicolons
-      .map(c => c.trim())           // ← trim whitespace
-      .filter(Boolean);             // ← drop any empty entries
-
-    recipes.push({
-      id:          row[COLUMNS.RECIPES.ID],
-      name:        recipeName,
-      page:        recipePage,
-      categories:  categories,      // ← semicolon-only array
-      ingredients: rawIngredients,   // ← raw string as before
-      accompaniments: rawAccompaniments,
-      description,
-      claimed:     false,
-      book:        row[COLUMNS.RECIPES.BOOK]   || '',
-      author:      row[COLUMNS.RECIPES.AUTHOR] || '',
-      recordUrl:   row[COLUMNS.RECIPES.RECORD_URL],
-      claimed:     claimed === true || claimed === 'TRUE' || claimed === 'true',
-      // Resolve the name. If the value matches a member's Discord ID, use
-      // their display name; otherwise assume it's already a plain name (guest).
-      claimedBy: (function() {
-        const raw = row[COLUMNS.RECIPES.CLAIMED_BY] || '';
-        let name = memberMap[raw] || raw;
-        if (!name && claimerMap[String(recipeId)]) {
-          name = claimerMap[String(recipeId)];
-        }
-        if (claimed && !name) {
-          missingNames.push(recipeId);
-          // Use a generic placeholder so the front-end can still show
-          // that the dish was claimed by an unnamed guest.
-          name = 'Guest';
-        }
-        return name;
-      })(),
-      // Preserve the raw Discord ID for members so the client can link it.
-      claimedByDiscordId: memberMap[row[COLUMNS.RECIPES.CLAIMED_BY]] ? row[COLUMNS.RECIPES.CLAIMED_BY] : '',
-      // convenience for the client
-      claimerName: (function() {
-        const raw = row[COLUMNS.RECIPES.CLAIMED_BY] || '';
-        let name = memberMap[raw] || raw;
-        if (!name && claimerMap[String(recipeId)]) {
-          name = claimerMap[String(recipeId)];
-        }
-        if (claimed && !name) {
-          name = 'Guest';
-        }
-        return name;
-      })()
+    // ─── Basic relationship linking (best-effort) ──────────────────
+    Object.values(data.rsvps).forEach(r => {
+      const uId = r.userId || r.DISCORD_ID;
+      const eId = r.eventId || r.EVENT;
+      const rcId = r.recipeId || r.RECIPE_ID;
+      if (uId && data.users[uId]) r.user = data.users[uId];
+      if (eId && data.events[eId]) r.event = data.events[eId];
+      if (rcId && data.recipes[rcId]) r.recipe = data.recipes[rcId];
     });
-    }
-    
-    console.log('Available recipes found:', recipes.length);
-    if (missingNames.length > 0) {
-      console.warn('Missing claimer names for recipes:', missingNames.join(', '));
-    }
-    
-    return createResponse(true, 'Data retrieved successfully', {
-      members: members,
-      recipes: recipes
+
+    Object.values(data.claims).forEach(c => {
+      const uId = c.userId || c.DISCORD_ID;
+      const eId = c.eventId || c.EVENT;
+      const rcId = c.recipeId || c.RECIPE_ID;
+      if (uId && data.users[uId]) c.user = data.users[uId];
+      if (eId && data.events[eId]) c.event = data.events[eId];
+      if (rcId && data.recipes[rcId]) c.recipe = data.recipes[rcId];
     });
+
+    return createResponse(true, 'Data retrieved successfully', data);
+
     
   } catch (error) {
     console.error('Error getting form data:', error);
