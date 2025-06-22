@@ -589,7 +589,7 @@ class RecipeSignupForm {
             const members = Object.values(raw.data.users);
             const recipes = Object.values(raw.data.recipes);
             
-            console.log('📊 Members found:', members.length);
+            console.log('📊 Users found:', members.length);
             console.log('🍽️ Recipes found:', recipes.length);
             
             // 4. Filter the clean arrays
