@@ -368,12 +368,12 @@ function sendGuestEmail(formData) {
 
 
 /**
- * Verify that the Discord ID exists in the Members sheet
+ * Verify that the Discord ID exists in the Users sheet
  */
 function verifyMember(discordId) {
   try {
     const spreadsheet = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
-    const membersSheet = spreadsheet.getSheetByName(CONFIG.SHEETS.MEMBERS);
+    const membersSheet = spreadsheet.getSheetByName(CONFIG.SHEETS.USERS);
     const membersData = membersSheet.getDataRange().getValues();
     
     for (let i = 1; i < membersData.length; i++) {
