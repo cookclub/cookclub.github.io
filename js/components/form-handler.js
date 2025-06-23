@@ -24,8 +24,9 @@ class FormHandler {
       this.bindEvents();
       this.updateProgress();
       this.showStep(1);
+      this.loadInitialFormData(); // <--- NEW: Call this to fetch data
     }
-    
+        
     bindEvents() {
       // Navigation buttons
       this.prevBtn.addEventListener('click', () => this.previousStep());
@@ -65,6 +66,73 @@ class FormHandler {
       });
     }
     
+    // Inside FormHandler class, after init() or bindEvents()
+
+    async loadInitialFormData() {
+      try {
+        // Assuming API_URL is defined in config.js and accessible globally
+        // Assuming Utils.showToast is available (from js/utils/helpers.js)
+        Utils.showToast('Loading event data...', 'info', 3000);
+
+        // Use a standard fetch, as your Apps Script now returns JSON
+        const response = await fetch(`${API_URL}?action=getData`);
+        const result = await response.json(); // Parse JSON response
+
+        if (result.success && result.data) {
+          const { members, recipes, event } = result.data;
+
+          // Populate Event Info Section (from index.html)
+          document.getElementById('event-title').textContent = event.event_name;
+          document.getElementById('event-date').querySelector('.detail-text').textContent = new Date(event.event_date).toLocaleDateString();
+          document.getElementById('event-cookbook').querySelector('.detail-text').textContent = event.cookbook_title;
+          document.getElementById('event-location').querySelector('.detail-text').textContent = event.location;
+
+          // Populate Member Select (Step 2)
+          const memberSelect = document.getElementById('member-select');
+          memberSelect.innerHTML = '<option value="">Choose your name...</option>'; // Clear existing options
+          members.forEach(member => {
+            const option = document.createElement('option');
+            option.value = member.user_id;
+            option.textContent = member.display_name;
+            option.dataset.discordId = member.discord_id; // Store discordId for later
+            memberSelect.appendChild(option);
+          });
+
+          // Populate Recipe List (Step 4)
+          const recipeList = document.getElementById('recipe-list');
+          recipeList.innerHTML = ''; // Clear existing content
+          if (recipes.length > 0) {
+            recipes.forEach(recipe => {
+              const recipeItem = document.createElement('div');
+              recipeItem.className = 'recipe-item';
+              // Add a radio button for selection
+              recipeItem.innerHTML = `
+                <input type="radio" id="recipe-${recipe.recipe_id}" name="recipeId" value="${recipe.recipe_id}" class="recipe-radio">
+                <label for="recipe-${recipe.recipe_id}" class="recipe-label">
+                  <h4>${recipe.recipe_name}</h4>
+                  <p>Page: ${recipe.page_number} | Category: ${recipe.category}</p>
+                  <p>Dietary: ${recipe.dietary_tags.join(', ')}</p>
+                  <p>Difficulty: ${recipe.difficulty}</p>
+                  <p>Ingredients: ${recipe.ingredients_preview.join(', ')}</p>
+                </label>
+              `;
+              recipeList.appendChild(recipeItem);
+            });
+          } else {
+            recipeList.innerHTML = '<p>No recipes available for claiming at this time.</p>';
+          }
+
+          Utils.showToast('Event data loaded!', 'success', 3000);
+        } else {
+          Utils.showToast(`Failed to load event data: ${result.message}`, 'error', 5000);
+          console.error('Failed to load initial form data:', result.message);
+        }
+      } catch (error) {
+        Utils.showToast(`Network error loading data: ${error.message}`, 'error', 5000);
+        console.error('Error loading initial form data:', error);
+      }
+    }
+
     setupRealTimeValidation() {
       // Validate fields as user types (debounced)
       const validateField = Utils.debounce((field) => {
@@ -117,13 +185,13 @@ class FormHandler {
     handleUserTypeChange() {
       const userType = document.querySelector('input[name="userType"]:checked')?.value;
       
-      if (userType === 'member') {
-        document.getElementById('step-member-info').style.display = 'block';
-        document.getElementById('step-guest-info').style.display = 'none';
-      } else if (userType === 'guest') {
-        document.getElementById('step-member-info').style.display = 'none';
-        document.getElementById('step-guest-info').style.display = 'block';
-      }
+      // if (userType === 'member') {
+      //   document.getElementById('step-member-info').style.display = 'block';
+      //   document.getElementById('step-guest-info').style.display = 'none';
+      // } else if (userType === 'guest') {
+      //   document.getElementById('step-member-info').style.display = 'none';
+      //   document.getElementById('step-guest-info').style.display = 'block';
+      // }
       
       this.formData.userType = userType;
       this.updateNavigationButtons();
@@ -229,34 +297,37 @@ class FormHandler {
       }
     }
     
+    // Inside FormHandler class
+
     canProceedFromCurrentStep() {
       switch (this.currentStep) {
         case 1: // User type selection
           return document.querySelector('input[name="userType"]:checked') !== null;
           
         case 2: // User information
-        const userType = document.querySelector('input[name="userType"]:checked')?.value;
-        if (userType === 'member') {
-          const memberSelect = document.getElementById('member-select');
-          const selectedMemberId = memberSelect.value;
-          const hiddenDisplayName = document.getElementById('member-display-name-hidden')?.value;
-          // Ensure a member is selected AND their display name is set in the hidden field
-          return selectedMemberId !== '' && hiddenDisplayName !== '';
-        } else if (userType === 'guest') {
-          // 'guest-name' now has name="displayName"
-          const name = document.getElementById('guest-name').value.trim();
-          const instagram = document.getElementById('guest-instagram').value.trim();
-          const email = document.getElementById('guest-email').value.trim();
-          return name && (instagram || email);
-        }
-        return false;
+          const userType = document.querySelector('input[name="userType"]:checked')?.value;
+          if (userType === 'member') {
+            const memberSelect = document.getElementById('member-select');
+            const selectedMemberId = memberSelect.value;
+            const hiddenDisplayName = document.getElementById('member-display-name-hidden')?.value;
+            // Ensure a member is selected AND their display name is set in the hidden field
+            return selectedMemberId !== '' && hiddenDisplayName !== '';
+          } else if (userType === 'guest') {
+            // 'guest-name' now has name="displayName"
+            const name = document.getElementById('guest-name').value.trim();
+            const email = document.getElementById('guest-email').value.trim(); // <--- Email is now required
+            // Removed instagram from this check as per your decision
+            return name !== '' && email !== ''; // <--- Both name and email are required
+          }
+          return false;
           
         case 3: // Participation type
           return document.querySelector('input[name="cooking"]:checked') !== null;
           
         case 4: // Recipe selection (only if cooking)
-          const cooking = document.querySelector('input[name="cooking"]:checked')?.value === 'true';
-          if (cooking) {
+          // Check the *currently selected* cooking radio button, not just this.formData.cooking
+          const cookingSelected = document.querySelector('input[name="cooking"]:checked')?.value === 'true';
+          if (cookingSelected) { 
             return document.querySelector('input[name="recipeId"]:checked') !== null;
           }
           return true; // Skip this step if not cooking
@@ -269,16 +340,35 @@ class FormHandler {
       }
     }
     
+    // Inside FormHandler class
+
     nextStep() {
       if (!this.canProceedFromCurrentStep()) {
         this.showStepValidationErrors();
         return;
       }
       
-      this.collectCurrentStepData();
-      
-      // Skip recipe step if not cooking
+      this.collectCurrentStepData(); // Collect data from current step before advancing
+
       let nextStep = this.currentStep + 1;
+
+      // --- NEW LOGIC FOR STEP 1 TRANSITION ---
+      if (this.currentStep === 1) {
+          const userType = this.formData.userType; // Get userType from collected data
+          if (userType === 'member') {
+              // Ensure member info is shown
+              document.getElementById('step-member-info').style.display = 'block';
+              document.getElementById('step-guest-info').style.display = 'none';
+          } else if (userType === 'guest') {
+              // Ensure guest info is shown
+              document.getElementById('step-member-info').style.display = 'none';
+              document.getElementById('step-guest-info').style.display = 'block';
+          }
+          // nextStep remains 2, which is correct for both member/guest info
+      }
+      // --- END NEW LOGIC ---
+      
+      // Skip recipe step if not cooking (this logic is already there, just confirming it's correct)
       if (nextStep === 4 && !this.formData.cooking) {
         nextStep = 5;
       }
@@ -287,7 +377,7 @@ class FormHandler {
         this.showStep(nextStep);
       }
     }
-    
+
     previousStep() {
       let prevStep = this.currentStep - 1;
       
