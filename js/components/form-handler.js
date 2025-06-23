@@ -132,13 +132,21 @@ class FormHandler {
     handleMemberSelection() {
       const memberSelect = document.getElementById('member-select');
       const selectedOption = memberSelect.options[memberSelect.selectedIndex];
-      
+      const displayNameInput = document.getElementById('member-display-name');
+
       if (selectedOption.value) {
         this.formData.memberId = selectedOption.value;
         this.formData.displayName = selectedOption.textContent;
         this.formData.discordId = selectedOption.dataset.discordId;
+        if (displayNameInput) {
+          displayNameInput.value = selectedOption.textContent;
+        }
+      } else {
+        if (displayNameInput) {
+          displayNameInput.value = '';
+        }
       }
-      
+
       this.updateNavigationButtons();
     }
     
