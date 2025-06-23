@@ -249,6 +249,40 @@ class MenuDisplay {
       
       Utils.showToast('Failed to load current menu. Please refresh the page.', 'error');
     }
+    
+    /**
+     * Real-time menu updates
+     */
+    setupRealTimeUpdates() {
+        this.lastUpdate = Date.now();
+        this.updateInterval = null;
+        this.isVisible = true;
+        
+        // Start real-time updates
+        this.startRealTimeUpdates();
+        
+        // Pause updates when tab is hidden
+        document.addEventListener('visibilitychange', () => {
+        this.isVisible = !document.hidden;
+        if (this.isVisible) {
+            this.checkForUpdates();
+        }
+        });
+        
+        // Update when window gains focus
+        window.addEventListener('focus', () => {
+        this.checkForUpdates();
+        });
+    }
+  
+    startRealTimeUpdates() {
+        // Check for updates every 30 seconds
+        this.updateInterval = setInterval(() => {
+        if (this.isVisible) {
+            this.checkForUpdates();
+        }
+        }, 30000);
+    }
   
     // ✅ UPDATED CODE:
     async checkForUpdates() {
@@ -469,6 +503,161 @@ class MenuDisplay {
         text += `👨‍🍳 ${rsvp_summary.cooking_count} cooking\n`;
         
         return text;
+    }
+  
+    /**
+     * Menu filtering and search
+     */
+    addMenuFiltering() {
+        // Add filter controls to menu section
+        const filterControls = document.createElement('div');
+        filterControls.className = 'menu-filters';
+        filterControls.innerHTML = `
+        <div class="filter-group">
+            <label for="menu-search" class="filter-label">Search menu</label>
+            <input type="search" id="menu-search" class="filter-input" placeholder="Search dishes or people...">
+        </div>
+        
+        <div class="filter-group">
+            <label for="menu-category-filter" class="filter-label">Filter by category</label>
+            <select id="menu-category-filter" class="filter-input">
+            <option value="">All categories</option>
+            <option value="appetizer">Appetizers</option>
+            <option value="main">Main dishes</option>
+            <option value="side">Side dishes</option>
+            <option value="dessert">Desserts</option>
+            <option value="drink">Drinks</option>
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <label for="menu-dietary-filter" class="filter-label">Dietary</label>
+            <select id="menu-dietary-filter" class="filter-input">
+            <option value="">All dietary options</option>
+            <option value="vegetarian">Vegetarian</option>
+            <option value="vegan">Vegan</option>
+            <option value="gluten-free">Gluten-free</option>
+            <option value="dairy-free">Dairy-free</option>
+            </select>
+        </div>
+        
+        <button type="button" class="btn btn-secondary btn-sm clear-filters-btn">
+            Clear Filters
+        </button>
+        `;
+        
+        // Insert before menu content
+        this.menuContent.parentNode.insertBefore(filterControls, this.menuContent);
+        
+        // Set up filter event listeners
+        this.setupFilterListeners(filterControls);
+    }
+  
+    setupFilterListeners(filterControls) {
+        const searchInput = filterControls.querySelector('#menu-search');
+        const categoryFilter = filterControls.querySelector('#menu-category-filter');
+        const dietaryFilter = filterControls.querySelector('#menu-dietary-filter');
+        const clearButton = filterControls.querySelector('.clear-filters-btn');
+        
+        // Debounced search
+        const debouncedFilter = Utils.debounce(() => this.applyMenuFilters(), 300);
+        
+        searchInput.addEventListener('input', debouncedFilter);
+        categoryFilter.addEventListener('change', () => this.applyMenuFilters());
+        dietaryFilter.addEventListener('change', () => this.applyMenuFilters());
+        
+        clearButton.addEventListener('click', () => {
+        searchInput.value = '';
+        categoryFilter.value = '';
+        dietaryFilter.value = '';
+        this.applyMenuFilters();
+        });
+    }
+  
+    applyMenuFilters() {
+        const searchTerm = document.getElementById('menu-search')?.value.toLowerCase() || '';
+        const categoryFilter = document.getElementById('menu-category-filter')?.value || '';
+        const dietaryFilter = document.getElementById('menu-dietary-filter')?.value || '';
+        
+        const dishes = this.menuContent.querySelectorAll('.menu-dish');
+        let visibleCount = 0;
+        
+        dishes.forEach(dish => {
+        const recipeName = dish.querySelector('.dish-name')?.textContent.toLowerCase() || '';
+        const userName = dish.querySelector('.attribution-name')?.textContent.toLowerCase() || '';
+        const category = dish.dataset.category?.toLowerCase() || '';
+        const dietary = dish.querySelector('.dish-dietary')?.textContent.toLowerCase() || '';
+        
+        const matchesSearch = !searchTerm || 
+            recipeName.includes(searchTerm) || 
+            userName.includes(searchTerm);
+        
+        const matchesCategory = !categoryFilter || category === categoryFilter;
+        
+        const matchesDietary = !dietaryFilter || dietary.includes(dietaryFilter);
+        
+        const isVisible = matchesSearch && matchesCategory && matchesDietary;
+        
+        dish.style.display = isVisible ? 'block' : 'none';
+        if (isVisible) visibleCount++;
+        });
+        
+        // Update category headers
+        this.updateCategoryVisibility();
+        
+        // Show no results message if needed
+        this.showFilterResults(visibleCount);
+    }
+  
+    updateCategoryVisibility() {
+        const categories = this.menuContent.querySelectorAll('.menu-category');
+        
+        categories.forEach(category => {
+        const visibleDishes = category.querySelectorAll('.menu-dish:not([style*="display: none"])');
+        const countElement = category.querySelector('.category-count');
+        
+        if (visibleDishes.length > 0) {
+            category.style.display = 'block';
+            if (countElement) {
+            countElement.textContent = `(${visibleDishes.length})`;
+            }
+        } else {
+            category.style.display = 'none';
+        }
+        });
+    }
+  
+    showFilterResults(visibleCount) {
+        // Remove existing no-results message
+        const existingMessage = this.menuContent.querySelector('.filter-no-results');
+        if (existingMessage) {
+        existingMessage.remove();
+        }
+        
+        if (visibleCount === 0) {
+        const noResultsMessage = document.createElement('div');
+        noResultsMessage.className = 'filter-no-results';
+        noResultsMessage.innerHTML = `
+            <div class="no-results-icon">🔍</div>
+            <div class="no-results-text">
+            No dishes match your filters.
+            <br>
+            <button type="button" class="link-button clear-filters-btn">
+                Clear filters
+            </button>
+            </div>
+        `;
+        
+        this.menuContent.appendChild(noResultsMessage);
+        
+        // Add clear filters functionality
+        noResultsMessage.querySelector('.clear-filters-btn').addEventListener('click', () => {
+            document.getElementById('menu-search').value = '';
+            document.getElementById('menu-category-filter').value = '';
+            document.getElementById('menu-dietary-filter').value = '';
+            this.applyMenuFilters();
+        });
+        }
     }
   
     /**
