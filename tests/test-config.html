@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuration Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+    </style>
+</head>
+<body>
+    <h1>Frontend Configuration Test</h1>
+    <div id="test-results"></div>
+    
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/utils/helpers.js"></script>
+    <script src="js/utils/validation.js"></script>
+    
+    <script>
+        async function runTests() {
+            const results = document.getElementById('test-results');
+            
+            function addResult(message, type) {
+                const div = document.createElement('div');
+                div.className = `test-result ${type}`;
+                div.textContent = message;
+                results.appendChild(div);
+            }
+            
+            // Test 1: Configuration
+            try {
+                if (validateConfig()) {
+                    addResult('✅ Configuration valid', 'success');
+                } else {
+                    addResult('❌ Configuration invalid', 'error');
+                }
+            } catch (error) {
+                addResult('❌ Configuration error: ' + error.message, 'error');
+            }
+            
+            // Test 2: API instance
+            try {
+                if (api && typeof api.ping === 'function') {
+                    addResult('✅ API instance created', 'success');
+                } else {
+                    addResult('❌ API instance failed', 'error');
+                }
+            } catch (error) {
+                addResult('❌ API error: ' + error.message, 'error');
+            }
+            
+            // Test 3: Utils
+            try {
+                if (Utils && typeof Utils.debounce === 'function') {
+                    addResult('✅ Utils loaded', 'success');
+                } else {
+                    addResult('❌ Utils failed to load', 'error');
+                }
+            } catch (error) {
+                addResult('❌ Utils error: ' + error.message, 'error');
+            }
+            
+            // Test 4: Validation
+            try {
+                if (Validation && typeof Validation.validateDisplayName === 'function') {
+                    addResult('✅ Validation loaded', 'success');
+                } else {
+                    addResult('❌ Validation failed to load', 'error');
+                }
+            } catch (error) {
+                addResult('❌ Validation error: ' + error.message, 'error');
+            }
+            
+            // Test 5: API connection (if configured)
+            if (CONFIG.SCRIPT_URL && !CONFIG.SCRIPT_URL.includes('YOUR_DEPLOYMENT_ID')) {
+                try {
+                    addResult('🔄 Testing API connection...', 'warning');
+                    const response = await api.ping();
+                    if (response.success) {
+                        addResult('✅ API connection successful', 'success');
+                    } else {
+                        addResult('❌ API connection failed: ' + response.message, 'error');
+                    }
+                } catch (error) {
+                    addResult('❌ API connection error: ' + error.message, 'error');
+                }
+            } else {
+                addResult('⚠️ API URL not configured - update config.js', 'warning');
+            }
+            
+            // Test 6: Validation functions
+            try {
+                const testValidation = Validation.validateDisplayName('Test User');
+                if (testValidation.valid) {
+                    addResult('✅ Validation functions working', 'success');
+                } else {
+                    addResult('❌ Validation functions failed', 'error');
+                }
+            } catch (error) {
+                addResult('❌ Validation test error: ' + error.message, 'error');
+            }
+        }
+        
+        // Run tests when page loads
+        document.addEventListener('DOMContentLoaded', runTests);
+    </script>
+</body>
+</html>

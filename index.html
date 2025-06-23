@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cookbook Club RSVP</title>
+    <meta name="description" content="RSVP for our cookbook club gathering">
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="css/main.css" as="style">
+    <link rel="preload" href="js/config.js" as="script">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    
+    <!-- Favicon and app icons -->
+    <link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg">
+    <link rel="icon" type="image/png" href="assets/images/favicon.png">
+    
+    <!-- Open Graph meta tags -->
+    <meta property="og:title" content="Cookbook Club RSVP">
+    <meta property="og:description" content="Join us for our next cookbook club gathering">
+    <meta property="og:type" content="website">
+    
+    <!-- Accessibility -->
+    <meta name="theme-color" content="#5865F2">
+</head>
+<body>
+    <!-- Skip link for accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <!-- Header -->
+    <header class="site-header" role="banner">
+        <div class="container">
+            <div class="header-content">
+                <h1 class="site-title">
+                    <span class="emoji">🍽️</span>
+                    Cookbook Club RSVP
+                </h1>
+                <div class="header-status">
+                    <div class="connection-status" id="connection-status" aria-live="polite">
+                        <span class="status-indicator"></span>
+                        <span class="status-text">Connecting...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main content -->
+    <main id="main-content" class="main-content" role="main">
+        <div class="container">
+            
+            <!-- Event information section -->
+            <section class="event-info" id="event-info" aria-labelledby="event-title">
+                <div class="event-card">
+                    <h2 id="event-title" class="event-title">
+                        <span class="loading-placeholder">Loading event information...</span>
+                    </h2>
+                    <div class="event-details">
+                        <div class="event-detail" id="event-date">
+                            <span class="detail-icon">📅</span>
+                            <span class="detail-text loading-placeholder">Loading date...</span>
+                        </div>
+                        <div class="event-detail" id="event-cookbook">
+                            <span class="detail-icon">📖</span>
+                            <span class="detail-text loading-placeholder">Loading cookbook...</span>
+                        </div>
+                        <div class="event-detail" id="event-location">
+                            <span class="detail-icon">📍</span>
+                            <span class="detail-text loading-placeholder">Loading location...</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- RSVP Form Section -->
+            <section class="rsvp-section" aria-labelledby="rsvp-title">
+                <div class="form-container">
+                    <h2 id="rsvp-title" class="section-title">RSVP for the Event</h2>
+                    
+                    <!-- Form -->
+                    <form id="rsvp-form" class="rsvp-form" novalidate>
+                        
+                        <!-- Step 1: User Type Selection -->
+                        <fieldset class="form-step" id="step-user-type" data-step="1">
+                            <legend class="step-title">
+                                <span class="step-number">1</span>
+                                Are you a club member or guest?
+                            </legend>
+                            
+                            <div class="radio-group" role="radiogroup" aria-labelledby="user-type-label">
+                                <div class="radio-option">
+                                    <input type="radio" id="user-type-member" name="userType" value="member" class="radio-input">
+                                    <label for="user-type-member" class="radio-label">
+                                        <span class="radio-icon">👥</span>
+                                        <span class="radio-text">
+                                            <strong>Club Member</strong>
+                                            <small>I'm a regular member with Discord access</small>
+                                        </span>
+                                    </label>
+                                </div>
+                                
+                                <div class="radio-option">
+                                    <input type="radio" id="user-type-guest" name="userType" value="guest" class="radio-input">
+                                    <label for="user-type-guest" class="radio-label">
+                                        <span class="radio-icon">🎉</span>
+                                        <span class="radio-text">
+                                            <strong>Guest</strong>
+                                            <small>I'm joining as a guest (maybe from @clt.gal.pals!)</small>
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <!-- Step 2: Member Identification -->
+                        <fieldset class="form-step" id="step-member-info" data-step="2" style="display: none;">
+                            <legend class="step-title">
+                                <span class="step-number">2</span>
+                                Member Information
+                            </legend>
+                            
+                            <div class="field-group">
+                                <label for="member-select" class="field-label">
+                                    Select your name
+                                    <span class="required" aria-label="required">*</span>
+                                </label>
+                                <select id="member-select" name="memberId" class="field-input select-input" aria-describedby="member-select-help">
+                                    <option value="">Choose your name...</option>
+                                    <!-- Options populated by JavaScript -->
+                                </select>
+                                <div id="member-select-help" class="field-help">
+                                    Select your name from the member list
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <!-- Step 2: Guest Information -->
+                        <fieldset class="form-step" id="step-guest-info" data-step="2" style="display: none;">
+                            <legend class="step-title">
+                                <span class="step-number">2</span>
+                                Guest Information
+                            </legend>
+                            
+                            <div class="field-group">
+                                <label for="guest-name" class="field-label">
+                                    Your name
+                                    <span class="required" aria-label="required">*</span>
+                                </label>
+                                <input type="text" id="guest-name" name="displayName" class="field-input" 
+                                       placeholder="How should we address you?" 
+                                       maxlength="50" 
+                                       aria-describedby="guest-name-help">
+                                <div id="guest-name-help" class="field-help">
+                                    This is how you'll appear in our menu and Discord
+                                </div>
+                            </div>
+                            
+                            <div class="field-group">
+                                <label for="guest-instagram" class="field-label">
+                                    Instagram handle <span class="optional">(optional)</span>
+                                </label>
+                                <input type="text" id="guest-instagram" name="instagramHandle" class="field-input" 
+                                       placeholder="@yourhandle" 
+                                       aria-describedby="guest-instagram-help">
+                                <div id="guest-instagram-help" class="field-help">
+                                    We'll use this to credit your dish and say thanks! Especially helpful for @clt.gal.pals friends.
+                                </div>
+                            </div>
+                            
+                            <div class="field-group">
+                                <label for="guest-email" class="field-label">
+                                    Email <span class="optional">(optional)</span>
+                                </label>
+                                <input type="email" id="guest-email" name="email" class="field-input" 
+                                       placeholder="your@email.com" 
+                                       aria-describedby="guest-email-help">
+                                <div id="guest-email-help" class="field-help">
+                                    For confirmation and any questions about your dish
+                                </div>
+                            </div>
+                            
+                            <div class="info-box">
+                                <div class="info-icon">ℹ️</div>
+                                <div class="info-content">
+                                    <strong>Privacy note:</strong> Please provide either an Instagram handle or email so we can reach you if needed. Your information is only shared with club members.
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <!-- Step 3: Participation Type -->
+                        <fieldset class="form-step" id="step-participation" data-step="3" style="display: none;">
+                            <legend class="step-title">
+                                <span class="step-number">3</span>
+                                How are you participating?
+                            </legend>
+                            
+                            <div class="radio-group" role="radiogroup" aria-labelledby="participation-label">
+                                <div class="radio-option">
+                                    <input type="radio" id="participation-cooking" name="cooking" value="true" class="radio-input">
+                                    <label for="participation-cooking" class="radio-label">
+                                        <span class="radio-icon">👨‍🍳</span>
+                                        <span class="radio-text">
+                                            <strong>I'm cooking!</strong>
+                                            <small>I'll bring a dish from the cookbook</small>
+                                        </span>
+                                    </label>
+                                </div>
+                                
+                                <div class="radio-option">
+                                    <input type="radio" id="participation-attending" name="cooking" value="false" class="radio-input">
+                                    <label for="participation-attending" class="radio-label">
+                                        <span class="radio-icon">🍽️</span>
+                                        <span class="radio-text">
+                                            <strong>Just attending</strong>
+                                            <small>I'll enjoy the delicious food others make</small>
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <!-- Step 4: Recipe Selection (shown only if cooking) -->
+                        <fieldset class="form-step" id="step-recipe" data-step="4" style="display: none;">
+                            <legend class="step-title">
+                                <span class="step-number">4</span>
+                                Choose your recipe
+                            </legend>
+                            
+                            <div class="recipe-selection">
+                                <!-- Recipe search and filter -->
+                                <div class="recipe-controls">
+                                    <div class="field-group">
+                                        <label for="recipe-search" class="field-label">Search recipes</label>
+                                        <input type="search" id="recipe-search" class="field-input search-input" 
+                                               placeholder="Search by name, category, or ingredients..." 
+                                               aria-describedby="recipe-search-help">
+                                        <div id="recipe-search-help" class="field-help">
+                                            Type to filter the recipe list
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="filter-group">
+                                        <label for="category-filter" class="field-label">Filter by category</label>
+                                        <select id="category-filter" class="field-input select-input">
+                                            <option value="">All categories</option>
+                                            <option value="appetizer">Appetizers</option>
+                                            <option value="main">Main dishes</option>
+                                            <option value="side">Side dishes</option>
+                                            <option value="dessert">Desserts</option>
+                                            <option value="drink">Drinks</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <!-- Recipe list -->
+                                <div class="recipe-list" id="recipe-list" role="radiogroup" aria-labelledby="recipe-selection-title">
+                                    <div class="loading-placeholder">Loading recipes...</div>
+                                </div>
+                                
+                                <!-- Selected recipe details -->
+                                <div class="selected-recipe" id="selected-recipe" style="display: none;">
+                                    <h4 class="selected-recipe-title">Selected Recipe</h4>
+                                    <div class="selected-recipe-content">
+                                        <!-- Populated by JavaScript -->
+                                    </div>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <!-- Step 5: Additional Details -->
+                        <fieldset class="form-step" id="step-details" data-step="5" style="display: none;">
+                            <legend class="step-title">
+                                <span class="step-number">5</span>
+                                Additional details
+                            </legend>
+                            
+                            <div class="field-group">
+                                <label for="guest-count" class="field-label">
+                                    Number of additional guests
+                                </label>
+                                <select id="guest-count" name="guestCount" class="field-input select-input" aria-describedby="guest-count-help">
+                                    <option value="0">Just me</option>
+                                    <option value="1">+1 guest</option>
+                                    <option value="2">+2 guests</option>
+                                    <option value="3">+3 guests</option>
+                                    <option value="4">+4 guests</option>
+                                    <option value="5">+5 guests</option>
+                                </select>
+                                <div id="guest-count-help" class="field-help">
+                                    How many people total will be attending (including yourself)?
+                                </div>
+                            </div>
+                            
+                            <div class="field-group">
+                                <label for="dietary-restrictions" class="field-label">
+                                    Dietary restrictions or allergies
+                                </label>
+                                <input type="text" id="dietary-restrictions" name="dietaryRestrictions" class="field-input" 
+                                       placeholder="e.g., vegetarian, gluten-free, nut allergy" 
+                                       aria-describedby="dietary-help">
+                                <div id="dietary-help" class="field-help">
+                                    Help us accommodate everyone's needs
+                                </div>
+                            </div>
+                            
+                            <div class="field-group" id="recipe-modifications-group" style="display: none;">
+                                <label for="recipe-modifications" class="field-label">
+                                    Recipe modifications or notes
+                                </label>
+                                <textarea id="recipe-modifications" name="modifications" class="field-input textarea-input" 
+                                          rows="3" 
+                                          placeholder="Any changes you're making to the recipe?" 
+                                          aria-describedby="modifications-help"></textarea>
+                                <div id="modifications-help" class="field-help">
+                                    Let others know about any substitutions or adaptations
+                                </div>
+                            </div>
+                            
+                            <div class="field-group">
+                                <label for="notes" class="field-label">
+                                    Additional notes
+                                </label>
+                                <textarea id="notes" name="notes" class="field-input textarea-input" 
+                                          rows="3" 
+                                          placeholder="Anything else you'd like to share?" 
+                                          maxlength="500" 
+                                          aria-describedby="notes-help"></textarea>
+                                <div id="notes-help" class="field-help">
+                                    Questions, excitement, or anything else on your mind
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <!-- Form Navigation -->
+                        <div class="form-navigation">
+                            <button type="button" id="prev-step" class="btn btn-secondary" style="display: none;">
+                                ← Previous
+                            </button>
+                            <button type="button" id="next-step" class="btn btn-primary" style="display: none;">
+                                Next →
+                            </button>
+                            <button type="submit" id="submit-rsvp" class="btn btn-success" style="display: none;">
+                                <span class="btn-icon">🎉</span>
+                                Submit RSVP
+                            </button>
+                        </div>
+
+                        <!-- Form Progress -->
+                        <div class="form-progress" aria-label="Form progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progress-fill"></div>
+                            </div>
+                            <div class="progress-text" id="progress-text">Step 1 of 5</div>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Current Menu Section -->
+            <section class="menu-section" id="menu-section" aria-labelledby="menu-title">
+                <div class="menu-container">
+                    <h2 id="menu-title" class="section-title">
+                        <span class="title-icon">📋</span>
+                        Current Menu
+                    </h2>
+                    
+                    <div class="menu-content" id="menu-content">
+                        <div class="loading-placeholder">Loading current menu...</div>
+                    </div>
+                    
+                    <div class="menu-stats" id="menu-stats" style="display: none;">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="site-footer" role="contentinfo">
+        <div class="container">
+            <div class="footer-content">
+                <p class="footer-text">
+                    Made with ❤️ for our cookbook club community
+                </p>
+                <div class="footer-links">
+                    <button type="button" class="link-button" id="refresh-data">
+                        🔄 Refresh Data
+                    </button>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast container for notifications -->
+    <div class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Loading overlay -->
+    <div class="loading-overlay" id="loading-overlay" style="display: none;">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Processing your RSVP...</div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/utils/helpers.js"></script>
+    <script src="js/utils/validation.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/components/user-selector.js"></script>
+    <script src="js/components/recipe-picker.js"></script>
+    <script src="js/components/menu-display.js"></script>
+    <script src="js/components/form-handler.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
