@@ -117,12 +117,30 @@ class FormHandler {
     handleUserTypeChange() {
       const userType = document.querySelector('input[name="userType"]:checked')?.value;
       
+      const guestName = document.getElementById('guest-name');
+      const guestInstagram = document.getElementById('guest-instagram');
+      const guestEmail = document.getElementById('guest-email');
+      const hiddenDisplayName = document.getElementById('member-display-name-hidden');
+      const hiddenDiscordId = document.getElementById('member-discord-id-hidden');
+
       if (userType === 'member') {
         document.getElementById('step-member-info').style.display = 'block';
         document.getElementById('step-guest-info').style.display = 'none';
+
+        if (guestName) guestName.disabled = true;
+        if (guestInstagram) guestInstagram.disabled = true;
+        if (guestEmail) guestEmail.disabled = true;
+        if (hiddenDisplayName) hiddenDisplayName.disabled = false;
+        if (hiddenDiscordId) hiddenDiscordId.disabled = false;
       } else if (userType === 'guest') {
         document.getElementById('step-member-info').style.display = 'none';
         document.getElementById('step-guest-info').style.display = 'block';
+
+        if (guestName) guestName.disabled = false;
+        if (guestInstagram) guestInstagram.disabled = false;
+        if (guestEmail) guestEmail.disabled = false;
+        if (hiddenDisplayName) hiddenDisplayName.disabled = true;
+        if (hiddenDiscordId) hiddenDiscordId.disabled = true;
       }
       
       this.formData.userType = userType;
