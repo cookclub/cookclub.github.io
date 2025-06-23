@@ -356,6 +356,9 @@ class FormHandler {
       
       // Collect all form data
       this.collectAllFormData();
+
+      console.log('Display Name before validation:', this.formData.displayName);
+      // Optionally add: debugger;
       
       // Final validation
       const validation = Validation.validateFormData(this.formData);
