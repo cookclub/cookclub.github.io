@@ -117,42 +117,38 @@
     font-family: var(--font-family-base);
     font-size: var(--text-base);
     line-height: 1.6;
-    color: var(--gray-800);
-    background-color: var(--gray-50);
+    color: var(--gray-800); /* Use the new dark charcoal */
+    background-color: var(--cream-bg); /* Use the warm off-white */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-  }
+}
   
-  /* ===== TYPOGRAPHY ===== */
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-family-heading);
-    font-weight: 600;
-    line-height: 1.25;
-    margin-bottom: var(--space-4);
-    color: var(--gray-900);
+      font-family: var(--font-family-heading);
+      font-weight: 700; /* Make headings bolder */
+      line-height: 1.25;
+      margin-bottom: var(--space-4);
+      color: var(--gray-900); /* Use the new near-black */
   }
-  
-  h1 { font-size: var(--text-4xl); }
-  h2 { font-size: var(--text-3xl); }
-  h3 { font-size: var(--text-2xl); }
-  h4 { font-size: var(--text-xl); }
-  h5 { font-size: var(--text-lg); }
-  h6 { font-size: var(--text-base); }
-  
+
+  /* Specific adjustments for larger headings to match cover's boldness */
+  h1 { font-size: var(--text-4xl); font-weight: 800; } /* Even bolder for H1 */
+  h2 { font-size: var(--text-3xl); font-weight: 800; } /* Even bolder for H2 */
+    
   p {
-    margin-bottom: var(--space-4);
-    color: var(--gray-700);
+      margin-bottom: var(--space-4);
+      color: var(--gray-700); /* Slightly lighter than headings */
   }
-  
+    
   a {
-    color: var(--primary-color);
-    text-decoration: none;
-    transition: color var(--transition-fast);
+      color: var(--secondary-color); /* Use the vibrant green for links */
+      text-decoration: none;
+      transition: color var(--transition-fast);
   }
-  
+    
   a:hover {
-    color: var(--primary-dark);
-    text-decoration: underline;
+      color: var(--secondary-dark);
+      text-decoration: underline;
   }
   
   /* ===== LAYOUT COMPONENTS ===== */
@@ -194,162 +190,71 @@
   
   /* ===== FORM COMPONENTS ===== */
   .form-container {
-    background: var(--white);
-    border-radius: var(--radius-lg);
+    background: var(--white); /* Keep form background white */
+    border-radius: var(--radius-lg); /* Use larger radius */
     box-shadow: var(--shadow-base);
     padding: var(--space-8);
     margin-bottom: var(--space-8);
-  }
-  
-  .form-step {
-    display: none;
-    animation: fadeIn 0.3s ease-in-out;
-  }
-  
-  .form-step.active {
-    display: block;
-  }
-  
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  
-  .step-header {
-    text-align: center;
-    margin-bottom: var(--space-8);
-    padding-bottom: var(--space-6);
-    border-bottom: 1px solid var(--gray-200);
-  }
-  
-  .step-title {
-    font-size: var(--text-2xl);
-    color: var(--gray-900);
-    margin-bottom: var(--space-2);
-  }
-  
-  .step-description {
-    color: var(--gray-600);
-    font-size: var(--text-lg);
-  }
-  
-  .form-group {
-    margin-bottom: var(--space-6);
-  }
-  
-  .form-label {
-    display: block;
-    font-weight: 500;
-    color: var(--gray-700);
-    margin-bottom: var(--space-2);
-    font-size: var(--text-sm);
-  }
-  
+}
+
   .form-input,
   .form-select,
   .form-textarea {
-    width: 100%;
-    padding: var(--space-3) var(--space-4);
-    border: 1px solid var(--gray-300);
-    border-radius: var(--radius-md);
-    font-size: var(--text-base);
-    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-    background-color: var(--white);
+      width: 100%;
+      padding: var(--space-3) var(--space-4);
+      border: 1px solid var(--gray-300);
+      border-radius: var(--radius-md); /* Use medium radius */
+      font-size: var(--text-base);
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+      background-color: var(--white);
   }
-  
+    
   .form-input:focus,
   .form-select:focus,
   .form-textarea:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(44, 85, 48, 0.1);
+      outline: none;
+      border-color: var(--primary-color); /* Yellow border on focus */
+      box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.2); /* Soft yellow glow */
   }
-  
-  .form-input.field-error,
-  .form-select.field-error,
-  .form-textarea.field-error {
-    border-color: var(--error-color);
-  }
-  
-  .form-input.field-valid,
-  .form-select.field-valid,
-  .form-textarea.field-valid {
-    border-color: var(--success-color);
-  }
-  
-  .field-error-container {
-    margin-top: var(--space-2);
-  }
-  
-  .field-error-message {
-    color: var(--error-color);
-    font-size: var(--text-sm);
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-  }
-  
-  .field-error-message::before {
-    content: "⚠️";
-    font-size: var(--text-xs);
-  }
-  
-  .field-suggestion {
-    color: var(--info-color);
-    font-size: var(--text-sm);
-    margin-top: var(--space-1);
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-  }
-  
-  /* ===== BUTTON COMPONENTS ===== */
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-2);
-    padding: var(--space-3) var(--space-6);
-    border: 1px solid transparent;
-    border-radius: var(--radius-md);
-    font-size: var(--text-base);
-    font-weight: 500;
-    text-decoration: none;
-    cursor: pointer;
-    transition: all var(--transition-fast);
-    white-space: nowrap;
-    user-select: none;
-  }
-  
-  .btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-  
+
+  /* Primary Button: Vibrant Yellow with Dark Text */
   .btn-primary {
-    background-color: var(--primary-color);
-    color: var(--white);
-    border-color: var(--primary-color);
+      background-color: var(--primary-color);
+      color: var(--gray-900); /* Dark text on yellow */
+      border-color: var(--primary-color);
+      border-radius: var(--radius-full); /* Make it pill-shaped for playfulness */
+      padding: var(--space-4) var(--space-8); /* Slightly larger padding */
+      font-weight: 700; /* Bolder text */
+      box-shadow: 0 4px 10px rgba(255, 215, 0, 0.3); /* Subtle shadow */
   }
-  
+    
   .btn-primary:hover:not(:disabled) {
-    background-color: var(--primary-dark);
-    border-color: var(--primary-dark);
-    color: var(--white);
-    text-decoration: none;
+      background-color: var(--primary-dark);
+      border-color: var(--primary-dark);
+      color: var(--gray-900);
+      text-decoration: none;
+      transform: translateY(-2px); /* Lift effect */
+      box-shadow: 0 6px 15px rgba(255, 215, 0, 0.4);
   }
-  
+
+  /* Secondary Button: Vibrant Green */
   .btn-secondary {
-    background-color: var(--white);
-    color: var(--gray-700);
-    border-color: var(--gray-300);
+      background-color: var(--secondary-color); /* Green background */
+      color: var(--white); /* White text */
+      border-color: var(--secondary-color);
+      border-radius: var(--radius-full); /* Pill shape */
+      padding: var(--space-4) var(--space-8); /* Slightly larger padding */
+      font-weight: 700; /* Bolder text */
+      box-shadow: 0 4px 10px rgba(46, 125, 50, 0.3); /* Subtle shadow */
   }
-  
+    
   .btn-secondary:hover:not(:disabled) {
-    background-color: var(--gray-50);
-    border-color: var(--gray-400);
-    color: var(--gray-800);
-    text-decoration: none;
+      background-color: var(--secondary-dark);
+      border-color: var(--secondary-dark);
+      color: var(--white);
+      text-decoration: none;
+      transform: translateY(-2px); /* Lift effect */
+      box-shadow: 0 6px 15px rgba(46, 125, 50, 0.4);
   }
   
   .btn-success {
