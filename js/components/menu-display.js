@@ -249,40 +249,6 @@ class MenuDisplay {
       
       Utils.showToast('Failed to load current menu. Please refresh the page.', 'error');
     }
-    
-    /**
-     * Real-time menu updates
-     */
-    setupRealTimeUpdates() {
-        this.lastUpdate = Date.now();
-        this.updateInterval = null;
-        this.isVisible = true;
-        
-        // Start real-time updates
-        this.startRealTimeUpdates();
-        
-        // Pause updates when tab is hidden
-        document.addEventListener('visibilitychange', () => {
-        this.isVisible = !document.hidden;
-        if (this.isVisible) {
-            this.checkForUpdates();
-        }
-        });
-        
-        // Update when window gains focus
-        window.addEventListener('focus', () => {
-        this.checkForUpdates();
-        });
-    }
-  
-    startRealTimeUpdates() {
-        // Check for updates every 30 seconds
-        this.updateInterval = setInterval(() => {
-        if (this.isVisible) {
-            this.checkForUpdates();
-        }
-        }, 30000);
-    }
   
     // ✅ UPDATED CODE:
     async checkForUpdates() {
