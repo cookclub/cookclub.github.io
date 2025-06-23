@@ -132,11 +132,26 @@ class FormHandler {
     handleMemberSelection() {
       const memberSelect = document.getElementById('member-select');
       const selectedOption = memberSelect.options[memberSelect.selectedIndex];
+      const hiddenDisplayNameInput = document.getElementById('member-display-name-hidden');
+      const hiddenDiscordIdInput = document.getElementById('member-discord-id-hidden');     
       
       if (selectedOption.value) {
         this.formData.memberId = selectedOption.value;
         this.formData.displayName = selectedOption.textContent;
         this.formData.discordId = selectedOption.dataset.discordId;
+
+        // Update hidden fields so FormData picks them up
+        if (hiddenDisplayNameInput) {
+          hiddenDisplayNameInput.value = selectedOption.textContent;
+        }
+        if (hiddenDiscordIdInput) { // If you added this hidden input
+          hiddenDiscordIdInput.value = selectedOption.dataset.discordId;
+        }
+      } else {
+        // Clear hidden fields if no member is selected
+        if (hiddenDisplayNameInput) hiddenDisplayNameInput.value = '';
+        if (hiddenDiscordIdInput) hiddenDiscordIdInput.value = ''; // If you added this hidden input
+        
       }
       
       this.updateNavigationButtons();
@@ -220,16 +235,21 @@ class FormHandler {
           return document.querySelector('input[name="userType"]:checked') !== null;
           
         case 2: // User information
-          const userType = document.querySelector('input[name="userType"]:checked')?.value;
-          if (userType === 'member') {
-            return document.getElementById('member-select').value !== '';
-          } else if (userType === 'guest') {
-            const name = document.getElementById('guest-name').value.trim();
-            const instagram = document.getElementById('guest-instagram').value.trim();
-            const email = document.getElementById('guest-email').value.trim();
-            return name && (instagram || email);
-          }
-          return false;
+        const userType = document.querySelector('input[name="userType"]:checked')?.value;
+        if (userType === 'member') {
+          const memberSelect = document.getElementById('member-select');
+          const selectedMemberId = memberSelect.value;
+          const hiddenDisplayName = document.getElementById('member-display-name-hidden')?.value;
+          // Ensure a member is selected AND their display name is set in the hidden field
+          return selectedMemberId !== '' && hiddenDisplayName !== '';
+        } else if (userType === 'guest') {
+          // 'guest-name' now has name="displayName"
+          const name = document.getElementById('guest-name').value.trim();
+          const instagram = document.getElementById('guest-instagram').value.trim();
+          const email = document.getElementById('guest-email').value.trim();
+          return name && (instagram || email);
+        }
+        return false;
           
         case 3: // Participation type
           return document.querySelector('input[name="cooking"]:checked') !== null;
@@ -351,6 +371,9 @@ class FormHandler {
     
     collectAllFormData() {
       const formData = new FormData(this.form);
+
+      // Clear previous formData and populate from the HTML form
+      this.formData = {}; 
       
       // Convert FormData to object
       for (let [key, value] of formData.entries()) {
