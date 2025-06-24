@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Big Spoon Society RSVP</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml">
-    <!-- Preconnects and font loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;700&display=swap" rel="stylesheet">
@@ -14,19 +13,43 @@
 <body>
     <div class="main-wrapper">
         <div class="cover-column">
-            <!-- Your book cover image -->
             <img src="./assets/images/starthere.jpg" alt="Start Here Book Cover" />
-            <!-- Mobile hero overlay for text on top of the image (if needed ) -->
-            <div class="mobile-hero-overlay" aria-hidden="true">
-                <!-- Optional: Add a very brief text here for mobile if the image needs context -->
-                <!-- <p>Big Spoon Society</p> -->
-            </div>
+            <div class="mobile-hero-overlay" aria-hidden="true"></div>
         </div>
         <div class="content-column">
-            <!-- Concise hero text for the page -->
             <div class="hero-text">
-                <h1>Big Spoon Society</h1>
-                <p>Welcome! Please use the form below to RSVP for our next cookbook club gathering and claim your recipe.</p>
+                <h1>Hi @clt.gal.pals! 👋</h1>
+                <p>We're Big Spoon Society—a cookbook club that meets monthly to share food and friendship. This July, we're excited to welcome you as special guests for our next meet!</p>
+
+                <h2>This month, we're cooking from...</h2>
+                <p>📖 <a href="#">Start Here: Instructions for Becoming a Better Cook by Sohla El-Waylly</a></p>
+
+                <h2>The Details:</h2>
+                <ul>
+                    <li>🗓️ <strong>Date:</strong> Saturday, July 26</li>
+                    <li>⏰ <strong>Time:</strong> 2:30 PM - 4:30 PM. Feel free to arrive anytime after 2:30; we'll start eating at 3:00 PM.</li>
+                    <li>📍 <strong>Location:</strong> The address will be emailed to you after you RSVP and claim a recipe.</li>
+                </ul>
+
+                <h2>Event Guidelines:</h2>
+                <ul>
+                    <li>🍽️ <strong>Your Dish:</strong> Bring one batch of your dish. Everyone gets just a little of each dish, so no need to double your recipe.</li>
+                    <li>🍴 <strong>What to Bring:</strong> Please bring any serving utensils your dish might need.</li>
+                    <li>👯 <strong>Plus-Ones</strong> are welcome!</li>
+                </ul>
+
+                <h2>How to RSVP and Claim Your Dish:</h2>
+                <ol>
+                    <li>Explore <a href="#">Start Here</a> to find the recipe you'd like to bring. If you can't get your hands on a copy of the book, you can also view our full recipe list (including claimed dishes ) here: <a href="#">Link to Recipes: Claimed & Available</a></li>
+                    <li>Once you've chosen your recipe, look for its name in the list below.</li>
+                    <li>Enter your remaining details to secure your recipe and RSVP for the event!</li>
+                </ol>
+                <p>💬 Want to stay in the loop for future gatherings? <a href="#">Join our Discord.</a></p>
+
+                <hr style="margin: 2rem 0; border: 0; border-top: 1px dashed #ccc;"> <!-- Visual separator -->
+
+                <h2>Claim Your Recipe</h2>
+                <p>Please fill out the form below to RSVP and secure your dish.</p>
             </div>
 
             <!-- Airtable Embed Code Starts Here -->
@@ -36,12 +59,13 @@
                 Airtable form, including when the 200-element dropdown is expanded.
                 The goal is to ensure the iframe NEVER has its own scrollbar.
                 The main page should always be the one that scrolls.
-                Start with a very generous value (e.g., 2000px or 2500px) and
+                Start with a very generous value (e.g., 1000px or 1200px) and
                 test on various mobile devices, adjusting down if there's too much
                 empty space, or up if an internal scrollbar appears.
+                The height will likely be less than before, as the text is removed.
             -->
             <iframe class="airtable-embed" src="https://airtable.com/embed/appIAkfA9Dy3C2a3b/pag0mXcpokEjMoU9A/form"
-                    frameborder="0" width="100%" height="2000px" style="background: transparent;"></iframe>
+                    frameborder="0" width="100%" height="1000px" style="background: transparent;"></iframe>
             <!-- Airtable Embed Code Ends Here -->
 
         </div>
