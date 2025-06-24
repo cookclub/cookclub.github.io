@@ -10,10 +10,11 @@
   --color-yellow-accent: #FFD000; /* Bright yellow from "Start Here" */
   --color-green-accent: #3DA351; /* Vibrant green from arrow */
   --color-blue-accent: #0070A3;  /* Blue from "Instructions" block */
-  --color-background-neutral: #FCFBF7; /* Slightly warmer off-white from cover */
+  --color-background-page: #F8F8F8; /* Airtable's outer page background */
+  --color-background-card: #FFFFFF; /* Airtable's internal card background */
   --color-text-dark: #2B2B2B; /* Airtable's main text/header color */
   --color-text-medium: #6C6C6C; /* Airtable's paragraph/helper text color */
-  --border-radius-medium: 12px; /* Slightly more rounded for modular feel */
+  --border-radius-medium: 12px; /* Matches Airtable's card border-radius */
 
   /* aspect ratio of the book cover (width / height) */
   --cover-ratio: 0.806;
@@ -22,10 +23,10 @@
 
 body {
   font-family: 'Inter', sans-serif; /* Apply Inter to the entire body */
-  font-size: 16px; /* Base font size, matches Airtable's field labels */
-  line-height: 1.5;
-  background: var(--color-background-neutral); /* Matches the background outside Airtable's form */
-  color: var(--color-text-dark); /* Default text color */
+  font-size: 14px; /* Base font size for body text, matches Airtable's paragraphs */
+  line-height: 20px; /* Matches Airtable's paragraph line-height */
+  background: var(--color-background-page); /* Matches Airtable's outer page background */
+  color: var(--color-text-medium); /* Default text color for paragraphs */
   min-height: 100vh;
 }
 
@@ -34,6 +35,7 @@ h1, h2, h3, h4, h5, h6 {
   font-family: 'Inter', sans-serif;
   font-weight: 700; /* Airtable's main headers are bold (700) */
   color: var(--color-text-dark); /* Matches Airtable's header color */
+  line-height: 28px; /* Matches Airtable's header line-height */
 }
 
 /* Specific heading sizes to match Airtable's visual hierarchy */
@@ -48,11 +50,11 @@ h1 {
 }
 
 /* Paragraphs and List Items - Match Airtable's body text */
-p, ul, ol, li {
+p {
     font-weight: 400; /* Regular weight for body text */
     color: var(--color-text-medium); /* Matches Airtable's paragraph color */
     font-size: 14px; /* Matches Airtable's paragraph font size */
-    line-height: 1.4; /* Slightly tighter line height for readability */
+    line-height: 20px; /* Matches Airtable's paragraph line-height */
 }
 
 /* Strong tags within paragraphs/list items */
@@ -66,6 +68,49 @@ a {
     color: var(--color-blue-accent); /* Use the blue accent for links */
     text-decoration: underline;
 }
+
+/* List Styling - CRITICAL for alignment and polish */
+ul, ol {
+    list-style: none; /* Remove default bullets/numbers */
+    padding: 0; /* Remove default padding */
+    margin: 0; /* Remove default margin */
+}
+
+ul li, ol li {
+    display: flex; /* Use flexbox for precise alignment of emoji/number and text */
+    align-items: flex-start; /* Align items to the top */
+    margin-bottom: 8px; /* Spacing between list items */
+    font-size: 14px; /* Consistent with paragraph text */
+    line-height: 20px; /* Consistent with paragraph text */
+    color: var(--color-text-medium); /* Consistent with paragraph text */
+}
+
+/* For ordered lists, create custom numbers */
+ol li {
+    counter-increment: list-item; /* Increment counter for each list item */
+}
+
+ol li::before {
+    content: counter(list-item) ". "; /* Display the counter followed by a dot and space */
+    font-weight: 400; /* Regular weight for numbers */
+    color: var(--color-text-medium); /* Match text color */
+    margin-right: 8px; /* Space between number and text */
+    flex-shrink: 0; /* Prevent number from shrinking */
+}
+
+/* For unordered lists, style the emoji/icon */
+ul li > *:first-child:not(strong) { /* Target the first child if it's not strong (i.e., the emoji) */
+    margin-right: 8px; /* Space between emoji and text */
+    flex-shrink: 0; /* Prevent emoji from shrinking */
+    /* If emojis are in a span, you might need to target that span directly */
+}
+
+/* If the emoji is directly in the li, and the text is not wrapped, this might need adjustment.
+   Assuming structure like: <li>🗓️ <strong>Date:</strong> Saturday, July 26</li>
+   The emoji is the first text node, and strong is the first element.
+   The flexbox on li will handle this well.
+*/
+
 
 /* Wrapper grid for cover and content */
 .main-wrapper {
@@ -152,26 +197,37 @@ a {
     max-width: 650px;
 }
 
-/* Styles for the "info-block" modules */
+/* Styles for the "info-block" modules - these are the cards */
 .info-block {
-    background-color: #FFFFFF; /* Pure white, matches Airtable's internal form background */
+    background-color: var(--color-background-card); /* Pure white, matches Airtable's internal form background */
     border-radius: var(--border-radius-medium);
     padding: 24px; /* Matches Airtable's internal padding (24px) */
     margin-bottom: 16px; /* Space between blocks (Airtable uses 16px margin-bottom for its sections) */
     box-shadow: 0 4px 10px rgba(0,0,0,0.05); /* Subtle shadow for depth */
 }
 
-/* Specific styling for the "Want to stay in the loop" text */
+/* Specific styling for the "Want to stay in the loop" text (Discord Callout) */
 .discord-callout {
-    background-color: #F7F7F7; /* A slightly lighter background for distinction */
+    background-color: var(--color-background-page); /* Matches Airtable's outer page background for distinction */
     border-left: 4px solid var(--color-blue-accent); /* A blue left border */
     padding: 12px 16px; /* Padding inside the callout */
     margin-top: 24px; /* Space above the callout */
     margin-bottom: 0; /* Remove default paragraph margin */
     font-size: 14px; /* Keep consistent with other body text */
+    line-height: 20px; /* Consistent line-height */
     color: var(--color-text-medium);
     border-radius: 4px; /* Slightly rounded corners for the callout */
+    display: flex; /* Use flexbox for alignment of emoji and text */
+    align-items: flex-start; /* Align items to the top */
 }
+
+.discord-callout::before { /* For the chat bubble emoji if it's not directly in HTML */
+    /* If the chat bubble emoji is part of the HTML, remove this ::before and rely on flexbox */
+    /* content: '💬'; */
+    /* margin-right: 8px; */
+    /* flex-shrink: 0; */
+}
+
 
 /* Specific styles for the form block */
 .form-block {
@@ -243,8 +299,9 @@ a {
       font-size: 18px; /* Slightly smaller headings on mobile */
       margin-bottom: 12px;
   }
-  p, ul, ol, li {
+  p, ul li, ol li { /* Apply mobile font size to list items too */
       font-size: 13px; /* Slightly smaller body text on mobile */
+      line-height: 18px; /* Adjust line-height for mobile */
   }
   .discord-callout {
       padding: 10px 12px;
