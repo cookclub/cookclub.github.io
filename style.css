@@ -5,33 +5,66 @@
   padding: 0;
 }
 
-body {
-  font-family: 'Inter', sans-serif; /* Apply Inter to the entire body */
-  line-height: 1.5;
-  background: #fffbef; /* Using your original background, or you can use --color-background-neutral */
-  color: #2B2B2B;
-  min-height: 100vh;
-}
-
-/* Remove the Fraunces specific rule, as Inter will now be used for headings */
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Inter', sans-serif; /* Ensure headings also use Inter */
-  font-weight: 700; /* Keep bold for headings */
-  color: var(--color-text-dark ); /* Default heading color */
-}
-
-/* Define Color Variables (sampled from the cover) */
+/* Define Color Variables (sampled from the cover and Airtable) */
 :root {
   --color-yellow-accent: #FFD000; /* Bright yellow from "Start Here" */
   --color-green-accent: #3DA351; /* Vibrant green from arrow */
   --color-blue-accent: #0070A3;  /* Blue from "Instructions" block */
   --color-background-neutral: #FCFBF7; /* Slightly warmer off-white from cover */
-  --color-text-dark: #2B2B2B;
+  --color-text-dark: #2B2B2B; /* Airtable's main text/header color */
+  --color-text-medium: #6C6C6C; /* Airtable's paragraph/helper text color */
   --border-radius-medium: 12px; /* Slightly more rounded for modular feel */
 
   /* aspect ratio of the book cover (width / height) */
   --cover-ratio: 0.806;
   --cover-width: clamp(320px, 40vw, 600px);
+}
+
+body {
+  font-family: 'Inter', sans-serif; /* Apply Inter to the entire body */
+  font-size: 16px; /* Base font size, matches Airtable's field labels */
+  line-height: 1.5;
+  background: var(--color-background-neutral); /* Matches the background outside Airtable's form */
+  color: var(--color-text-dark); /* Default text color */
+  min-height: 100vh;
+}
+
+/* Headings - Match Airtable's bold headers */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700; /* Airtable's main headers are bold (700) */
+  color: var(--color-text-dark); /* Matches Airtable's header color */
+}
+
+/* Specific heading sizes to match Airtable's visual hierarchy */
+h1 {
+    font-size: 20px; /* Matches Airtable's "Claim Your Recipe" size */
+    margin-bottom: 16px; /* Spacing below h1 */
+}
+
+.section-heading { /* Used for h2 elements that act as section titles */
+    font-size: 20px; /* Matches Airtable's "Claim Your Recipe" size */
+    margin-bottom: 16px; /* Spacing below h2 */
+}
+
+/* Paragraphs and List Items - Match Airtable's body text */
+p, ul, ol, li {
+    font-weight: 400; /* Regular weight for body text */
+    color: var(--color-text-medium); /* Matches Airtable's paragraph color */
+    font-size: 14px; /* Matches Airtable's paragraph font size */
+    line-height: 1.4; /* Slightly tighter line height for readability */
+}
+
+/* Strong tags within paragraphs/list items */
+strong {
+    font-weight: 600; /* Airtable uses semi-bold for these */
+    color: var(--color-text-dark); /* Make them darker for emphasis */
+}
+
+/* Links */
+a {
+    color: var(--color-blue-accent); /* Use the blue accent for links */
+    text-decoration: underline;
 }
 
 /* Wrapper grid for cover and content */
@@ -47,7 +80,6 @@ h1, h2, h3, h4, h5, h6 {
 
 .cover-column {
   position: relative;
-  /* Ensure no shadow on the cover column itself */
   box-shadow: none;
 }
 
@@ -55,12 +87,11 @@ h1, h2, h3, h4, h5, h6 {
   width: 100%;
   height: auto;
   display: block;
-  /* Ensure no shadow on the image */
   box-shadow: none;
 }
 
 .mobile-hero-overlay {
-  display: none; /* Hidden by default, shown on mobile */
+  display: none;
   position: absolute;
   inset: 0;
   display: flex;
@@ -70,22 +101,19 @@ h1, h2, h3, h4, h5, h6 {
   padding-bottom: 1.5rem;
   text-align: center;
   color: #fff;
-  /* This gradient creates the "shadow" effect on the mobile hero.
-     If you want no darkening effect at all, remove this background property. */
   background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.6) 100%);
 }
-
 
 /* Desktop layout: show full-height cover anchored to the viewport */
 @media (min-width: 1024px) {
   body {
-    overflow-x: hidden; /* Prevent scroll from offscreen cover */
+    overflow-x: hidden;
   }
 
   .main-wrapper {
-    display: block; /* Change back to block for fixed cover layout */
+    display: block;
     max-width: none;
-    padding-left: calc(var(--cover-width) + 3rem); /* Offset content to the right of the fixed cover */
+    padding-left: calc(var(--cover-width) + 3rem);
     padding-right: 2rem;
   }
 
@@ -109,123 +137,120 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-/* Content column for hero text and iframe */
+/* Content column for info blocks and iframe */
 .content-column {
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centers children horizontally within this column */
-    padding: 0 1rem; /* Add some horizontal padding within the content column */
+    align-items: center;
+    padding: 0 1rem; /* Horizontal padding */
+    padding-top: 2rem; /* Top padding to align with main-wrapper */
 }
 
 /* Apply max-width to children of content-column for readability */
 .content-column > * {
-    width: 100%; /* Make children take full width of content-column's padding box */
-    max-width: 650px; /* Constrain width of content for readability on large screens */
+    width: 100%;
+    max-width: 650px;
 }
 
-.hero-text {
-  text-align: left;
-  margin-bottom: 2rem; /* Space before the iframe */
-  margin-top: 1rem; /* Space from the top of the content column */
-}
-
-.hero-text h1 {
-  font-size: 1.75rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-}
-
-.hero-text p {
-  font-size: 1rem;
-  font-weight: 400;
-  color: #555;
-}
-
-/* Styles for the new "info-block" modules */
+/* Styles for the "info-block" modules */
 .info-block {
-    background-color: white; /* White background for the blocks */
+    background-color: #FFFFFF; /* Pure white, matches Airtable's internal form background */
     border-radius: var(--border-radius-medium);
-    padding: 1.5rem 2rem; /* Generous padding inside blocks */
-    margin-bottom: 1.5rem; /* Space between blocks */
+    padding: 24px; /* Matches Airtable's internal padding (24px) */
+    margin-bottom: 16px; /* Space between blocks (Airtable uses 16px margin-bottom for its sections) */
     box-shadow: 0 4px 10px rgba(0,0,0,0.05); /* Subtle shadow for depth */
 }
 
-.info-block h2 {
-    font-size: 1.4em; /* Adjust heading size within blocks */
-    margin-top: 0; /* Reset default margin */
-    margin-bottom: 1rem;
-}
-
-.info-block ul, .info-block ol {
-    margin-left: 1.5rem;
-    margin-bottom: 1rem;
-}
-
-.info-block li {
-    margin-bottom: 0.5rem;
+/* Specific styling for the "Want to stay in the loop" text */
+.discord-callout {
+    background-color: #F7F7F7; /* A slightly lighter background for distinction */
+    border-left: 4px solid var(--color-blue-accent); /* A blue left border */
+    padding: 12px 16px; /* Padding inside the callout */
+    margin-top: 24px; /* Space above the callout */
+    margin-bottom: 0; /* Remove default paragraph margin */
+    font-size: 14px; /* Keep consistent with other body text */
+    color: var(--color-text-medium);
+    border-radius: 4px; /* Slightly rounded corners for the callout */
 }
 
 /* Specific styles for the form block */
-.form-block h2, .form-block p {
-    text-align: center; /* Center the intro text for the form */
+.form-block {
+    /* Padding is already set by .info-block to 24px, matching Airtable */
 }
+
+.form-block .section-heading {
+    text-align: center; /* Center the "Claim Your Recipe" heading */
+    margin-bottom: 8px; /* Reduce space below heading */
+}
+
+.form-intro-text {
+    text-align: center; /* Center the intro text for the form */
+    margin-bottom: 24px; /* Space before the iframe starts */
+}
+
 
 /* Styles for the Airtable iframe */
 .airtable-embed {
-  border: none; /* Crucial: Remove any default iframe border */
-  box-shadow: none; /* Crucial: Ensure no shadow on the iframe itself */
-  display: block; /* Ensures it takes full width and behaves like a block element */
-  background: transparent; /* Keep background transparent */
-  margin-bottom: 2rem; /* Space below the iframe */
+  border: none;
+  box-shadow: none;
+  display: block;
+  background: transparent; /* Crucial for seamless background */
+  margin-bottom: 0; /* No extra margin below iframe, as it's inside a padded block */
 }
 
 /* Adjustments for mobile responsiveness */
 @media (max-width: 768px) {
   .main-wrapper {
-    grid-template-columns: 1fr; /* Stack columns on mobile */
-    padding: 1rem; /* Adjust padding for the wrapper on mobile */
+    grid-template-columns: 1fr;
+    padding: 1rem;
   }
 
   .content-column {
-      padding: 0 0.5rem; /* Tighter horizontal padding on mobile */
-  }
-
-  .hero-text {
-    text-align: center; /* Center hero text on mobile */
-    margin-bottom: 1rem; /* Less margin on mobile */
+      padding: 0 0.5rem;
+      padding-top: 1rem;
   }
 
   .mobile-hero-overlay {
-    display: flex; /* Show mobile hero overlay */
-    /* Ensure it covers the image */
+    display: flex;
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%; /* This makes it cover the parent .cover-column */
+    height: 100%;
   }
 
   .cover-column {
-      position: relative; /* Unfix cover column on mobile */
-      width: 100%; /* Full width for cover on mobile */
-      height: auto; /* Allow height to be determined by content */
+      position: relative;
+      width: 100%;
+      height: auto;
       padding: 0;
-      margin-bottom: 1rem; /* Space below cover on mobile */
+      margin-bottom: 1rem;
   }
 
   .cover-column img {
-      width: 100%; /* Make image fill the width of its container */
-      height: 200px; /* FIXED HEIGHT: This is the key change for mobile */
-      object-fit: cover; /* Crop if necessary to fill the fixed height */
-      object-position: center top; /* Adjust if a specific part of the image should be visible (e.g., focus on the top of the book cover) */
-      display: block; /* Remove any extra space below image */
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      object-position: center top;
+      display: block;
   }
 
   .info-block {
-    padding: 1rem 1.2rem; /* Adjust padding for smaller screens */
-    margin-bottom: 1rem;
+    padding: 16px; /* Adjust padding for smaller screens (Airtable uses 16px on mobile) */
+    margin-bottom: 12px; /* Adjust margin for smaller screens */
   }
-  .info-block h2 {
-      font-size: 1.2em;
+  .section-heading {
+      font-size: 18px; /* Slightly smaller headings on mobile */
+      margin-bottom: 12px;
+  }
+  p, ul, ol, li {
+      font-size: 13px; /* Slightly smaller body text on mobile */
+  }
+  .discord-callout {
+      padding: 10px 12px;
+      margin-top: 16px;
+  }
+  .form-intro-text {
+      margin-bottom: 16px; /* Adjust space before iframe on mobile */
   }
 }
