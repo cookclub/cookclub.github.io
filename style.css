@@ -1,178 +1,85 @@
-/* Base and layout */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+/* ... (your existing base styles, main-wrapper, cover-column, mobile-hero-overlay, content-column, etc.) ... */
+
+/* Define Color Variables (sampled from the cover) */
+:root {
+  --color-yellow-accent: #FFD000; /* Bright yellow from "Start Here" */
+  --color-green-accent: #3DA351; /* Vibrant green from arrow */
+  --color-blue-accent: #0070A3;  /* Blue from "Instructions" block */
+  --color-background-neutral: #FCFBF7; /* Slightly warmer off-white from cover */
+  --color-text-dark: #2B2B2B;
+  --border-radius-medium: 12px; /* Slightly more rounded for modular feel */
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
-    Ubuntu, Cantarell, sans-serif;
-  line-height: 1.5;
-  background: #F7F7F7;
-  color: #2B2B2B;
-  min-height: 100vh;
+  background: var(--color-background-neutral); /* Apply the new background */
+  color: var(--color-text-dark);
+  /* ... rest of body styles ... */
 }
 
-/* Serif font just for headings */
+/* New Font Usage */
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Fraunces', serif;
+  font-family: 'Inter', sans-serif; /* Or 'Outfit', sans-serif; */
+  font-weight: 700; /* Bold for headings */
+  color: var(--color-text-dark); /* Default heading color */
 }
 
-/* aspect ratio of the book cover (width / height) */
-:root {
-  --cover-ratio: 0.806;
-  --cover-width: clamp(320px, 40vw, 600px);
+/* You can use accent colors for specific headings if desired */
+.intro-block h1 {
+    color: var(--color-green-accent); /* Example: Green for the main greeting */
 }
 
-/* Wrapper grid for cover and content */
-.main-wrapper {
-  display: grid;
-  grid-template-columns: 1fr 3fr; /* Favor content column width */
-  gap: 2rem;
-  max-width: 1400px; /* Allow room on large screens */
-  margin: 0 auto;
-  padding: 2rem 1rem; /* Padding for the wrapper itself */
-  align-items: flex-start; /* Prevent column stretch so cover doesn't fill entire height */
+a {
+    color: var(--color-blue-accent); /* Use the blue accent for links */
+    text-decoration: underline;
 }
 
-.cover-column {
-  position: relative;
-  /* Ensure no shadow on the cover column itself */
-  box-shadow: none;
+/* Styles for the new "info-block" modules */
+.info-block {
+    background-color: white; /* White background for the blocks */
+    border-radius: var(--border-radius-medium);
+    padding: 1.5rem 2rem; /* Generous padding inside blocks */
+    margin-bottom: 1.5rem; /* Space between blocks */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05); /* Subtle shadow for depth */
 }
 
-.cover-column img {
-  width: 100%;
-  height: auto;
-  display: block;
-  /* Ensure no shadow on the image */
-  box-shadow: none;
+.info-block h2 {
+    font-size: 1.4em; /* Adjust heading size within blocks */
+    margin-top: 0; /* Reset default margin */
+    margin-bottom: 1rem;
 }
 
-.mobile-hero-overlay {
-  display: none; /* Hidden by default, shown on mobile */
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  align-items: center;
-  padding-bottom: 1.5rem;
-  text-align: center;
-  color: #fff;
-  /* This gradient creates the "shadow" effect on the mobile hero.
-     If you want no shadow at all, remove this background property. */
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.6) 100%);
+.info-block ul, .info-block ol {
+    margin-left: 1.5rem;
+    margin-bottom: 1rem;
 }
 
-
-/* Desktop layout: show full-height cover anchored to the viewport */
-@media (min-width: 1024px) {
-  body {
-    overflow-x: hidden; /* Prevent scroll from offscreen cover */
-  }
-
-  .main-wrapper {
-    display: block; /* Change back to block for fixed cover layout */
-    max-width: none;
-    padding-left: calc(var(--cover-width) + 3rem); /* Offset content to the right of the fixed cover */
-    padding-right: 2rem;
-  }
-
-  .cover-column {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    width: var(--cover-width);
-    overflow: hidden;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-  }
-
-  .cover-column img {
-    height: 100vh;
-    width: auto;
-    object-fit: cover;
-    object-position: center;
-  }
+.info-block li {
+    margin-bottom: 0.5rem;
 }
 
-/* Content column for hero text and iframe */
-.content-column {
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* Centers children horizontally within this column */
-    padding: 0 1rem; /* Add some horizontal padding within the content column */
-}
-
-/* Apply max-width to children of content-column for readability */
-.content-column > * {
-    width: 100%; /* Make children take full width of content-column's padding box */
-    max-width: 650px; /* Constrain width of content for readability on large screens */
-}
-
-.hero-text {
-  text-align: left;
-  margin-bottom: 2rem; /* Space before the iframe */
-  margin-top: 1rem; /* Space from the top of the content column */
-}
-
-.hero-text h1 {
-  font-size: 1.75rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-}
-
-.hero-text p {
-  font-size: 1rem;
-  font-weight: 400;
-  color: #555;
+/* Specific styles for the form block */
+.form-block h2, .form-block p {
+    text-align: center; /* Center the intro text for the form */
 }
 
 /* Styles for the Airtable iframe */
 .airtable-embed {
-  border: none; /* Crucial: Remove any default iframe border */
-  box-shadow: none; /* Crucial: Ensure no shadow on the iframe itself */
-  display: block; /* Ensures it takes full width and behaves like a block element */
-  background: transparent; /* Keep background transparent */
-  margin-bottom: 2rem; /* Space below the iframe */
+  border: none;
+  box-shadow: none; /* Ensure no shadow on the iframe itself */
+  display: block;
+  background: transparent;
+  /* The height here is CRITICAL. Test and adjust! */
+  height: 1000px; /* Example: Will likely be less than before as text is moved */
 }
 
 /* Adjustments for mobile responsiveness */
 @media (max-width: 768px) {
-  .main-wrapper {
-    grid-template-columns: 1fr; /* Stack columns on mobile */
-    padding: 1rem; /* Adjust padding for the wrapper on mobile */
+  .info-block {
+    padding: 1rem 1.2rem; /* Adjust padding for smaller screens */
+    margin-bottom: 1rem;
   }
-
-  .content-column {
-      padding: 0 0.5rem; /* Tighter horizontal padding on mobile */
+  .info-block h2 {
+      font-size: 1.2em;
   }
-
-  .hero-text {
-    text-align: center; /* Center hero text on mobile */
-    margin-bottom: 1rem; /* Less margin on mobile */
-  }
-
-  .mobile-hero-overlay {
-    display: flex; /* Show mobile hero overlay */
-  }
-
-  .cover-column {
-      position: relative; /* Unfix cover column on mobile */
-      width: 100%; /* Full width for cover on mobile */
-      height: auto; /* Auto height for cover on mobile */
-      padding: 0;
-      margin-bottom: 1rem; /* Space below cover on mobile */
-  }
-
-  .cover-column img {
-      height: auto; /* Auto height for image on mobile */
-      max-height: 300px; /* Limit height of mobile cover image */
-      object-fit: cover;
-      object-position: center;
-  }
+  /* ... rest of your mobile adjustments ... */
 }
