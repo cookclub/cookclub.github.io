@@ -6,17 +6,18 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
-    Ubuntu, Cantarell, sans-serif;
+  font-family: 'Inter', sans-serif; /* Apply Inter to the entire body */
   line-height: 1.5;
   background: #fffbef; /* Using your original background, or you can use --color-background-neutral */
   color: #2B2B2B;
   min-height: 100vh;
 }
 
-/* Serif font just for headings */
+/* Remove the Fraunces specific rule, as Inter will now be used for headings */
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Outfit', serif; /* Keeping Fraunces as per your current setup, but remember the Inter/Outfit suggestion */
+  font-family: 'Inter', sans-serif; /* Ensure headings also use Inter */
+  font-weight: 700; /* Keep bold for headings */
+  color: var(--color-text-dark ); /* Default heading color */
 }
 
 /* Define Color Variables (sampled from the cover) */
