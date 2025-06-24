@@ -1,14 +1,13 @@
-s<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Big Spoon Society RSVP</title> <!-- Concise and clear title -->
-    <link rel="icon" href="./assets/images/favicon.svg" type="image/svg+xml">
+    <title>Big Spoon Society RSVP</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml">
     <!-- Preconnects and font loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- Fraunces for headings only; use swap to prevent layout shift -->
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
@@ -16,8 +15,8 @@ s<!DOCTYPE html>
     <div class="main-wrapper">
         <div class="cover-column">
             <!-- Your book cover image -->
-            <img src="./assets/images/starthere.jpg" alt="Start Here book cover" />
-            <!-- Mobile hero overlay for text on top of the image -->
+            <img src="ThatSoundsSoGood_cover.jpg" alt="That Sounds So Good book cover" />
+            <!-- Mobile hero overlay for text on top of the image (if needed ) -->
             <div class="mobile-hero-overlay" aria-hidden="true">
                 <!-- Optional: Add a very brief text here for mobile if the image needs context -->
                 <!-- <p>Big Spoon Society</p> -->
@@ -32,15 +31,17 @@ s<!DOCTYPE html>
 
             <!-- Airtable Embed Code Starts Here -->
             <!--
-                IMPORTANT: The 'height' attribute below is crucial.
-                You MUST adjust this value by testing on various devices
-                to ensure the entire Airtable form (including the expanded
-                200-element dropdown ) fits without an internal scrollbar.
-                A value like 1500px or 2000px might be a good starting point.
-                It's better to have a longer main page scroll than nested scrollbars.
+                *** CRITICAL FOR USABILITY: ADJUST THE HEIGHT BELOW ***
+                This 'height' attribute MUST be large enough to contain the ENTIRE
+                Airtable form, including when the 200-element dropdown is expanded.
+                The goal is to ensure the iframe NEVER has its own scrollbar.
+                The main page should always be the one that scrolls.
+                Start with a very generous value (e.g., 2000px or 2500px) and
+                test on various mobile devices, adjusting down if there's too much
+                empty space, or up if an internal scrollbar appears.
             -->
             <iframe class="airtable-embed" src="https://airtable.com/embed/appIAkfA9Dy3C2a3b/pag0mXcpokEjMoU9A/form"
-                    frameborder="0" width="100%" height="1500px" style="background: transparent;"></iframe>
+                    frameborder="0" width="100%" height="2000px" style="background: transparent;"></iframe>
             <!-- Airtable Embed Code Ends Here -->
 
         </div>
