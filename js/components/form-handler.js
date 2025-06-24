@@ -110,8 +110,6 @@ class FormHandler {
               <label for="recipe-${recipe.recipe_id}" class="recipe-label">
                 <h4>${recipe.recipe_name}</h4>
                 <p>Page: ${recipe.page_number} | Category: ${recipe.category}</p>
-                <p>Dietary: ${recipe.dietary_tags.join(', ')}</p>
-                <p>Difficulty: ${recipe.difficulty}</p>
                 <p>Ingredients: ${recipe.ingredients_preview.join(', ')}</p>
               </label>
             `;
