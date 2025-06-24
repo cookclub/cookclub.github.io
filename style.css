@@ -19,18 +19,10 @@ h1, h2, h3, h4, h5, h6 {
   font-family: 'Fraunces', serif;
 }
 
-/* aspect ratio of the book cover (width / height ) */
+/* aspect ratio of the book cover (width / height) */
 :root {
   --cover-ratio: 0.806;
   --cover-width: clamp(320px, 40vw, 600px);
-  /* Keeping these for consistency, though not directly used by the iframe */
-  --neutral-200: #E4E4E4;
-  --course-main: #C9362E;
-  --course-side: #3DA351;
-  --course-dessert: #F4B84B;
-  --course-appetizer: #0070A3;
-  --course-drink: #4E5FA9;
-  --accent: #6A5AF9;
 }
 
 /* Wrapper grid for cover and content */
@@ -46,6 +38,16 @@ h1, h2, h3, h4, h5, h6 {
 
 .cover-column {
   position: relative;
+  /* Ensure no shadow on the cover column itself */
+  box-shadow: none;
+}
+
+.cover-column img {
+  width: 100%;
+  height: auto;
+  display: block;
+  /* Ensure no shadow on the image */
+  box-shadow: none;
 }
 
 .mobile-hero-overlay {
@@ -59,14 +61,11 @@ h1, h2, h3, h4, h5, h6 {
   padding-bottom: 1.5rem;
   text-align: center;
   color: #fff;
+  /* This gradient creates the "shadow" effect on the mobile hero.
+     If you want no shadow at all, remove this background property. */
   background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.6) 100%);
 }
 
-.cover-column img {
-  width: 100%;
-  height: auto;
-  display: block;
-}
 
 /* Desktop layout: show full-height cover anchored to the viewport */
 @media (min-width: 1024px) {
@@ -135,7 +134,8 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Styles for the Airtable iframe */
 .airtable-embed {
-  border: none; /* Remove any default iframe border */
+  border: none; /* Crucial: Remove any default iframe border */
+  box-shadow: none; /* Crucial: Ensure no shadow on the iframe itself */
   display: block; /* Ensures it takes full width and behaves like a block element */
   background: transparent; /* Keep background transparent */
   margin-bottom: 2rem; /* Space below the iframe */
