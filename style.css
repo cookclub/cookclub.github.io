@@ -16,7 +16,7 @@ body {
 
 /* Serif font just for headings */
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Fraunces', serif; /* Keeping Fraunces as per your current setup, but remember the Inter/Outfit suggestion */
+  font-family: 'Outfit', serif; /* Keeping Fraunces as per your current setup, but remember the Inter/Outfit suggestion */
 }
 
 /* Define Color Variables (sampled from the cover) */
