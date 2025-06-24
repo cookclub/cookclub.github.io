@@ -9,7 +9,7 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
     Ubuntu, Cantarell, sans-serif;
   line-height: 1.5;
-  background: #F7F7F7; /* Using your original background, or you can use --color-background-neutral */
+  background: #fffbef; /* Using your original background, or you can use --color-background-neutral */
   color: #2B2B2B;
   min-height: 100vh;
 }
