@@ -1,113 +1,116 @@
-import { useState, useEffect, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Search, Filter, ToggleLeft, ToggleRight, ChevronDown, ChevronUp, Calendar, Users } from 'lucide-react'
-import { getCurrentEvent, getEventRecipes } from '../lib/supabase'
-import { getCategoryColor, getCategoryTags } from '../utils/categoryColors'
+import { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Search, Filter, ToggleLeft, ToggleRight, ChevronDown, ChevronUp, Calendar, Users } from 'lucide-react';
+import { getCurrentEvent, getEventRecipes } from '../lib/supabase';
+import { getCategoryColor, getCategoryTags } from '../utils/categoryColors';
+import { parseISO } from 'date-fns';
+import { utcToZonedTime, format as tzFormat } from 'date-fns-tz';
 
 export function RecipesPage() {
-  const navigate = useNavigate()
-  const [currentEvent, setCurrentEvent] = useState(null)
-  const [recipes, setRecipes] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const navigate = useNavigate();
+  const [currentEvent, setCurrentEvent] = useState(null);
+  const [recipes, setRecipes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   
   // Filters and view options
-  const [searchTerm, setSearchTerm] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState('')
-  const [showAvailableOnly, setShowAvailableOnly] = useState(false)
-  const [viewDensity, setViewDensity] = useState('compact') // 'compact' or 'comfortable'
-  const [expandedIngredients, setExpandedIngredients] = useState(new Set())
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [showAvailableOnly, setShowAvailableOnly] = useState(false);
+  const [viewDensity, setViewDensity] = useState('compact'); // 'compact' or 'comfortable'
+  const [expandedIngredients, setExpandedIngredients] = useState(new Set());
 
   // Load event and recipes
   useEffect(() => {
     async function loadData() {
       try {
-        setLoading(true)
+        setLoading(true);
         
         // Get current event
-        const { data: event, error: eventError } = await getCurrentEvent()
-        if (eventError) throw eventError
+        const { data: event, error: eventError } = await getCurrentEvent();
+        if (eventError) throw eventError;
         
         if (!event) {
-          setError('No active event found')
-          return
+          setError('No active event found');
+          setLoading(false); // Stop loading if no event
+          return;
         }
         
-        setCurrentEvent(event)
+        setCurrentEvent(event);
         
         // Get event-specific recipes
-        const { data: eventRecipes, error: recipesError } = await getEventRecipes(event.id)
-        if (recipesError) throw recipesError
+        const { data: eventRecipes, error: recipesError } = await getEventRecipes(event.id);
+        if (recipesError) throw recipesError;
         
-        setRecipes(eventRecipes)
+        setRecipes(eventRecipes);
       } catch (err) {
-        console.error('Error loading data:', err)
-        setError(err.message)
+        console.error('Error loading data:', err);
+        setError(err.message);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
 
-    loadData()
-  }, [])
+    loadData();
+  }, []);
 
   // Get unique categories for filter dropdown
   const categories = useMemo(() => {
-    const categorySet = new Set()
+    const categorySet = new Set();
     recipes.forEach(recipe => {
       if (recipe.categories) {
-        recipe.categories.forEach(cat => categorySet.add(cat))
+        recipe.categories.forEach(cat => categorySet.add(cat));
       }
-    })
-    return Array.from(categorySet).sort()
-  }, [recipes])
+    });
+    return Array.from(categorySet).sort();
+  }, [recipes]);
 
   // Filter recipes
   const filteredRecipes = useMemo(() => {
     return recipes.filter(recipe => {
       // Search filter
       if (searchTerm) {
-        const searchLower = searchTerm.toLowerCase()
+        const searchLower = searchTerm.toLowerCase();
         const matchesSearch = 
           recipe.recipe_name.toLowerCase().includes(searchLower) ||
-          (recipe.ingredients && recipe.ingredients.toLowerCase().includes(searchLower))
-        if (!matchesSearch) return false
+          (recipe.ingredients && recipe.ingredients.toLowerCase().includes(searchLower));
+        if (!matchesSearch) return false;
       }
       
       // Category filter
       if (selectedCategory) {
         if (!recipe.categories || !recipe.categories.includes(selectedCategory)) {
-          return false
+          return false;
         }
       }
       
       // Availability filter
       if (showAvailableOnly && recipe.status !== 'available') {
-        return false
+        return false;
       }
       
-      return true
-    })
-  }, [recipes, searchTerm, selectedCategory, showAvailableOnly])
+      return true;
+    });
+  }, [recipes, searchTerm, selectedCategory, showAvailableOnly]);
 
   const handleClaimRecipe = (recipe) => {
-    navigate('/rsvp', { state: { preSelectedRecipe: recipe } })
-  }
+    navigate('/rsvp', { state: { preSelectedRecipe: recipe } });
+  };
 
   const toggleIngredients = (recipeId) => {
-    const newExpanded = new Set(expandedIngredients)
+    const newExpanded = new Set(expandedIngredients);
     if (newExpanded.has(recipeId)) {
-      newExpanded.delete(recipeId)
+      newExpanded.delete(recipeId);
     } else {
-      newExpanded.add(recipeId)
+      newExpanded.add(recipeId);
     }
-    setExpandedIngredients(newExpanded)
-  }
+    setExpandedIngredients(newExpanded);
+  };
 
   const truncateText = (text, maxLength = 80) => {
-    if (!text || text.length <= maxLength) return text
-    return text.substring(0, maxLength) + '...'
-  }
+    if (!text || text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
+  };
 
   if (loading) {
     return (
@@ -116,7 +119,7 @@ export function RecipesPage() {
           <div className="text-muted-foreground">Loading recipes...</div>
         </div>
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -126,12 +129,12 @@ export function RecipesPage() {
           <p className="text-destructive">Error: {error}</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="max-w-6xl mx-auto p-4">
-      {/* Event Context Header */}
+      {/* Event Context Header - CORRECTED */}
       {currentEvent && (
         <div className="mb-6 bg-card border border-border rounded-lg p-4">
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
@@ -139,15 +142,17 @@ export function RecipesPage() {
             Showing recipes for:
           </div>
           <h2 className="text-lg font-semibold text-foreground">
-            {currentEvent.title}
+            {/* FIX: Use event_name instead of title */}
+            {currentEvent.event_name}
           </h2>
           <p className="text-sm text-muted-foreground">
-            {new Date(currentEvent.date).toLocaleDateString('en-US', {
-              weekday: 'long',
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            })} at {currentEvent.time}
+            {/* FIX: Use robust date-fns formatting with event_datetime */}
+            {(currentEvent.event_datetime &&
+              tzFormat(
+                utcToZonedTime(parseISO(currentEvent.event_datetime), 'America/New_York'),
+                "eeee, MMMM d, yyyy 'at' h:mm a zzz",
+                { timeZone: 'America/New_York' }
+              )) || 'Date not available'}
           </p>
         </div>
       )}
@@ -209,7 +214,7 @@ export function RecipesPage() {
             <div className="flex items-center gap-2 text-sm">
               <span className="text-muted-foreground">View:</span>
               <button
-                onClick={() => setViewDensity(viewDensity === 'compact' ? 'comfortable' : 'compact')}
+                onClick={() => setViewDensity('compact')}
                 className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
                   viewDensity === 'compact' 
                     ? 'bg-primary text-primary-foreground' 
@@ -219,7 +224,7 @@ export function RecipesPage() {
                 Compact
               </button>
               <button
-                onClick={() => setViewDensity(viewDensity === 'comfortable' ? 'compact' : 'comfortable')}
+                onClick={() => setViewDensity('comfortable')}
                 className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
                   viewDensity === 'comfortable' 
                     ? 'bg-primary text-primary-foreground' 
@@ -245,8 +250,8 @@ export function RecipesPage() {
           </div>
         ) : (
           filteredRecipes.map((recipe) => {
-            const { visible: visibleCategories, hidden: hiddenCategories } = getCategoryTags(recipe.categories, 3)
-            const isIngredientsExpanded = expandedIngredients.has(recipe.recipe_id)
+            const { visible: visibleCategories, hidden: hiddenCategories } = getCategoryTags(recipe.categories, 3);
+            const isIngredientsExpanded = expandedIngredients.has(recipe.recipe_id);
             
             return (
               <div
@@ -274,7 +279,7 @@ export function RecipesPage() {
                     {/* Category Tags */}
                     <div className="flex items-center gap-1 flex-wrap">
                       {visibleCategories.map((category) => {
-                        const colors = getCategoryColor(category)
+                        const colors = getCategoryColor(category);
                         return (
                           <span
                             key={category}
@@ -286,7 +291,7 @@ export function RecipesPage() {
                           >
                             {category}
                           </span>
-                        )
+                        );
                       })}
                       {hiddenCategories.length > 0 && (
                         <span className="text-xs text-muted-foreground">
@@ -343,11 +348,10 @@ export function RecipesPage() {
                   </div>
                 </div>
               </div>
-            )
+            );
           })
         )}
       </div>
     </div>
-  )
+  );
 }
-
