@@ -4,7 +4,8 @@ import { Search, Filter, ToggleLeft, ToggleRight, ChevronDown, ChevronUp, Calend
 import { getCurrentEvent, getEventRecipes } from '../lib/supabase';
 import { getCategoryColor, getCategoryTags } from '../utils/categoryColors';
 import { parseISO } from 'date-fns';
-import { utcToZonedTime, format as tzFormat } from 'date-fns-tz';
+import utcToZonedTime from 'date-fns-tz/esm/utcToZonedTime/index.js';
+import tzFormat from 'date-fns-tz/esm/format/index.js';
 
 export function RecipesPage() {
   const navigate = useNavigate();
