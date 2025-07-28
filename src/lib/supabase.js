@@ -56,7 +56,7 @@ export async function getCurrentEvent() {
     return {
       data: {
         id: selectedEvent.event_id,
-        event_name: `Cookbook Club: ${cookbook?.title || 'Event'}`,
+        event_name: cookbook?.title || 'Event',
         event_datetime: selectedEvent.event_datetime,
         event_time: selectedEvent.event_time,
         location: selectedEvent.location,
