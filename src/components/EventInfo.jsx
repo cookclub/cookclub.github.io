@@ -8,10 +8,6 @@ export function EventInfo({ event }) {
 
   return (
     <div className="mb-8">
-      <h1 className="text-3xl font-bold text-foreground mb-6">
-        Cookbook Club RSVP & Menu
-      </h1>
-      
       <div className="bg-card border border-border rounded-lg overflow-hidden">
         {/* Mobile-first layout: stacked on small screens, side-by-side on larger screens */}
         <div className="md:flex">
