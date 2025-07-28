@@ -47,9 +47,6 @@ jobs:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
-      - name: Install dependencies
-        run: npm install
-
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
