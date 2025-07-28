@@ -3,7 +3,12 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-export const supabase = createClient(supabaseUrl, supabaseKey)
+export const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    // Enable PKCE flow for better security and reliability in SPAs
+    flowType: 'pkce', 
+  },
+})
 
 // Get the current event (upcoming or most recent past event)
 export async function getCurrentEvent() {
