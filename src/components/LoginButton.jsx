@@ -8,7 +8,7 @@ export default function LoginButton() {
         options: {
           // By explicitly setting scopes, you override the default ('identify email')
           scopes: 'identify', // <-- ADD THIS LINE
-          redirectTo: import.meta.env.VITE_APP_URL,
+          // redirectTo: import.meta.env.VITE_APP_URL,
         },
       })
       if (error) {
