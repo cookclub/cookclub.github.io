@@ -17,3 +17,11 @@ body {
   min-height: 100vh;
 }
 
+/* global styles… */
+
+.brand-name {
+  font-family: 'Fredoka', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  /* optional: adjust colour or spacing */
+}

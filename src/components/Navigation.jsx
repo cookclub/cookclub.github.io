@@ -12,7 +12,10 @@ export function Navigation() {
 
   return (
     <nav className="bg-card border-b border-border mb-6">
-      <div className="max-w-4xl mx-auto px-4">
+      <div className="max-w-4xl mx-auto px-4 py-4 flex flex-col items-center md:flex-row md:items-center">
+        <Link to="/" className="brand-name mb-3 md:mb-0 md:mr-8">
+          big spoon society
+        </Link>
         <div className="flex space-x-8">
           {navItems.map(({ path, label, icon: Icon }) => {
             const isActive = location.pathname === path
@@ -36,4 +39,3 @@ export function Navigation() {
     </nav>
   )
 }
-
