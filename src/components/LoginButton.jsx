@@ -1,4 +1,4 @@
-import { supabase } from '@/supabaseClient'
+import { supabase } from '../lib/supabase'
 
 export default function LoginButton() {
   const handleLogin = async () => {

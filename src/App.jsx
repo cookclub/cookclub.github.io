@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { supabase } from '@/supabaseClient'
+import { supabase } from './lib/supabase'
 import { Routes, Route } from 'react-router-dom'
 import { Navigation } from './components/Navigation'
 import { EventMenuPage } from './pages/EventMenuPage'

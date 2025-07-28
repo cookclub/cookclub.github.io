@@ -1,4 +1,4 @@
-import { supabase } from '@/supabaseClient'
+import { supabase } from '../lib/supabase'
 
 /**
  * Links a Discord OAuth session to an existing member record
