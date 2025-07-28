@@ -6,7 +6,8 @@ export default function LoginButton() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'discord',
         options: {
-          // This URL must match the one configured in your Supabase dashboard
+          // By explicitly setting scopes, you override the default ('identify email')
+          scopes: 'identify', // <-- ADD THIS LINE
           redirectTo: import.meta.env.VITE_APP_URL,
         },
       })
