@@ -1,10 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
 
-// --- ADD THIS FOR DEBUGGING ---
-console.log("Supabase URL from env:", import.meta.env.VITE_SUPABASE_URL);
-console.log("Supabase Key from env is present:", !!import.meta.env.VITE_SUPABASE_ANON_KEY);
-// -----------------------------
-
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
