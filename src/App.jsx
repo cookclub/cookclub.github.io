@@ -63,20 +63,11 @@ function App() {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-6xl mx-auto px-4 py-6">
-        <header className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">
-            Cookbook Club RSVP & Menu
-          </h1>
-          {session ? (
-            <p className="text-muted-foreground">
-              Welcome, {member?.discord_display_name || session.user.user_metadata.full_name || session.user.email}!
-            </p>
-          ) : (
-            <p className="text-muted-foreground">
-              Join us for delicious adventures in cooking and community
-            </p>
-          )}
-        </header>
+      <header className="text-center mb-8">
+      <h1 className="text-xl font-semibold text-foreground">
+        big spoon society
+      </h1>
+    </header>
 
         <Navigation />
 
