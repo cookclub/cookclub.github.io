@@ -4,8 +4,6 @@ import { Search, Filter, ToggleLeft, ToggleRight, ChevronDown, ChevronUp, Calend
 import { getCurrentEvent, getEventRecipes } from '../lib/supabase';
 import { getCategoryColor, getCategoryTags } from '../utils/categoryColors';
 import { parseISO } from 'date-fns';
-import utcToZonedTime from 'date-fns-tz/esm/utcToZonedTime/index.js';
-import tzFormat from 'date-fns-tz/esm/format/index.js';
 
 export function RecipesPage() {
   const navigate = useNavigate();
@@ -147,13 +145,18 @@ export function RecipesPage() {
             {currentEvent.event_name}
           </h2>
           <p className="text-sm text-muted-foreground">
-            {/* FIX: Use robust date-fns formatting with event_datetime */}
-            {(currentEvent.event_datetime &&
-              tzFormat(
-                utcToZonedTime(parseISO(currentEvent.event_datetime), 'America/New_York'),
-                "eeee, MMMM d, yyyy 'at' h:mm a zzz",
-                { timeZone: 'America/New_York' }
-              )) || 'Date not available'}
+            {currentEvent.event_datetime
+              ? new Date(currentEvent.event_datetime).toLocaleString('en-US', {
+                  weekday: 'long',
+                  month: 'long',
+                  day: 'numeric',
+                  year: 'numeric',
+                  hour: 'numeric',
+                  minute: '2-digit',
+                  timeZone: 'America/New_York',
+                  timeZoneName: 'short',
+                })
+              : 'Date not available'}
           </p>
         </div>
       )}

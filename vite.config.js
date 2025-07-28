@@ -14,5 +14,8 @@ export default defineConfig({
   build: {
     outDir: 'docs',
     emptyOutDir: true
+  },
+  optimizeDeps: {
+    include: ['date-fns-tz']
   }
 })
