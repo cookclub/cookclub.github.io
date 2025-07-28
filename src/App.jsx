@@ -17,20 +17,16 @@ function App() {
 
   useEffect(() => {
     const initializeSession = async () => {
-      // 1. Await the initial session check
       const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
 
-      // 2. If a session exists, get the corresponding member data
       if (session) {
         const memberData = await getCurrentMember(session);
         setMember(memberData);
       }
 
-      // 3. Mark loading as complete
       setLoading(false);
 
-      // 4. Set up the listener for subsequent auth changes
       const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
         setSession(session);
         
@@ -42,15 +38,10 @@ function App() {
         }
       });
 
-      // Return the cleanup function for the subscription
-      return () => {
-        subscription.unsubscribe();
-      };
+      return () => subscription.unsubscribe();
     };
 
     const cleanupPromise = initializeSession();
-
-    // The useEffect cleanup function handles the async setup
     return () => {
       cleanupPromise.then(cleanup => cleanup && cleanup());
     };
@@ -63,9 +54,6 @@ function App() {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-6xl mx-auto px-4 py-6">
-    <div className="text-lg font-medium text-center mb-2">
-  big spoon society
-</div>
         <Navigation />
 
         {!session && (
