@@ -1,53 +1,63 @@
-import { useState, useEffect } from 'react'
-import { supabase } from './lib/supabase'
-import { Routes, Route } from 'react-router-dom'
-import { Navigation } from './components/Navigation'
-import { EventMenuPage } from './pages/EventMenuPage'
-import { RecipesPage } from './pages/RecipesPage'
-import { RSVPPage } from './pages/RSVPPage'
-import { RecipeDetailPage } from './pages/RecipeDetailPage'
-import LoginButton from './components/LoginButton'
-import { linkUserToMember, getCurrentMember } from './utils/memberSync' // Add this import
-import './App.css'
+import { useState, useEffect } from 'react';
+import { supabase } from './lib/supabase';
+import { Routes, Route } from 'react-router-dom';
+import { Navigation } from './components/Navigation';
+import { EventMenuPage } from './pages/EventMenuPage';
+import { RecipesPage } from './pages/RecipesPage';
+import { RSVPPage } from './pages/RSVPPage';
+import { RecipeDetailPage } from './pages/RecipeDetailPage';
+import LoginButton from './components/LoginButton';
+import { linkUserToMember, getCurrentMember } from './utils/memberSync';
+import './App.css';
 
 function App() {
-  const [session, setSession] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [member, setMember] = useState(null) // Add this state for member data
+  const [session, setSession] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [member, setMember] = useState(null);
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setSession(session)
-      
-      // If user is logged in, get their member record
+    const initializeSession = async () => {
+      // 1. Await the initial session check
+      const { data: { session } } = await supabase.auth.getSession();
+      setSession(session);
+
+      // 2. If a session exists, get the corresponding member data
       if (session) {
-        const memberData = await getCurrentMember(session)
-        setMember(memberData)
+        const memberData = await getCurrentMember(session);
+        setMember(memberData);
       }
-      
-      setLoading(false)
-    })
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setSession(session)
-      
-      if (event === 'SIGNED_IN' && session) {
-        // User just logged in - link them to their member record
-        const memberData = await linkUserToMember(session)
-        setMember(memberData)
-      } else if (event === 'SIGNED_OUT') {
-        // User logged out - clear member data
-        setMember(null)
-      }
-    })
+      // 3. Mark loading as complete
+      setLoading(false);
 
-    return () => subscription.unsubscribe()
-  }, [])
+      // 4. Set up the listener for subsequent auth changes
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+        setSession(session);
+        
+        if (event === 'SIGNED_IN' && session) {
+          const memberData = await linkUserToMember(session);
+          setMember(memberData);
+        } else if (event === 'SIGNED_OUT') {
+          setMember(null);
+        }
+      });
+
+      // Return the cleanup function for the subscription
+      return () => {
+        subscription.unsubscribe();
+      };
+    };
+
+    const cleanupPromise = initializeSession();
+
+    // The useEffect cleanup function handles the async setup
+    return () => {
+      cleanupPromise.then(cleanup => cleanup && cleanup());
+    };
+  }, []);
 
   if (loading) {
-    return <div>Loading...</div>
+    return <div>Loading...</div>;
   }
 
   return (
@@ -86,7 +96,7 @@ function App() {
         </main>
       </div>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
