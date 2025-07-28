@@ -63,12 +63,9 @@ function App() {
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-6xl mx-auto px-4 py-6">
-      <header className="text-center mb-8">
-      <h1 className="text-xl font-semibold text-foreground">
-        big spoon society
-      </h1>
-    </header>
-
+    <div className="text-lg font-medium text-center mb-2">
+  big spoon society
+</div>
         <Navigation />
 
         {!session && (
