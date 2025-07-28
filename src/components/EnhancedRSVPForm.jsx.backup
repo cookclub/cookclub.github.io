@@ -1,0 +1,518 @@
+import { useState, useEffect } from 'react'
+import { User, Mail, MessageSquare, ChefHat, Loader2, Users, UserPlus } from 'lucide-react'
+import { supabase, getEventRecipes } from '../lib/supabase'
+
+export function EnhancedRSVPForm({ eventId, preSelectedRecipe, onSuccess }) {
+  const [step, setStep] = useState(1) // 1: Member/Guest, 2: Identity, 3: Cook/Attend, 4: Recipe Selection
+  const [userType, setUserType] = useState('') // 'member' or 'guest'
+  const [selectedMember, setSelectedMember] = useState(null)
+  const [guestInfo, setGuestInfo] = useState({ name: '', email: '' })
+  const [rsvpType, setRsvpType] = useState('') // 'cook' or 'guest_only'
+  const [selectedRecipe, setSelectedRecipe] = useState(preSelectedRecipe?.recipe_id || '')
+  const [dishNotes, setDishNotes] = useState('')
+  
+  const [members, setMembers] = useState([])
+  const [availableRecipes, setAvailableRecipes] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [loadingMembers, setLoadingMembers] = useState(false)
+  const [loadingRecipes, setLoadingRecipes] = useState(false)
+  const [error, setError] = useState(null)
+
+  // Load members when component mounts
+  useEffect(() => {
+    async function loadMembers() {
+      try {
+        setLoadingMembers(true)
+        const { data, error } = await supabase
+          .schema('cookbook_club')
+          .from('members')
+          .select('member_id, first_name')
+          .order('first_name', { ascending: true })
+
+        if (error) throw error
+        setMembers(data)
+      } catch (err) {
+        console.error('Error loading members:', err)
+        setError('Failed to load member list: ' + err.message)
+      } finally {
+        setLoadingMembers(false)
+      }
+    }
+
+    loadMembers()
+  }, [])
+
+  // Load available recipes when needed
+  useEffect(() => {
+    async function loadRecipes() {
+      if (rsvpType !== 'cook') return
+
+      try {
+        setLoadingRecipes(true)
+        
+        // Use the getEventRecipes function instead of direct query
+        const { data: recipes, error: recipesError } = await getEventRecipes(eventId)
+
+        if (recipesError) throw recipesError
+
+        // Get claimed recipe IDs
+        const { data: claimedRecipes, error: claimedError } = await supabase
+          .schema('cookbook_club')
+          .from('event_recipe_claims')
+          .select('recipe_id')
+          .eq('event_id', eventId)
+
+        if (claimedError) throw claimedError
+
+        const claimedIds = new Set(claimedRecipes.map(c => c.recipe_id))
+        const available = recipes.filter(recipe => !claimedIds.has(recipe.recipe_id))
+
+        setAvailableRecipes(available)
+      } catch (err) {
+        console.error('Error loading recipes:', err)
+        setError('Failed to load available recipes: ' + err.message)
+      } finally {
+        setLoadingRecipes(false)
+      }
+    }
+
+    if (eventId && rsvpType === 'cook') {
+      loadRecipes()
+    }
+  }, [eventId, rsvpType])
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
+
+    try {
+      let memberId = null
+      let memberName = ''
+
+      if (userType === 'member') {
+        memberId = selectedMember.member_id
+        memberName = selectedMember.first_name
+      } else {
+        // For guests, create or find member record
+        const { data: existingMember, error: findError } = await supabase
+          .schema('cookbook_club')
+          .from('members')
+          .select('member_id, first_name')
+          .eq('email', guestInfo.email)
+          .single()
+
+        if (findError && findError.code !== 'PGRST116') {
+          throw findError
+        }
+
+        if (existingMember) {
+          memberId = existingMember.member_id
+          memberName = existingMember.first_name
+        } else {
+          // Create new member record for guest
+          const { data: newMember, error: createError } = await supabase
+            .schema('cookbook_club')
+            .from('members')
+            .insert({
+              first_name: guestInfo.name,
+              email: guestInfo.email,
+              member_type: 'guest'
+            })
+            .select('member_id, first_name')
+            .single()
+
+          if (createError) throw createError
+          memberId = newMember.member_id
+          memberName = newMember.first_name
+        }
+      }
+
+      // Create event attendee record
+      const { error: attendeeError } = await supabase
+        .schema('cookbook_club')
+        .from('event_attendees')
+        .insert({
+          event_id: eventId,
+          member_id: memberId,
+          rsvp_status: 'Confirmed'
+        })
+
+      if (attendeeError) throw attendeeError
+
+      // If cooking, create recipe claim
+      if (rsvpType === 'cook' && selectedRecipe) {
+        const { error: claimError } = await supabase
+          .schema('cookbook_club')
+          .from('event_recipe_claims')
+          .insert({
+            event_id: eventId,
+            member_id: memberId,
+            recipe_id: selectedRecipe,
+            dish_notes: dishNotes || null
+          })
+
+        if (claimError) throw claimError
+
+        const selectedRecipeData = availableRecipes.find(r => r.recipe_id === selectedRecipe)
+        onSuccess(memberName, selectedRecipeData?.recipe_name || 'Unknown Recipe')
+      } else {
+        onSuccess(memberName, 'Attending as guest')
+      }
+
+    } catch (err) {
+      console.error('RSVP submission error:', err)
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const canProceedFromStep1 = userType !== ''
+  const canProceedFromStep2 = userType === 'member' ? selectedMember !== null : 
+    (guestInfo.name.trim() && guestInfo.email.trim())
+  const canProceedFromStep3 = rsvpType !== ''
+  const canSubmit = rsvpType === 'guest_only' || (rsvpType === 'cook' && selectedRecipe)
+
+  if (loadingMembers) {
+    return (
+      <div className="bg-card border border-border rounded-lg p-6">
+        <div className="flex items-center justify-center py-8 text-muted-foreground">
+          <Loader2 className="w-5 h-5 animate-spin mr-2" />
+          Loading member information...
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="bg-card border border-border rounded-lg p-6">
+      <div className="mb-6">
+        <div className="flex items-center space-x-2 mb-4">
+          {[1, 2, 3, 4].map((stepNum) => (
+            <div key={stepNum} className="flex items-center">
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                stepNum <= step ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+              }`}>
+                {stepNum}
+              </div>
+              {stepNum < 4 && <div className="w-8 h-0.5 bg-muted mx-2" />}
+            </div>
+          ))}
+        </div>
+        <h3 className="text-xl font-semibold text-foreground">
+          {step === 1 && 'Are you a member or guest?'}
+          {step === 2 && 'Tell us who you are'}
+          {step === 3 && 'How will you participate?'}
+          {step === 4 && 'Choose your recipe'}
+        </h3>
+      </div>
+
+      {/* Step 1: Member or Guest */}
+      {step === 1 && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <button
+              type="button"
+              onClick={() => setUserType('member')}
+              className={`p-4 border-2 rounded-lg text-left transition-colors ${
+                userType === 'member' 
+                  ? 'border-primary bg-primary/5' 
+                  : 'border-border hover:border-primary/50'
+              }`}
+            >
+              <div className="flex items-center mb-2">
+                <Users className="w-5 h-5 mr-2 text-primary" />
+                <span className="font-medium text-foreground">I'm a Member</span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                I'm part of the Discord server and cookbook club community
+              </p>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setUserType('guest')}
+              className={`p-4 border-2 rounded-lg text-left transition-colors ${
+                userType === 'guest' 
+                  ? 'border-primary bg-primary/5' 
+                  : 'border-border hover:border-primary/50'
+              }`}
+            >
+              <div className="flex items-center mb-2">
+                <UserPlus className="w-5 h-5 mr-2 text-primary" />
+                <span className="font-medium text-foreground">I'm a Guest</span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                I'm new or visiting (guests must bring a dish)
+              </p>
+            </button>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setStep(2)}
+            disabled={!canProceedFromStep1}
+            className="w-full bg-primary text-primary-foreground py-2 px-4 rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            Continue
+          </button>
+        </div>
+      )}
+
+      {/* Step 2: Identity */}
+      {step === 2 && (
+        <div className="space-y-4">
+          {userType === 'member' ? (
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">
+                Select your name from the member list
+              </label>
+              <select
+                value={selectedMember?.member_id || ''}
+                onChange={(e) => {
+                  const member = members.find(m => m.member_id === e.target.value)
+                  setSelectedMember(member || null)
+                }}
+                className="w-full p-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background"
+              >
+                <option value="">Choose your name...</option>
+                {members.map((member) => (
+                  <option key={member.member_id} value={member.member_id}>
+                    {member.first_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : (
+            <>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Your Name *
+                </label>
+                <div className="relative">
+                  <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <input
+                    type="text"
+                    required
+                    value={guestInfo.name}
+                    onChange={(e) => setGuestInfo({...guestInfo, name: e.target.value})}
+                    className="w-full pl-10 pr-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background"
+                    placeholder="Your full name"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Email Address *
+                </label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <input
+                    type="email"
+                    required
+                    value={guestInfo.email}
+                    onChange={(e) => setGuestInfo({...guestInfo, email: e.target.value})}
+                    className="w-full pl-10 pr-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background"
+                    placeholder="your.email@example.com"
+                  />
+                </div>
+              </div>
+            </>
+          )}
+
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() => setStep(1)}
+              className="flex-1 bg-muted text-muted-foreground py-2 px-4 rounded-lg hover:bg-muted/80 transition-colors"
+            >
+              Back
+            </button>
+            <button
+              type="button"
+              onClick={() => setStep(3)}
+              disabled={!canProceedFromStep2}
+              className="flex-1 bg-primary text-primary-foreground py-2 px-4 rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              Continue
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Step 3: Cook or Attend */}
+      {step === 3 && (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <button
+              type="button"
+              onClick={() => setRsvpType('cook')}
+              className={`p-4 border-2 rounded-lg text-left transition-colors ${
+                rsvpType === 'cook' 
+                  ? 'border-primary bg-primary/5' 
+                  : 'border-border hover:border-primary/50'
+              }`}
+            >
+              <div className="flex items-center mb-2">
+                <ChefHat className="w-5 h-5 mr-2 text-primary" />
+                <span className="font-medium text-foreground">I'll Cook</span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                I want to claim a recipe and bring a dish
+              </p>
+            </button>
+
+            {userType === 'member' && (
+              <button
+                type="button"
+                onClick={() => setRsvpType('guest_only')}
+                className={`p-4 border-2 rounded-lg text-left transition-colors ${
+                  rsvpType === 'guest_only' 
+                    ? 'border-primary bg-primary/5' 
+                    : 'border-border hover:border-primary/50'
+                }`}
+              >
+                <div className="flex items-center mb-2">
+                  <Users className="w-5 h-5 mr-2 text-primary" />
+                  <span className="font-medium text-foreground">Just Attend</span>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  I'll attend but won't bring a dish
+                </p>
+              </button>
+            )}
+          </div>
+
+          {userType === 'guest' && (
+            <div className="bg-muted/30 rounded-lg p-3">
+              <p className="text-sm text-muted-foreground">
+                <strong>Note:</strong> Guests must bring a dish to attend the event.
+              </p>
+            </div>
+          )}
+
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() => setStep(2)}
+              className="flex-1 bg-muted text-muted-foreground py-2 px-4 rounded-lg hover:bg-muted/80 transition-colors"
+            >
+              Back
+            </button>
+            <button
+              type="button"
+              onClick={() => rsvpType === 'cook' ? setStep(4) : handleSubmit(new Event('submit'))}
+              disabled={!canProceedFromStep3 || (rsvpType === 'guest_only' && loading)}
+              className="flex-1 bg-primary text-primary-foreground py-2 px-4 rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  Submitting...
+                </>
+              ) : rsvpType === 'cook' ? (
+                'Choose Recipe'
+              ) : (
+                'Complete RSVP'
+              )}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Step 4: Recipe Selection */}
+      {step === 4 && (
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {loadingRecipes ? (
+            <div className="flex items-center justify-center py-8 text-muted-foreground">
+              <Loader2 className="w-5 h-5 animate-spin mr-2" />
+              Loading available recipes...
+            </div>
+          ) : availableRecipes.length === 0 ? (
+            <div className="text-center py-8">
+              <ChefHat className="w-12 h-12 mx-auto mb-3 text-muted-foreground opacity-50" />
+              <p className="text-lg text-foreground mb-2">All recipes have been claimed!</p>
+              <p className="text-sm text-muted-foreground">
+                Contact the organizer about bringing a side dish.
+              </p>
+            </div>
+          ) : (
+            <>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Choose Your Recipe *
+                </label>
+                <select
+                  required
+                  value={selectedRecipe}
+                  onChange={(e) => setSelectedRecipe(e.target.value)}
+                  className="w-full p-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background"
+                >
+                  <option value="">Select a recipe...</option>
+                  {availableRecipes.map((recipe) => (
+                    <option key={recipe.recipe_id} value={recipe.recipe_id}>
+                      {recipe.recipe_name} (Page {recipe.page_number})
+                      {recipe.categories && ` - ${recipe.categories.join(', ')}`}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {availableRecipes.length} recipe{availableRecipes.length !== 1 ? 's' : ''} still available
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Dish Notes (Optional)
+                </label>
+                <textarea
+                  value={dishNotes}
+                  onChange={(e) => setDishNotes(e.target.value)}
+                  className="w-full p-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background"
+                  rows={3}
+                  placeholder="Any modifications, dietary notes, or special preparations..."
+                />
+              </div>
+            </>
+          )}
+
+          {error && (
+            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3">
+              <p className="text-destructive text-sm">{error}</p>
+            </div>
+          )}
+
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() => setStep(3)}
+              className="flex-1 bg-muted text-muted-foreground py-2 px-4 rounded-lg hover:bg-muted/80 transition-colors"
+            >
+              Back
+            </button>
+            <button
+              type="submit"
+              disabled={loading || !canSubmit || availableRecipes.length === 0}
+              className="flex-1 bg-primary text-primary-foreground py-2 px-4 rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-colors"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  Submitting...
+                </>
+              ) : (
+                <>
+                  <ChefHat className="w-4 h-4 mr-2" />
+                  Claim Recipe & RSVP
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      )}
+    </div>
+  )
+}
+
