@@ -3,7 +3,7 @@ const ASSETS = [
   '.',
   'index.html',
   'books.json',
-  'covers/arabiyya.svg'
+  'covers/arabiyya.jpg'
 ];
 
 self.addEventListener('install', (e) => {
