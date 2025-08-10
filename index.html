@@ -104,7 +104,7 @@
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
             </button>
             <div class="text-sm text-gray-600" id="location-info">
-              <span id="current-chapter">Chapter 1</span>
+              <span id="current-chapter">Chapter</span>
               <span class="mx-2">•</span>
               <span id="progress-text">0%</span>
             </div>
@@ -229,7 +229,7 @@
         this.lineHeight = 1.6;
 
         this.booksData = [];
-        this.loadBooks();  // << required
+        this.loadBooks();  // load books.json
 
         this.init();
       }
@@ -244,7 +244,7 @@
 
       async loadBooks() {
         try {
-          const res = await fetch(`${BASE}books.json`, { cache: 'no-store' });
+          const res = await fetch(\`\${BASE}books.json\`, { cache: 'no-store' });
           this.booksData = await res.json();
           // If we're on library view, render now
           if (!document.getElementById('reader-view').classList.contains('hidden')) return;
@@ -308,18 +308,18 @@
       renderLibrary() {
         const grid = document.getElementById('books-grid');
         grid.innerHTML = this.booksData.map(book => {
-          const coverSrc = book.cover && book.cover.trim() ? book.cover : `${BASE}covers/arabiyya.svg`;
-          return `
-            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer book-card" data-book-id="${book.id}">
+          const coverSrc = (book.cover && book.cover.trim()) ? book.cover : \`\${BASE}covers/arabiyya.jpg\`;
+          return \`
+            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow cursor-pointer book-card" data-book-id="\${book.id}">
               <div class="w-full h-48 overflow-hidden bg-gray-100">
-                <img src="${coverSrc}" alt="${book.title} cover" class="w-full h-full object-cover"/>
+                <img src="\${coverSrc}" alt="\${book.title} cover" class="w-full h-full object-cover"/>
               </div>
               <div class="p-4">
-                <h3 class="font-semibold text-gray-900 mb-1 line-clamp-2">${book.title}</h3>
-                <p class="text-sm text-gray-600 mb-2">${book.author}</p>
-                <p class="text-xs text-gray-500 line-clamp-3">${book.description}</p>
+                <h3 class="font-semibold text-gray-900 mb-1 line-clamp-2">\${book.title}</h3>
+                <p class="text-sm text-gray-600 mb-2">\${book.author}</p>
+                <p class="text-xs text-gray-500 line-clamp-3">\${book.description}</p>
               </div>
-            </div>`;
+            </div>\`;
         }).join('');
 
         grid.querySelectorAll('.book-card').forEach(card => {
@@ -336,103 +336,71 @@
         this.showLoading();
 
         try {
-          this.book = ePub(`${BASE}${bookData.href}`);
+          // Open the packaged EPUB (or OPF) URL
+          this.book = ePub(\`\${BASE}\${bookData.href}\`);
 
           const viewer = document.getElementById('viewer');
           viewer.innerHTML = '';
 
+          // Render
           this.rendition = this.book.renderTo(viewer, {
-            width: '100%', height: '100%',
+            width: '100%',
+            height: '100%',
             spread: this.viewMode === 'paginated' ? 'auto' : 'none',
             flow: this.viewMode === 'scrolled' ? 'scrolled' : 'paginated'
           });
 
+          // Apply theme immediately
           this.applyReaderSettings();
 
-          await this.book.ready;
-          if (!this.book.locations || this.book.locations.length() === 0) {
-            await this.book.locations.generate(1600);
-          }
+          let firstPainted = false;
+          let paintTimer = null;
 
+          const clearPaintTimer = () => {
+            if (paintTimer !== null) {
+              clearTimeout(paintTimer);
+              paintTimer = null;
+            }
+          };
+
+          // watchdog in case the first render is slow
+          paintTimer = setTimeout(() => {
+            if (!firstPainted) console.warn('First render taking a while…');
+          }, 8000);
+
+          this.rendition.once('rendered', () => {
+            firstPainted = true;
+            clearPaintTimer();
+            this.hideLoading();
+          });
+
+          // Display ASAP (without locations yet)
+          await this.book.ready;
           const startLoc = location || this.getLastLocation(bookId) || undefined;
           await this.rendition.display(startLoc);
 
+          // Events & TOC
           this.setupBookEventHandlers();
           await this.loadBookMetadata();
-
-          this.hideLoading();
           this.updateBookInfo(bookData);
           this.loadBookmarks(bookId);
+
+          // Generate locations later (lighter granularity)
+          setTimeout(async () => {
+            try {
+              if (!this.book.locations || this.book.locations.length() === 0) {
+                await this.book.locations.generate(800);
+              }
+            } catch (e) {
+              console.warn('locations.generate failed:', e);
+            }
+          }, 1000);
+
         } catch (error) {
           console.error('Error loading book:', error);
           this.hideLoading();
           this.showError('Failed to load book. Please try again.');
         }
-      }
-
-      showReader() {
-        document.getElementById('library-view').classList.add('hidden');
-        document.getElementById('reader-view').classList.remove('hidden');
-        document.getElementById('book-info').classList.remove('hidden');
-      }
-
-      showLoading() { document.getElementById('loading').classList.remove('hidden'); }
-      hideLoading() { document.getElementById('loading').classList.add('hidden'); }
-
-      setupBookEventHandlers() {
-        this.rendition.on('relocated', (location) => {
-          this.currentLocation = location;
-          this.updateProgress();
-          this.saveLastLocation();
-          this.updateURL(`read/${this.currentBookId}?loc=${location.start.cfi}`);
-        });
-
-        this.rendition.on('selected', (cfiRange, contents) => {
-          // hook for future annotations
-        });
-      }
-
-      async loadBookMetadata() {
-        try {
-          const metadata = await this.book.loaded.metadata;
-          const navigation = await this.book.loaded.navigation;
-          this.renderTOC(navigation.toc);
-          // could also surface metadata.title/creator if needed
-        } catch (err) {
-          console.error('Error loading metadata:', err);
-        }
-      }
-
-      renderTOC(tocItems) {
-        const tocList = document.getElementById('toc-list');
-        tocList.innerHTML = tocItems.map(item => `
-          <div class="toc-item p-2 rounded cursor-pointer hover:bg-blue-50" data-href="${item.href}" role="treeitem" tabindex="0">
-            <div class="font-medium text-sm text-gray-900">${item.label}</div>
-          </div>`).join('');
-
-        tocList.querySelectorAll('.toc-item').forEach(item => {
-          item.addEventListener('click', () => { this.rendition.display(item.dataset.href); this.hideSidebar(); });
-          item.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); item.click(); } });
-        });
-      }
-
-      updateBookInfo(bookData) {
-        document.getElementById('book-title').textContent = bookData.title;
-        document.getElementById('book-author').textContent = `by ${bookData.author}`;
-        document.title = `${bookData.title} - EPUB Reader`;
-        this.updateMetaTags(bookData);
-      }
-
-      updateMetaTags(bookData) {
-        const updateMeta = (property, content) => {
-          let meta = document.querySelector(`meta[property="${property}"]`);
-          if (!meta) { meta = document.createElement('meta'); meta.setAttribute('property', property); document.head.appendChild(meta); }
-          meta.setAttribute('content', content);
-        };
-        updateMeta('og:title', bookData.title);
-        updateMeta('og:description', bookData.description);
-        updateMeta('og:image', bookData.cover || '');
-        updateMeta('og:type', 'book');
       }
 
       // -------- navigation/progress -------
@@ -450,12 +418,11 @@
         if (!this.currentLocation) return;
         const progress = Math.round(this.currentLocation.start.percentage * 100);
         document.getElementById('progress-slider').value = progress;
-        document.getElementById('progress-text').textContent = `${progress}%`;
+        document.getElementById('progress-text').textContent = \`\${progress}%\`;
         document.getElementById('current-chapter').textContent = this.getCurrentChapterInfo();
       }
 
       getCurrentChapterInfo() {
-        // Could parse from spine or nav landmarks; placeholder for now.
         return 'Chapter';
       }
 
@@ -474,95 +441,23 @@
         const resultsContainer = document.getElementById('search-results');
         resultsContainer.innerHTML = '<div class="p-4 text-center"><div class="loading-spinner w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full mx-auto"></div></div>';
 
-        // Placeholder search results (wire real indexing later)
         const mockResults = [
-          { cfi: '/6/4[chapter01]!/4/2/2/2', excerpt: `Example with <mark>${query}</mark> highlighted.`, chapter: 'Chapter 1' }
+          { cfi: '/6/4[chapter01]!/4/2/2/2', excerpt: \`Example with <mark>\${query}</mark> highlighted.\`, chapter: 'Chapter 1' }
         ];
-        resultsContainer.innerHTML = mockResults.map(r => `
-          <div class="border-b border-gray-200 p-4 hover:bg-gray-50 cursor-pointer search-result" data-cfi="${r.cfi}">
-            <div class="text-sm font-medium text-gray-900 mb-1">${r.chapter}</div>
-            <div class="text-sm text-gray-700">${r.excerpt}</div>
-          </div>`).join('');
+        resultsContainer.innerHTML = mockResults.map(r => \`
+          <div class="border-b border-gray-200 p-4 hover:bg-gray-50 cursor-pointer search-result" data-cfi="\${r.cfi}">
+            <div class="text-sm font-medium text-gray-900 mb-1">\${r.chapter}</div>
+            <div class="text-sm text-gray-700">\${r.excerpt}</div>
+          </div>\`).join('');
         resultsContainer.querySelectorAll('.search-result').forEach(el => {
           el.addEventListener('click', () => { this.rendition.display(el.dataset.cfi); this.closeSearchModal(); });
         });
       }
 
-      async openBook(bookId, location = null) {
-        const bookData = this.booksData.find(b => b.id === bookId);
-        if (!bookData) return;
-
-        this.currentBookId = bookId;
-        this.showReader();
-        this.showLoading();
-
-        try {
-          // 1) Open OPF (streams)
-          this.book = ePub(`${BASE}${bookData.href}`);
-
-          const viewer = document.getElementById('viewer');
-          viewer.innerHTML = '';
-
-          // 2) Render
-          this.rendition = this.book.renderTo(viewer, {
-            width: '100%',
-            height: '100%',
-            spread: this.viewMode === 'paginated' ? 'auto' : 'none',
-            flow: this.viewMode === 'scrolled' ? 'scrolled' : 'paginated'
-          });
-
-          // 3) Apply theme immediately
-          this.applyReaderSettings();
-
-          let firstPainted = false;
-          const clearPaintTimer = () => { if (paintTimer) { clearTimeout(paintTimer); paintTimer = null; } };
-          const paintTimer = setTimeout(() => {
-            if (!firstPainted) {
-              console.warn('First render taking a while…');
-            }
-          }, 8000);
-
-          this.rendition.once('rendered', () => {
-            firstPainted = true;
-            clearPaintTimer();
-            this.hideLoading();
-          });
-
-          // 4) Display ASAP (without locations yet)
-          await this.book.ready;
-          const startLoc = location || this.getLastLocation(bookId) || undefined;
-          await this.rendition.display(startLoc);
-
-          // 5) Hook events
-          this.setupBookEventHandlers();
-
-          // 6) Metadata + TOC
-          await this.loadBookMetadata();
-          this.updateBookInfo(bookData);
-          this.loadBookmarks(bookId);
-
-          // 7) Generate locations later (lighter granularity)
-          setTimeout(async () => {
-            try {
-              if (!this.book.locations || this.book.locations.length() === 0) {
-                await this.book.locations.generate(800);
-              }
-            } catch (e) {
-              console.warn('locations.generate failed:', e);
-            }
-          }, 1000);
-
-        } catch (error) {
-          console.error('Error loading book:', error);
-          this.hideLoading();
-          this.showError('Failed to load book. Please try again.');
-        }
-      }
-
       // -------- bookmarks ----------
       toggleBookmark() {
         if (!this.currentLocation || !this.currentBookId) return;
-        const key = `${this.currentBookId}-${this.currentLocation.start.cfi}`;
+        const key = \`\${this.currentBookId}-\${this.currentLocation.start.cfi}\`;
         const bookmarks = this.getBookmarks(this.currentBookId);
         if (bookmarks.has(key)) { bookmarks.delete(key); this.hideBookmarkIndicator(); }
         else {
@@ -578,7 +473,7 @@
       }
       getBookmarks(bookId) {
         if (!this.bookmarks.has(bookId)) {
-          const saved = localStorage.getItem(`bookmarks-${bookId}`);
+          const saved = localStorage.getItem(\`bookmarks-\${bookId}\`);
           const map = new Map();
           if (saved) Object.entries(JSON.parse(saved)).forEach(([k, v]) => map.set(k, v));
           this.bookmarks.set(bookId, map);
@@ -587,12 +482,12 @@
       }
       saveBookmarks(bookId, map) {
         const obj = {}; map.forEach((v, k) => obj[k] = v);
-        localStorage.setItem(`bookmarks-${bookId}`, JSON.stringify(obj));
+        localStorage.setItem(\`bookmarks-\${bookId}\`, JSON.stringify(obj));
       }
       loadBookmarks(bookId) {
         const bookmarks = this.getBookmarks(bookId);
         if (this.currentLocation) {
-          const key = `${bookId}-${this.currentLocation.start.cfi}`;
+          const key = \`\${bookId}-\${this.currentLocation.start.cfi}\`;
           if (bookmarks.has(key)) this.showBookmarkIndicator();
         }
       }
@@ -608,11 +503,11 @@
         document.getElementById('theme-select').value = this.theme;
         document.getElementById('font-size-slider').value = this.fontSize;
         document.getElementById('line-height-slider').value = this.lineHeight;
-        document.getElementById('font-size-value').textContent = `${this.fontSize}px`;
+        document.getElementById('font-size-value').textContent = \`\${this.fontSize}px\`;
         document.getElementById('line-height-value').textContent = this.lineHeight;
       }
       setTheme(theme) { this.theme = theme; this.applyTheme(); this.saveSettings(); }
-      setFontSize(size) { this.fontSize = parseInt(size); document.getElementById('font-size-value').textContent = `${this.fontSize}px`; this.applyReaderSettings(); this.saveSettings(); }
+      setFontSize(size) { this.fontSize = parseInt(size); document.getElementById('font-size-value').textContent = \`\${this.fontSize}px\`; this.applyReaderSettings(); this.saveSettings(); }
       setLineHeight(height) { this.lineHeight = parseFloat(height); document.getElementById('line-height-value').textContent = this.lineHeight; this.applyReaderSettings(); this.saveSettings(); }
 
       applyTheme() {
@@ -624,15 +519,15 @@
           const isDark = document.body.classList.contains('theme-dark');
           this.rendition.themes.register('custom', {
             'body': {
-              'font-size': `${this.fontSize}px !important`,
-              'line-height': `${this.lineHeight} !important`,
+              'font-size': \`\${this.fontSize}px !important\`,
+              'line-height': \`\${this.lineHeight} !important\`,
               'background': isDark ? '#1f2937 !important' : '#ffffff !important',
               'color': isDark ? '#f9fafb !important' : '#111827 !important'
             }
           });
           this.rendition.themes.select('custom');
         }
-        document.documentElement.style.setProperty('--font-size', `${this.fontSize}px`);
+        document.documentElement.style.setProperty('--font-size', \`\${this.fontSize}px\`);
         document.documentElement.style.setProperty('--line-height', this.lineHeight);
       }
       toggleViewMode() {
@@ -667,8 +562,8 @@
       closeAllModals() { this.closeSearchModal(); this.closeSettingsModal(); this.closeBookmarksModal(); }
 
       // -------- persistence ----------
-      saveLastLocation() { if (this.currentLocation && this.currentBookId) localStorage.setItem(`lastLocation-${this.currentBookId}`, this.currentLocation.start.cfi); }
-      getLastLocation(bookId) { return localStorage.getItem(`lastLocation-${bookId}`); }
+      saveLastLocation() { if (this.currentLocation && this.currentBookId) localStorage.setItem(\`lastLocation-\${this.currentBookId}\`, this.currentLocation.start.cfi); }
+      getLastLocation(bookId) { return localStorage.getItem(\`lastLocation-\${bookId}\`); }
       saveSettings() { localStorage.setItem('readerSettings', JSON.stringify({ theme: this.theme, fontSize: this.fontSize, lineHeight: this.lineHeight, viewMode: this.viewMode })); }
       loadSettings() {
         const saved = localStorage.getItem('readerSettings');
@@ -684,19 +579,20 @@
 
       // -------- routing ----------
       updateURL(path) {
-        if (window.history && window.history.pushState) {
-          const target = path.startsWith(BASE) ? path : `${BASE}${path.replace(/^\//,'')}`;
-          window.history.pushState(null, '', target);
-        }
+        // path examples: 'library' or `read/${this.currentBookId}?loc=${cfi}`
+        const target = path.startsWith('#') ? path : \`#/\${path.replace(/^\\//,'')}\`;
+        if (location.hash !== target) location.hash = target;
       }
+
       handleDeepLinks() {
-        const path = window.location.pathname.replace(BASE, '/');
-        const params = new URLSearchParams(window.location.search);
-        if (path.startsWith('/read/')) {
-          const parts = path.split('/');
-          const bookId = parts[2];
-          const location = params.get('loc');
-          if (bookId) this.openBook(bookId, location);
+        const hash = location.hash.replace(/^#\\/?/, ''); // normalize
+        const [route, rest] = hash.split('/');
+        if (route === 'read') {
+          const [bookIdAndQuery] = rest ? [rest] : [''];
+          const [bookId, query] = bookIdAndQuery.split('?');
+          const params = new URLSearchParams(query || '');
+          const loc = params.get('loc');
+          if (bookId) this.openBook(bookId, loc);
         } else {
           this.showLibrary();
         }
@@ -705,19 +601,20 @@
       showError(msg) { alert(msg); }
     }
 
-    // Keep a single reader instance and re-route on popstate
+    // Keep a single reader instance and bind route listeners
     let reader;
     document.addEventListener('DOMContentLoaded', () => {
       const redirect = new URLSearchParams(window.location.search).get('redirect');
       if (redirect) window.history.replaceState(null, '', redirect);
       reader = new EPUBReader();
     });
-    window.addEventListener('popstate', () => { reader && reader.handleDeepLinks(); });
+    window.addEventListener('hashchange', () => reader && reader.handleDeepLinks());
+    window.addEventListener('popstate', () => reader && reader.handleDeepLinks());
 
     // Optional: Service Worker for offline shell
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register(`${BASE}sw.js`)
+        navigator.serviceWorker.register(\`\${BASE}sw.js\`)
           .then(() => console.log('SW registered'))
           .catch(err => console.log('SW registration failed', err));
       });
