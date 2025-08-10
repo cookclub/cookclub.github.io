@@ -46,15 +46,10 @@ jobs:
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-
-      - name: Copy reader assets into docs
-        run: |
-          mkdir -p docs/epubs docs/covers
-          cp -f books.json docs/
-          cp -f sw.js docs/
-          cp -R epubs/* docs/epubs/        # copy the packaged file(s)
-          cp -R covers/* docs/covers/
-          touch docs/.nojekyll
+      
+      # (optional) keep a tiny step only for .nojekyll if you want it
+      - name: Add .nojekyll
+        run: touch docs/.nojekyll
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
