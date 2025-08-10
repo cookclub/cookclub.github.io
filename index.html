@@ -611,3 +611,45 @@
       }
 
       // -------- routing ----------
+      updateURL(path) {
+        if (window.history && window.history.pushState) {
+          const target = path.startsWith(BASE) ? path : `${BASE}${path.replace(/^\//,'')}`;
+          window.history.pushState(null, '', target);
+        }
+      }
+      handleDeepLinks() {
+        const path = window.location.pathname.replace(BASE, '/');
+        const params = new URLSearchParams(window.location.search);
+        if (path.startsWith('/read/')) {
+          const parts = path.split('/');
+          const bookId = parts[2];
+          const location = params.get('loc');
+          if (bookId) this.openBook(bookId, location);
+        } else {
+          this.showLibrary();
+        }
+      }
+
+      showError(msg) { alert(msg); }
+    }
+
+    // Keep a single reader instance and re-route on popstate
+    let reader;
+    document.addEventListener('DOMContentLoaded', () => {
+      const redirect = new URLSearchParams(window.location.search).get('redirect');
+      if (redirect) window.history.replaceState(null, '', redirect);
+      reader = new EPUBReader();
+    });
+    window.addEventListener('popstate', () => { reader && reader.handleDeepLinks(); });
+
+    // Optional: Service Worker for offline shell
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register(`${BASE}sw.js`)
+          .then(() => console.log('SW registered'))
+          .catch(err => console.log('SW registration failed', err));
+      });
+    }
+  </script>
+</body>
+</html>
