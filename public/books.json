@@ -5,7 +5,6 @@
       "author": "Reem Assil",
       "description": "A vibrant and deeply personal collection of recipes and stories from award-winning chef Reem Assil, blending Arab flavors with the influences of her life in diaspora.",
       "cover": "covers/arabiyya.jpg",
-      "href": "epubs/arabiyya.epub"
-    },
-    { "id": "alice", "title": "Alice", "author": "Carroll", "cover": "covers/arabiyya.jpg", "href": "epubs/alice.epub" }
+      "href": "epubs/arabiyya/OEBPS/9781984859082.opf"
+    }  
   ]
