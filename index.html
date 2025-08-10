@@ -1,18 +1,164 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cookbook Club RSVP & Menu</title>
-  
-    <!-- Import Fredoka font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
-  </head>  
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+  <!-- [unchanged head as you have it] -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EPUB Web Reader - Production Ready</title>
+  <script src="https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- fonts + styles... -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* [your styles unchanged] */
+    body { font-family: 'Inter', sans-serif; }
+    .epub-container { height: calc(100vh - 120px); }
+    .toc-item { transition: all 0.2s ease; }
+    .toc-item:hover { background-color: rgba(59, 130, 246, 0.1); }
+    .search-highlight { background-color: #fef08a; padding: 2px 4px; border-radius: 2px; }
+    .bookmark-indicator { position: absolute; top: 10px; right: 10px; color: #f59e0b; font-size: 24px; }
+    .loading-spinner { animation: spin 1s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg) } to { transform: rotate(360deg) } }
+    .theme-dark { background: #1f2937; color: #f9fafb; }
+    .theme-dark .bg-white { background: #374151 !important; }
+    .theme-dark .text-gray-900 { color: #f9fafb !important; }
+    .theme-dark .border-gray-200 { border-color: #4b5563 !important; }
+    .reader-content { line-height: var(--line-height, 1.6); font-size: var(--font-size, 16px); }
+  </style>
+</head>
+<body class="bg-gray-50 transition-colors duration-200">
+  <!-- [your navbar / layout unchanged] -->
+  <!-- ... -->
+
+  <script>
+    const BASE = (() => {
+      const path = window.location.pathname;
+      const dir = path.endsWith('/') ? path : path.replace(/[^/]*$/, '');
+      return dir.startsWith('/') ? dir : `/${dir}`;
+    })();
+
+    class EPUBReader {
+      constructor() {
+        this.book = null;
+        this.rendition = null;
+        this.currentLocation = null;
+        this.bookmarks = new Map();
+        this.searchIndex = new Map();
+        this.currentBookId = null;
+        this.viewMode = 'paginated';
+        this.theme = 'light';
+        this.fontSize = 16;
+        this.lineHeight = 1.6;
+
+        this.booksData = [];
+        this.loadBooks();
+
+        this.init();
+      }
+
+      init() {
+        this.setupEventListeners();
+        this.loadSettings();
+        this.showLibrary();
+        this.handleDeepLinks();
+      }
+
+      // [all your handlers unchanged]
+
+      async openBook(bookId, location = null) {
+        const bookData = this.booksData.find(b => b.id === bookId);
+        if (!bookData) return;
+
+        this.currentBookId = bookId;
+        this.showReader();
+        this.showLoading();
+
+        try {
+          this.book = ePub(`${BASE}${bookData.href}`);
+
+          const viewer = document.getElementById('viewer');
+          viewer.innerHTML = '';
+
+          this.rendition = this.book.renderTo(viewer, {
+            width: '100%',
+            height: '100%',
+            spread: this.viewMode === 'paginated' ? 'auto' : 'none',
+            flow: this.viewMode === 'scrolled' ? 'scrolled' : 'paginated'
+          });
+
+          this.applyReaderSettings();
+
+          await this.book.ready;
+          if (!this.book.locations || this.book.locations.length() === 0) {
+            await this.book.locations.generate(1600);
+          }
+
+          const startLoc = location || this.getLastLocation(bookId) || undefined;
+          await this.rendition.display(startLoc);
+
+          this.setupBookEventHandlers();
+
+          await this.loadBookMetadata();
+
+          this.hideLoading();
+          this.updateBookInfo(bookData);
+          this.loadBookmarks(bookId);
+
+          /* NOTE: removed duplicate rendition initialization block here */
+
+        } catch (error) {
+          console.error('Error loading book:', error);
+          this.hideLoading();
+          this.showError('Failed to load book. Please try again.');
+        }
+      }
+
+      // [rest of your class unchanged]
+      // renderTOC, updateBookInfo, updateMetaTags, prev/next, goToProgress, etc.
+
+      updateURL(path) {
+        if (window.history && window.history.pushState) {
+          const target = path.startsWith(BASE) ? path : `${BASE}${path.replace(/^\//,'')}`;
+          window.history.pushState(null, '', target);
+        }
+      }
+
+      handleDeepLinks() {
+        const path = window.location.pathname.replace(BASE, '/'); // normalize
+        const params = new URLSearchParams(window.location.search);
+
+        if (path.startsWith('/read/')) {
+          const parts = path.split('/');
+          const bookId = parts[2];
+          const location = params.get('loc');
+          if (bookId) this.openBook(bookId, location);
+        } else {
+          this.showLibrary();
+        }
+      }
+    }
+
+    // Keep a single reader instance and re-route on popstate
+    let reader;
+    document.addEventListener('DOMContentLoaded', () => {
+      const redirect = new URLSearchParams(window.location.search).get('redirect');
+      if (redirect) window.history.replaceState(null, '', redirect);
+      reader = new EPUBReader();
+    });
+
+    window.addEventListener('popstate', () => {
+      reader && reader.handleDeepLinks();
+    });
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register(`${BASE}sw.js`)
+          .then(() => console.log('SW registered'))
+          .catch((err) => console.log('SW registration failed', err));
+      });
+    }
+  </script>
+</body>
 </html>
