@@ -46,6 +46,29 @@ jobs:
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          
+      - name: Inspect build output
+        run: |
+          echo "=== docs/ listing ==="
+          ls -la docs
+          echo "=== first 60 lines of docs/index.html ==="
+          sed -n '1,60p' docs/index.html
+          echo "=== check for styles.css link ==="
+          grep -n 'href=["'\'']styles\.css["'\'']' docs/index.html || true
+
+      - name: Ensure styles.css exists if referenced
+        run: |
+          if grep -q 'href=["'\'']styles\.css["'\'']' docs/index.html; then
+            if [ ! -f docs/styles.css ]; then
+              cat > docs/styles.css <<'CSS'
+:root { --bg:#f7f7f8; --card:#fff; --text:#111; --muted:#666; }
+html,body { height:100%; }
+body { margin:0; background:var(--bg); color:var(--text);
+  font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Inter,"Helvetica Neue",Arial; }
+#library-view { max-width:1100px; margin:0 auto; padding:24px; }
+CSS
+            fi
+          fi
       
       # (optional) keep a tiny step only for .nojekyll if you want it
       - name: Add .nojekyll
