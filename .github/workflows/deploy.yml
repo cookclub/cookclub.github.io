@@ -20,32 +20,49 @@ permissions:
 concurrency:
   group: "pages"
   cancel-in-progress: false
-
 jobs:
-  # Build job
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+
+      # Make sure a SPA refresh doesn't 404
+      - name: Ensure 404.html exists
+        run: cp docs/index.html docs/404.html
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact (publish docs/ verbatim)
+        uses: actions/upload-pages-artifact@v3
         with:
-          node-version: 20
-          cache: 'npm'
-      - run: npm ci
+          path: ./docs
 
-      - name: 🐛 Debug Build Env
-        run: |
-          echo "VITE_SUPABASE_URL: $VITE_SUPABASE_URL"
-          echo "VITE_SUPABASE_ANON_KEY starts with: ${VITE_SUPABASE_ANON_KEY:0:10}"
-        env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+# jobs:
+#   # Build job
+#   build:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v4
+#       - uses: actions/setup-node@v4
+#         with:
+#           node-version: 20
+#           cache: 'npm'
+#       - run: npm ci
 
-      - name: Build
-        run: npm run build
-        env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+#       - name: 🐛 Debug Build Env
+#         run: |
+#           echo "VITE_SUPABASE_URL: $VITE_SUPABASE_URL"
+#           echo "VITE_SUPABASE_ANON_KEY starts with: ${VITE_SUPABASE_ANON_KEY:0:10}"
+#         env:
+#           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+#           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+
+#       - name: Build
+#         run: npm run build
+#         env:
+#           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+#           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           
       - name: Inspect build output
         run: |
@@ -56,17 +73,17 @@ jobs:
           echo "=== check for styles.css link ==="
           grep -n 'href=["'\'']styles\.css["'\'']' docs/index.html || true
 
-      # (optional) keep a tiny step only for .nojekyll if you want it
-      - name: Add .nojekyll
-        run: touch docs/.nojekyll
+      # # (optional) keep a tiny step only for .nojekyll if you want it
+      # - name: Add .nojekyll
+      #   run: touch docs/.nojekyll
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          # Upload the contents of the 'docs' folder
-          path: './docs'
+      # - name: Setup Pages
+      #   uses: actions/configure-pages@v5
+      # - name: Upload artifact
+      #   uses: actions/upload-pages-artifact@v3
+      #   with:
+      #     # Upload the contents of the 'docs' folder
+      #     path: './docs'
 
   # Deployment job
   deploy:
