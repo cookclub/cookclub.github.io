@@ -245,13 +245,6 @@
           await Promise.race([displayedOnce, timeout]);
           this.setLoading(false); // hide overlay even if display() never resolves
 
-          // First display ASAP (may be without generated locations)
-          await this.book.ready;
-
-          // Use saved location if none provided
-          const start = locCFI || localStorage.getItem(`lastLocation-${bookId}`) || undefined;
-          await this.rendition.display(start);
-
           // Hook events
           this.rendition.on('relocated', (loc) => {
             this.currentLocation = loc;
