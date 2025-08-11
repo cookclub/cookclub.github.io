@@ -237,8 +237,15 @@
           
           // start rendering, but don’t block spinner on it
           const displayedOnce = new Promise(res => {
-            const off = this.rendition.on('displayed', () => { off(); res(); });
+            const handler = () => {
+              if (typeof this.rendition.off === 'function') {
+                this.rendition.off('displayed', handler); // epub.js way
+              }
+              res();
+            };
+            this.rendition.on('displayed', handler);
           });
+
           const timeout = new Promise(res => setTimeout(res, 2000));
           
           this.rendition.display(start).catch(()=>{});
