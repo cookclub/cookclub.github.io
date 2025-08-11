@@ -1,0 +1,54 @@
+*** 1,1 ****
+--- a/index.html
++++ b/index.html
+@@
+-    const BASE = '/';
++    // For GitHub Pages user site, base is '/'.
++    // Use HASH routing to avoid 404s on deep links.
++    const BASE = '/';
+@@
+-      updateURL(path) {
+-        const target = path.startsWith('#') ? path : `#/${path.replace(/^\//,'')}`;
+-        if (location.hash !== target) location.hash = target;
+-      }
++      updateURL(path) {
++        // Always push a hash route so hard-reloads never hit 404
++        const safe = path.replace(/^\//,'');
++        const target = `#/${safe}`;
++        if (location.hash !== target) location.hash = target;
++      }
+@@
+-      handleDeepLinks() {
+-        const hash = location.hash.replace(/^#\/?/, ''); // normalize
+-        const [route, rest] = hash.split('/');
+-        if (route === 'read') {
+-          const [bookIdAndQuery] = rest ? [rest] : [''];
+-          const [bookId, query] = bookIdAndQuery.split('?');
+-          const params = new URLSearchParams(query || '');
+-          const loc = params.get('loc');
+-          if (bookId) this.openBook(bookId, loc);
+-        } else {
+-          this.showLibrary();
+-        }
+-      }
++      handleDeepLinks() {
++        const hash = location.hash.replace(/^#\/?/, ''); // normalize
++        const [route, rest] = hash.split('/');
++        if (route === 'read') {
++          const [bookIdAndQuery] = rest ? [rest] : [''];
++          const qIndex = (bookIdAndQuery || '').indexOf('?');
++          const bookId = qIndex >= 0 ? bookIdAndQuery.slice(0, qIndex) : bookIdAndQuery;
++          const query = qIndex >= 0 ? bookIdAndQuery.slice(qIndex + 1) : '';
++          const params = new URLSearchParams(query || '');
++          const rawLoc = params.get('loc');
++          const loc = rawLoc ? decodeURIComponent(rawLoc) : null;
++          if (bookId) this.openBook(bookId, loc);
++        } else {
++          this.showLibrary();
++        }
++      }
+@@
+-          this.updateURL(`read/${this.currentBookId}?loc=${location.start.cfi}`);
++          // Always encode CFIs before placing them in URLs
++          const enc = encodeURIComponent(location.start.cfi);
++          this.updateURL(`read/${this.currentBookId}?loc=${enc}`);
