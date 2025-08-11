@@ -1,212 +1,151 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>EPUB Reader</title>
-  <link rel="icon" href="data:,">
+  <title>EPUB Viewer</title>
+
+  <!-- Inline minimal styles: no external styles.css (avoids 404) -->
   <style>
-    :root { --bg:#0f172a; --card:#111827; --text:#e5e7eb; --muted:#9ca3af; --blue:#3b82f6; }
-    *{box-sizing:border-box} html,body{height:100%}
-    body{margin:0;background:#0b1220;color:var(--text);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Inter,sans-serif}
-    header{position:sticky;top:0;background:#0b1220;border-bottom:1px solid #1f2937;padding:.75rem 1rem;z-index:10}
-    .brand{font-weight:700;letter-spacing:.2px}
-    .wrap{max-width:1100px;margin:0 auto;padding:1rem}
-    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem}
-    .card{background:var(--card);border:1px solid #1f2937;border-radius:14px;overflow:hidden;cursor:pointer;transition:transform .12s ease}
-    .card:hover{transform:translateY(-2px)}
-    .cover{width:100%;height:180px;object-fit:cover;background:#0f172a}
-    .pad{padding:12px}
-    .title{font-weight:600;margin:0 0 4px}
-    .author{margin:0 0 6px;color:var(--muted);font-size:.9rem}
-    .desc{color:#cbd5e1;font-size:.9rem}
-    .hidden{display:none}
-    #chrome{display:flex;gap:.5rem;align-items:center;padding:.5rem 1rem;border-bottom:1px solid #1f2937;background:#0b1220}
-    #viewer{height:calc(100vh - 106px);background:#111827}
-    input[type="range"]{width:240px}
-    button{border:1px solid #1f2937;background:#0b1220;color:var(--text);padding:.4rem .65rem;border-radius:10px;cursor:pointer}
-    button:hover{background:#111827}
-    .tag{font-size:.75rem;border:1px solid #1f2937;padding:.25rem .5rem;border-radius:999px;color:#cbd5e1}
+    :root { color-scheme: light dark; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Inter, Helvetica, Arial, sans-serif; }
+    header { padding: 16px 20px; border-bottom: 1px solid #e5e7eb; }
+    h1 { margin: 0; font-size: 28px; font-weight: 700; }
+    main { max-width: 1100px; margin: 0 auto; padding: 24px 20px 40px; }
+    .hidden { display: none !important; }
+
+    /* Library */
+    #books { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; }
+    .card { border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden; cursor: pointer; background: #fff; transition: box-shadow .15s ease; }
+    .card:hover { box-shadow: 0 8px 24px rgba(0,0,0,.08); }
+    .cover { width: 100%; height: 180px; object-fit: cover; display: block; background: #f3f4f6; }
+    .meta { padding: 12px 14px 16px; }
+    .title { font-weight: 600; margin: 0 0 6px; }
+    .author, .desc { margin: 0; color: #6b7280; font-size: 14px; }
+
+    /* Reader */
+    #reader-chrome { display:flex; align-items:center; gap:12px; border-bottom:1px solid #e5e7eb; padding:10px 16px; }
+    #viewer { height: calc(100vh - 56px); } /* full height minus chrome */
+    button { padding: 6px 10px; font-size: 14px; border-radius: 8px; border: 1px solid #d1d5db; background: #f9fafb; cursor: pointer; }
+    button:hover { background: #f3f4f6; }
   </style>
+
+  <!-- EPUB.js -->
   <script src="https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js"></script>
 </head>
 <body>
-  <header>
-    <div class="wrap" style="display:flex;align-items:center;justify-content:space-between;gap:1rem">
-      <div class="brand">EPUB Reader</div>
-      <div id="where" class="tag">Library</div>
-    </div>
-  </header>
+  <header><h1>Library</h1></header>
 
-  <!-- Library -->
-  <main id="library-view" class="wrap">
-    <h2 style="margin:.5rem 0 1rem 0">Select a book</h2>
-    <div id="books-grid" class="grid"></div>
+  <main id="library-view">
+    <div id="books"></div>
   </main>
 
-  <!-- Reader -->
-  <section id="reader-view" class="hidden">
-    <div id="chrome">
+  <div id="reader-view" class="hidden">
+    <div id="reader-chrome">
       <button id="back">← Library</button>
-      <span id="chapter" class="tag">–</span>
-      <span id="progress" class="tag">0%</span>
-      <div style="flex:1"></div>
-      <button id="prev">Prev</button>
-      <button id="next">Next</button>
-      <input id="slider" type="range" min="0" max="100" value="0" />
+      <div id="crumbs" style="color:#6b7280; font-size:14px;"></div>
+      <div style="margin-left:auto; display:flex; gap:8px;">
+        <button id="prev">Prev</button>
+        <button id="next">Next</button>
+      </div>
     </div>
     <div id="viewer"></div>
-  </section>
+  </div>
 
-<script>
-/* ---------- config ---------- */
-// User site (cookclub.github.io) → base is '/'. (If this were a project site it would be '/cookclub.github.io/')
-const BASE = '/';
+  <script>
+    // This is a user site (cookclub.github.io), so base is '/'
+    const BASE = '/';
 
-/* ---------- tiny router (hash-based) ---------- */
-function setHash(path){ const t = path.startsWith('#') ? path : '#/'+path.replace(/^\//,''); if(location.hash!==t) location.hash=t; }
-function parseHash(){ const h = location.hash.replace(/^#\/?/,''); const [r, rest=''] = h.split('/'); return { route:r||'library', rest }; }
-
-/* ---------- state ---------- */
-let books = [];
-let book = null;
-let rendition = null;
-let currentBookId = null;
-let currentLoc = null;
-
-/* ---------- dom ---------- */
-const libView = document.getElementById('library-view');
-const readerView = document.getElementById('reader-view');
-const grid = document.getElementById('books-grid');
-const where = document.getElementById('where');
-const chapterEl = document.getElementById('chapter');
-const progressEl = document.getElementById('progress');
-const slider = document.getElementById('slider');
-
-/* ---------- library ---------- */
-async function loadBooks(){
-  const res = await fetch(`${BASE}books.json`, { cache:'no-store' });
-  books = await res.json();
-  renderLibrary();
-}
-function renderLibrary(){
-  grid.innerHTML = books.map(b=>`
-    <div class="card" data-id="${b.id}">
-      <img class="cover" src="${b.cover || ''}" alt="cover"/>
-      <div class="pad">
-        <h3 class="title">${b.title}</h3>
-        <p class="author">by ${b.author||''}</p>
-        <p class="desc">${b.description||''}</p>
-      </div>
-    </div>`).join('');
-  grid.querySelectorAll('.card').forEach(c=>{
-    c.addEventListener('click', ()=> openBook(c.dataset.id));
-  });
-}
-
-/* ---------- reader ---------- */
-async function openBook(id, loc){
-  const meta = books.find(b=>b.id===id);
-  if(!meta) return;
-
-  currentBookId = id;
-  where.textContent = meta.title;
-  libView.classList.add('hidden');
-  readerView.classList.remove('hidden');
-
-  // stream OPF/EPUB path from books.json
-  book = ePub(`${BASE}${meta.href}`);
-  const viewer = document.getElementById('viewer');
-  viewer.innerHTML = '';
-
-  rendition = book.renderTo(viewer, {
-    width:'100%', height:'100%',
-    flow:'scrolled', spread:'none',
-    allowScriptedContent: true
-  });
-
-  try {
-    await book.ready;
-    const start = loc || getLastLoc(id) || undefined;
-    await rendition.display(start);
-  } catch(err){
-    console.error('display failed', err);
-  }
-
-  rendition.on('relocated', (location)=>{
-    currentLoc = location;
-    saveLastLoc();
-    updateProgress();
-    const cfi = location?.start?.cfi || '';
-    const q = new URLSearchParams({ loc: encodeURIComponent(cfi) }).toString();
-    setHash(`read/${id}?${q}`);
-  });
-
-  try {
-    const nav = await book.loaded.navigation;
-    chapterEl.textContent = nav?.toc?.[0]?.label || '—';
-  } catch {}
-
-  // generate coarse locations (async)
-  try {
-    if(!book.locations || book.locations.length()===0){
-      await book.locations.generate(800);
+    // books.json already lives at /books.json and has objects like:
+    // { "id": "arabiyya", "title": "...", "author": "...", "description": "...", "cover": "covers/arabiyya.jpg", "href": "epubs/arabiyya/OEBPS/9781984859082.opf" }
+    async function loadBooks() {
+      const res = await fetch(`${BASE}books.json`, { cache: 'no-store' });
+      if (!res.ok) throw new Error(`books.json ${res.status}`);
+      return res.json();
     }
-  } catch(e){ console.warn('locations.generate:', e); }
-}
 
-function updateProgress(){
-  if(!currentLoc) return;
-  const pct = Math.round((currentLoc.start.percentage||0)*100);
-  slider.value = pct;
-  progressEl.textContent = `${pct}%`;
-}
+    function renderLibrary(books) {
+      const grid = document.getElementById('books');
+      grid.innerHTML = '';
+      books.forEach(b => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <img class="cover" alt="${b.title} cover" src="${BASE}${b.cover || ''}">
+          <div class="meta">
+            <h3 class="title">${b.title}</h3>
+            <p class="author">${b.author || ''}</p>
+            <p class="desc">${b.description || ''}</p>
+          </div>
+        `;
+        card.addEventListener('click', () => openBook(b));
+        grid.appendChild(card);
+      });
+    }
 
-function saveLastLoc(){
-  if(currentBookId && currentLoc?.start?.cfi){
-    localStorage.setItem(`last-${currentBookId}`, currentLoc.start.cfi);
-  }
-}
-function getLastLoc(id){ return localStorage.getItem(`last-${id}`); }
+    let book = null;
+    let rendition = null;
+    let currentBook = null;
 
-/* ---------- controls ---------- */
-document.getElementById('back').onclick = ()=>{ setHash('library'); };
-document.getElementById('prev').onclick = ()=> rendition && rendition.prev();
-document.getElementById('next').onclick = ()=> rendition && rendition.next();
-slider.oninput = ()=> {
-  if(!book || !book.locations || !rendition) return;
-  const cfi = book.locations.cfiFromPercentage(Number(slider.value)/100);
-  if(cfi) rendition.display(cfi);
-};
+    async function openBook(b) {
+      currentBook = b;
+      document.getElementById('library-view').classList.add('hidden');
+      document.getElementById('reader-view').classList.remove('hidden');
+      document.getElementById('crumbs').textContent = `${b.title} — ${b.author || ''}`;
 
-/* ---------- router ---------- */
-async function handleRoute(){
-  const {route, rest} = parseHash();
-  if(route==='read'){
-    // rest looks like "arabiyya?loc=...."
-    const [id, query=''] = rest.split('?');
-    const p = new URLSearchParams(query);
-    const encoded = p.get('loc');
-    const loc = encoded ? decodeURIComponent(encoded) : null;
-    await ensureBooks();
-    openBook(id, loc);
-  }else{
-    where.textContent = 'Library';
-    readerView.classList.add('hidden');
-    libView.classList.remove('hidden');
-    await ensureBooks();
-    renderLibrary();
-  }
-}
-async function ensureBooks(){ if(books.length===0) await loadBooks(); }
-window.addEventListener('hashchange', handleRoute);
+      // IMPORTANT: you exploded the EPUB; open via the OPF path in books.json
+      const opfUrl = `${BASE}${b.href}`;
 
-/* ---------- boot ---------- */
-(async () => {
-  // If no hash yet, show library
-  if(!location.hash) setHash('library');
-  await handleRoute();
-})();
-</script>
+      // Clean up any existing instance
+      if (rendition) { rendition.destroy(); rendition = null; }
+      if (book) { try { await book.destroy(); } catch {} book = null; }
+
+      book = ePub(opfUrl);
+      const viewer = document.getElementById('viewer');
+      viewer.innerHTML = '';
+
+      rendition = book.renderTo(viewer, {
+        width: '100%',
+        height: '100%',
+        spread: 'auto',
+        flow: 'scrolled'
+      });
+
+      await book.ready;
+      try {
+        // generate locations lightly for progress if needed later
+        if (!book.locations || book.locations.length() === 0) {
+          await book.locations.generate(800);
+        }
+      } catch {}
+
+      await rendition.display();
+
+      // wire nav buttons
+      document.getElementById('prev').onclick = () => rendition.prev();
+      document.getElementById('next').onclick = () => rendition.next();
+    }
+
+    document.getElementById('back').addEventListener('click', () => {
+      document.getElementById('reader-view').classList.add('hidden');
+      document.getElementById('library-view').classList.remove('hidden');
+      // (optional) teardown book to free memory
+      if (rendition) { rendition.destroy(); rendition = null; }
+      if (book) { try { book.destroy(); } catch {} book = null; }
+    });
+
+    // boot
+    (async () => {
+      try {
+        const books = await loadBooks();
+        renderLibrary(books);
+      } catch (e) {
+        console.error(e);
+        const grid = document.getElementById('books');
+        grid.innerHTML = '<p>Could not load books.json.</p>';
+      }
+    })();
+  </script>
 </body>
 </html>
