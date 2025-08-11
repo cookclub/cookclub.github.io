@@ -1,19 +1,56 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cookbook Club RSVP & Menu</title>
-  
-    <!-- Import Fredoka font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
-    <script type="module" crossorigin src="/assets/index-DsCcoyKu.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-B8LxkeWV.css">
-  </head>  
-  <body>
-    <div id="root"></div>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EPUB Viewer</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="library-view">
+    <h1>Library</h1>
+    <div id="book-list"></div>
+  </div>
+  <div id="reader-view" class="hidden">
+    <div id="viewer"></div>
+    <button id="close-reader">Close</button>
+  </div>
+  <script>
+    const BASE = './';
+    const app = {
+      booksData: [],
+      async loadBooks() {
+        try {
+          const res = await fetch(`${BASE}books.json`, { cache: 'no-store' });
+          this.booksData = await res.json();
+          if (!document.getElementById('reader-view').classList.contains('hidden')) return;
+          this.renderLibrary();
+        } catch (e) {
+          console.error('Failed to load books.json', e);
+        }
+      },
+      renderLibrary() {
+        const list = document.getElementById('book-list');
+        list.innerHTML = '';
+        this.booksData.forEach(book => {
+          const div = document.createElement('div');
+          div.textContent = book.title;
+          div.addEventListener('click', () => this.openBook(book.path));
+          list.appendChild(div);
+        });
+      },
+      openBook(path) {
+        document.getElementById('library-view').classList.add('hidden');
+        document.getElementById('reader-view').classList.remove('hidden');
+        console.log('Open book:', path);
+        // EPUB.js loading logic goes here
+      }
+    };
+    app.loadBooks();
+    document.getElementById('close-reader').addEventListener('click', () => {
+      document.getElementById('reader-view').classList.add('hidden');
+      document.getElementById('library-view').classList.remove('hidden');
+    });
+  </script>
+</body>
 </html>
