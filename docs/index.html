@@ -199,9 +199,18 @@
         this.setLoading(true);
 
         try {
-          // IMPORTANT: we point EPUB.js at the OPF file so it doesn’t try to fetch a ZIP
-          // Example present in your repo: epubs/arabiyya/OEBPS/9781984859082.opf
-          this.book = ePub(`${BASE}${meta.href}`);
+          // Build a correct root URL for epub.js.
+          // If meta.href is an OPF (…/OEBPS/*.opf), convert to the book root (…/arabiyya/).
+          // If it's already a folder, ensure it ends with a trailing slash.
+          const src = `${BASE}${meta.href}`;
+          let root;
+          if (src.endsWith('.opf')) {
+            const m = src.match(/^(.*?\/)OEBPS\//);
+            root = m ? m[1] : src.replace(/[^/]+$/, '');
+          } else {
+            root = src.endsWith('/') ? src : src + '/';
+          }
+          this.book = ePub(root);
 
           const viewer = document.getElementById('viewer');
           viewer.innerHTML = '';
@@ -221,14 +230,14 @@
           await this.rendition.display(start);
 
           // Hook events
-          this.rendition.on('relocated', (location) => {
-            this.currentLocation = location;
+          this.rendition.on('relocated', (loc) => {
+            this.currentLocation = loc;
             this.updateProgressUI();
-            localStorage.setItem(`lastLocation-${bookId}`, location.start.cfi);
+            localStorage.setItem(`lastLocation-${bookId}`, loc.start.cfi);
             // keep hash in sync with encoded CFI
-            const encoded = encodeURIComponent(location.start.cfi);
+            const encoded = encodeURIComponent(loc.start.cfi);            
             const base = `#/read/${encodeURIComponent(bookId)}`;
-            if (!location.hash.includes(encoded)) {
+            if (!window.location.hash.includes(encoded)) {
               history.replaceState(null, '', `${base}?loc=${encoded}`);
             }
           });
