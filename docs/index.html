@@ -6,7 +6,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <!-- Theme color will be updated dynamically based on the active reader theme -->
   <meta id="theme-color-meta" name="theme-color" content="#ffffff" />
-  <title>EPUB Reader</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&display=swap" rel="stylesheet">
+  <title>big spoon society</title>
 
   <!-- Single-file viewer: no external CSS/JS except epub.js -->
   <script src="https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js"></script>
@@ -33,7 +35,7 @@
       background: var(--card); border-bottom: 1px solid #e5e7eb;
     }
     .nav-inner { max-width: 1100px; margin: 0 auto; padding: 12px 24px; display:flex; align-items:center; justify-content:space-between; }
-    .brand { font-weight: 700; letter-spacing:.2px; }
+    .brand { font: 700 20px/1.2 "Fredoka", system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial; text-transform: lowercase; letter-spacing:.2px; }
     .btn {
       appearance: none; border: 1px solid #e5e7eb; background: #fff; color: #111;
       border-radius: 8px; padding: 8px 12px; cursor: pointer;
@@ -62,6 +64,9 @@
     /* Reader layout */
     #reader-view { display: none; height: calc(100vh - 52px); }
     #reader-view.show { display: grid; grid-template-columns: 300px 1fr; }
+    /* collapse TOC track when requested (used on phones) */
+    body.toc-collapsed #reader-view.show { grid-template-columns: 1fr; }
+    body.toc-collapsed #toc { display: none; }
     #toc {
       border-right: 1px solid #e5e7eb; background: #fff; overflow:auto;
     }
@@ -123,14 +128,17 @@
       position: absolute;
       inset: 0;
       display: flex;
-      z-index: 5;
+      z-index: 1;
+      pointer-events: none; /* default off */    
     }
+    .toolbar { position: relative; z-index: 10; } /* keep toolbar above overlay */
     #tap-zones .tap {
       flex: 1;
       cursor: pointer;
       /* Transparent so underlying text is visible */
       background: rgba(0,0,0,0);
     }
+    body.paginated.chrome-hidden #tap-zones { pointer-events: auto; }
   </style>
 </head>
 <body>
@@ -208,6 +216,12 @@
       // Reader preferences (loaded from localStorage). Defaults will be chosen on first run
       prefs: null,
 
+      updateTapZonesState() {
+        const isPaginated = document.body.classList.contains('paginated');
+        const chromeHidden = document.body.classList.contains('chrome-hidden');
+        const tz = document.getElementById('tap-zones');
+        if (tz) tz.style.pointerEvents = (isPaginated && chromeHidden) ? 'auto' : 'none';
+      },      
       /**
        * Load preferences from localStorage. If none are found, sensible defaults
        * are computed based on viewport width and prefers-color-scheme.
@@ -270,6 +284,8 @@
         } else {
           this.rendition.spread(false);
         }
+        document.body.classList.toggle('paginated', flow === 'paginated');
++       this.updateTapZonesState();
         // Update top-level CSS variables to keep chrome in sync
         const root = document.documentElement.style;
         if (prefs.theme === 'sepia') {
@@ -371,9 +387,10 @@
         document.getElementById('tap-right').addEventListener('click', (e) => {
           if (this.rendition) this.rendition.next();
         });
-        document.getElementById('tap-center').addEventListener('click', (e) => {
+        document.getElementById('tap-center').addEventListener('click', () => {
           document.body.classList.toggle('chrome-hidden');
-        });
+          this.updateTapZonesState();
+        });       
         // When the user selects text (inside or outside iframe) disable tap zone pointer events to allow selection; re-enable otherwise
         const updateTapZones = () => {
           try {
@@ -464,12 +481,9 @@
           // Apply user preferences (theme, flow, font size, line height) before first render
           try { this.applyPrefs(); } catch (e) { console.warn('applyPrefs failed', e); }
 
-          // Auto-collapse TOC on narrow screens (under 1024px)
-          const tocEl = document.getElementById('toc');
-          if (tocEl) {
-            if (window.innerWidth < 1024) tocEl.classList.add('collapsed');
-            else tocEl.classList.remove('collapsed');
-          }
+          // Auto-collapse TOC on narrow screens (under 1024px) by switching grid to single column
+          if (window.innerWidth < 1024) document.body.classList.add('toc-collapsed');
+          else document.body.classList.remove('toc-collapsed');
 
           // Start location: accept only well-formed CFIs
           const start = (locCFI && /^epubcfi\(.+\)$/.test(locCFI))
@@ -491,6 +505,7 @@
           setTimeout(() => document.getElementById('loading')?.remove(), 4000);
           await Promise.race([displayedOnce, timeout]);
           this.setLoading(false);
+          this.updateTapZonesState();
 
           // Progress + URL sync
           this.rendition.on('relocated', (loc) => {
