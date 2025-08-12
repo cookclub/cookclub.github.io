@@ -1,32 +1,28 @@
-# Simple workflow for deploying static content to GitHub Pages
-name: Deploy Static Content to Pages
-
-on:
-  # Runs on pushes targeting the default branch
-  push:
-    branches: ["main"]
-
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      # Make sure a SPA refresh doesn't 404
+      # 👉 Include your recipe exports in the site
+      - name: Include recipe pages
+        run: |
+          mkdir -p docs/arabiyya/exports/html docs/arabiyya/exports/images
+          cp -R arabiyya/exports/html/*   docs/arabiyya/exports/html/   2>/dev/null || true
+          cp -R arabiyya/exports/images/* docs/arabiyya/exports/images/ 2>/dev/null || true
+
+      # (optional) auto-generate a simple list page at /arabiyya/
+      - name: Generate Arabiyya index
+        run: |
+          dest=docs/arabiyya/index.html
+          echo '<!doctype html><meta charset="utf-8"><h1>Arabiyya</h1><ul>' > "$dest"
+          for f in docs/arabiyya/exports/html/*.html; do
+            n=$(basename "$f"); t="${n%.html}"
+            printf '<li><a href="exports/html/%s">%s</a></li>\n' "$n" "$t" >> "$dest"
+          done
+          echo '</ul>' >> "$dest"
+
+      # Keep your SPA 404 fallback
       - name: Ensure 404.html exists
         run: cp docs/index.html docs/404.html
 
@@ -38,61 +34,110 @@ jobs:
         with:
           path: ./docs
 
+      - name: Inspect build output
+        run: |
+          echo "=== find docs/arabiyya ==="
+          find docs/arabiyya -maxdepth 3 -type f | head -n 50
+
+
+
+
+
+# # Simple workflow for deploying static content to GitHub Pages
+# name: Deploy Static Content to Pages
+
+# on:
+#   # Runs on pushes targeting the default branch
+#   push:
+#     branches: ["main"]
+
+#   # Allows you to run this workflow manually from the Actions tab
+#   workflow_dispatch:
+
+# # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+# permissions:
+#   contents: read
+#   pages: write
+#   id-token: write
+
+# # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# # However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+# concurrency:
+#   group: "pages"
+#   cancel-in-progress: false
 # jobs:
-#   # Build job
 #   build:
 #     runs-on: ubuntu-latest
 #     steps:
 #       - uses: actions/checkout@v4
-#       - uses: actions/setup-node@v4
+
+#       # Make sure a SPA refresh doesn't 404
+#       - name: Ensure 404.html exists
+#         run: cp docs/index.html docs/404.html
+
+#       - name: Setup Pages
+#         uses: actions/configure-pages@v5
+
+#       - name: Upload artifact (publish docs/ verbatim)
+#         uses: actions/upload-pages-artifact@v3
 #         with:
-#           node-version: 20
-#           cache: 'npm'
-#       - run: npm ci
+#           path: ./docs
 
-#       - name: 🐛 Debug Build Env
-#         run: |
-#           echo "VITE_SUPABASE_URL: $VITE_SUPABASE_URL"
-#           echo "VITE_SUPABASE_ANON_KEY starts with: ${VITE_SUPABASE_ANON_KEY:0:10}"
-#         env:
-#           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-#           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+# # jobs:
+# #   # Build job
+# #   build:
+# #     runs-on: ubuntu-latest
+# #     steps:
+# #       - uses: actions/checkout@v4
+# #       - uses: actions/setup-node@v4
+# #         with:
+# #           node-version: 20
+# #           cache: 'npm'
+# #       - run: npm ci
 
-#       - name: Build
-#         run: npm run build
-#         env:
-#           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-#           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+# #       - name: 🐛 Debug Build Env
+# #         run: |
+# #           echo "VITE_SUPABASE_URL: $VITE_SUPABASE_URL"
+# #           echo "VITE_SUPABASE_ANON_KEY starts with: ${VITE_SUPABASE_ANON_KEY:0:10}"
+# #         env:
+# #           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+# #           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+
+# #       - name: Build
+# #         run: npm run build
+# #         env:
+# #           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+# #           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           
-      - name: Inspect build output
-        run: |
-          echo "=== docs/ listing ==="
-          ls -la docs
-          echo "=== first 60 lines of docs/index.html ==="
-          sed -n '1,60p' docs/index.html
-          echo "=== check for styles.css link ==="
-          grep -n 'href=["'\'']styles\.css["'\'']' docs/index.html || true
+#       - name: Inspect build output
+#         run: |
+#           echo "=== docs/ listing ==="
+#           ls -la docs
+#           echo "=== first 60 lines of docs/index.html ==="
+#           sed -n '1,60p' docs/index.html
+#           echo "=== check for styles.css link ==="
+#           grep -n 'href=["'\'']styles\.css["'\'']' docs/index.html || true
 
-      # # (optional) keep a tiny step only for .nojekyll if you want it
-      # - name: Add .nojekyll
-      #   run: touch docs/.nojekyll
+#       # # (optional) keep a tiny step only for .nojekyll if you want it
+#       # - name: Add .nojekyll
+#       #   run: touch docs/.nojekyll
 
-      # - name: Setup Pages
-      #   uses: actions/configure-pages@v5
-      # - name: Upload artifact
-      #   uses: actions/upload-pages-artifact@v3
-      #   with:
-      #     # Upload the contents of the 'docs' folder
-      #     path: './docs'
+#       # - name: Setup Pages
+#       #   uses: actions/configure-pages@v5
+#       # - name: Upload artifact
+#       #   uses: actions/upload-pages-artifact@v3
+#       #   with:
+#       #     # Upload the contents of the 'docs' folder
+#       #     path: './docs'
 
-  # Deployment job
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+#   # Deployment job
+#   deploy:
+#     environment:
+#       name: github-pages
+#       url: ${{ steps.deployment.outputs.page_url }}
+#     runs-on: ubuntu-latest
+#     needs: build
+#     steps:
+#       - name: Deploy to GitHub Pages
+#         id: deployment
+#         uses: actions/deploy-pages@v4
