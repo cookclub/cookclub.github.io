@@ -251,44 +251,51 @@
       },
 
       /**
-       * Apply user preferences to the active rendition and the page environment. This sets
-       * flow (paginated or scrolled-doc), spread mode, registers and selects a custom
-       * theme with the chosen colors, font size and line height, and updates CSS
-       * variables and the theme-color meta tag.
+       * Apply user preferences to the active rendition and the page environment.
+       * Uses epub.js theme helpers so styles win over book CSS.
        */
       applyPrefs() {
-        const prefs = this.prefs || {};
         if (!this.rendition) return;
-        // Generate CSS for reader content
-        const generateCSS = (theme, fontSize, lineHeight) => {
-          let bg, card, text, muted, link;
-          if (theme === 'sepia') {
-            bg = '#f4ecd8'; card = '#fbf1d0'; text = '#5b4636'; muted = '#8b715e'; link = '#b16933';
-          } else if (theme === 'dark') {
-            bg = '#1e1e1e'; card = '#2a2a2a'; text = '#f5f5f5'; muted = '#999999'; link = '#4f8bfa';
-          } else {
-            bg = '#ffffff'; card = '#ffffff'; text = '#111111'; muted = '#666666'; link = '#2563eb';
-          }
-          return `body { background: ${bg}; color: ${text}; font-size: ${fontSize}%; line-height: ${lineHeight}; } a { color: ${link}; }`;
-        };
-        const css = generateCSS(prefs.theme, prefs.fontSize, prefs.lineHeight);
-        // Register or overwrite custom theme and select it
+
+        const prefs = this.prefs || {};
+        const theme      = prefs.theme ?? 'light';
+        const fontSize   = prefs.fontSize ?? 100;   // %
+        const lineHeight = prefs.lineHeight ?? 1.4; // unitless
+        const flow       = prefs.flow ?? 'paginated';
+
+        // --- colors for content (inside iframe) ---
+        let bg, text, link;
+        if (theme === 'sepia') {
+          bg = '#f4ecd8'; text = '#5b4636'; link = '#b16933';
+        } else if (theme === 'dark') {
+          bg = '#1e1e1e'; text = '#f5f5f5'; link = '#4f8bfa';
+        } else {
+          bg = '#ffffff'; text = '#111111'; link = '#2563eb';
+        }
+
+        // Register a high-specificity theme that beats book CSS
+        const css = `
+          html, body { background:${bg} !important; color:${text} !important; }
+          a, a:link, a:visited { color:${link} !important; }
+          p, div, li, blockquote, section, article, span { line-height:${lineHeight} !important; }
+          img, svg, figure { max-width:100% !important; height:auto !important; }
+        `;
         this.rendition.themes.register('custom', css);
         this.rendition.themes.select('custom');
-        // Set flow and spread modes
-        const flow = prefs.flow || 'paginated';
+
+        // Typography via epub.js helpers (stronger than plain CSS)
+        this.rendition.themes.fontSize(`${fontSize}%`);
+        this.rendition.themes.override('line-height', `${lineHeight} !important`);
+
+        // Flow / spread
         this.rendition.flow(flow);
-        if (flow === 'paginated') {
-          // Spread 'auto' for larger screens
-          this.rendition.spread('auto');
-        } else {
-          this.rendition.spread(false);
-        }
+        this.rendition.spread(flow === 'paginated' ? 'auto' : false);
         document.body.classList.toggle('paginated', flow === 'paginated');
-+       this.updateTapZonesState();
-        // Update top-level CSS variables to keep chrome in sync
+        this.updateTapZonesState();
+
+        // Keep the outer chrome (header/TOC) in sync with the theme
         const root = document.documentElement.style;
-        if (prefs.theme === 'sepia') {
+        if (theme === 'sepia') {
           root.setProperty('--bg', '#f4ecd8');
           root.setProperty('--card', '#fbf1d0');
           root.setProperty('--text', '#5b4636');
@@ -296,7 +303,7 @@
           root.setProperty('--brand', '#c47a3f');
           root.setProperty('--brand-2', '#b16933');
           root.setProperty('--ring', 'rgba(196,122,63,0.2)');
-        } else if (prefs.theme === 'dark') {
+        } else if (theme === 'dark') {
           root.setProperty('--bg', '#1e1e1e');
           root.setProperty('--card', '#2a2a2a');
           root.setProperty('--text', '#f5f5f5');
@@ -305,7 +312,6 @@
           root.setProperty('--brand-2', '#3b76d1');
           root.setProperty('--ring', 'rgba(79,139,250,0.2)');
         } else {
-          // light
           root.setProperty('--bg', '#f7f7f8');
           root.setProperty('--card', '#ffffff');
           root.setProperty('--text', '#111111');
@@ -314,10 +320,9 @@
           root.setProperty('--brand-2', '#1d4ed8');
           root.setProperty('--ring', 'rgba(37,99,235,0.2)');
         }
-        // Update meta theme-color
-        this.updateThemeColor();
-      },
 
+        this.updateThemeColor();
+      }
       /**
        * Update the browser theme-color meta tag to reflect the current active theme.
        */
