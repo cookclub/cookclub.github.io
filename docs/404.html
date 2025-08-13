@@ -1,19 +1,84 @@
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cookbook Club RSVP & Menu</title>
-  
-    <!-- Import Fredoka font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
-    <script type="module" crossorigin src="/assets/index-DsCcoyKu.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-B8LxkeWV.css">
-  </head>  
-  <body>
-    <div id="root"></div>
-  </body>
-</html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Can’t open that page – Recipe link helper</title>
+<style>
+  body { font: 15px/1.5 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 24px auto; max-width: 720px; padding: 0 12px; }
+  h1 { font-size: 22px; margin: 0 0 8px; }
+  p  { margin: 0 0 12px; }
+  input[type="search"]{ width:100%; padding:10px 12px; border:1px solid #222; border-radius:8px; font-size:16px; }
+  ul{ list-style:none; padding:0; margin:12px 0 0; }
+  li{ margin:6px 0; }
+  a{ text-decoration: underline; }
+  .btn{ display:inline-block; margin-top:12px; padding:8px 12px; border:1px solid #222; border-radius:8px; text-decoration:none; font-weight:600; }
+  .muted{ color:#555; font-size:13px; }
+  .pill{ display:inline-block; font-size:12px; padding:2px 8px; border:1px solid #ccc; border-radius:999px; margin-left:8px; }
+  .wrap{ word-break: break-word; }
+</style>
+
+<div id="app"></div>
+
+<script>
+(function () {
+  const app = document.getElementById('app');
+
+  // If this isn't an /arabiyya/ link, fall back to your SPA home:
+  if (!location.pathname.includes('/arabiyya/')) {
+    app.innerHTML = '<h1>Page not found</h1><p><a href="/">Go to homepage</a></p>';
+    return;
+  }
+
+  // Show context from the broken URL (path + fragment)
+  const brokenPath = location.pathname + location.search + location.hash;
+
+  app.innerHTML = `
+    <h1>We couldn’t open that recipe page</h1>
+    <p class="wrap muted">Link was: <code>${brokenPath.replace(/</g,'&lt;')}</code></p>
+    <p>Try searching for the recipe by name. We’ll take you to the closest match.</p>
+    <input id="q" type="search" placeholder="Search recipes… (e.g., Arab Bread, Za’atar)" autofocus>
+    <ul id="results"></ul>
+    <a class="btn" href="/arabiyya/">Browse full index →</a>
+  `;
+
+  const q = document.getElementById('q');
+  const results = document.getElementById('results');
+
+  // very small, friendly fuzzy match (no deps)
+  function score(a,b){
+    a = a.toLowerCase(); b = b.toLowerCase();
+    if (a===b) return 1e6;               // exact
+    if (a.includes(b)) return 1e5;       // substring
+    // token overlap
+    const A = new Set(a.split(/[^a-z0-9']+/).filter(Boolean));
+    const B = new Set(b.split(/[^a-z0-9']+/).filter(Boolean));
+    let hit=0; B.forEach(t=>{ if(A.has(t)) hit++; });
+    return hit*100 - Math.abs(a.length - b.length);
+  }
+
+  function render(list){
+    results.innerHTML = list.map(r => {
+      const href = '/arabiyya/exports/html/' + encodeURIComponent(r.file);
+      return `<li><a href="${href}">${r.title}</a></li>`;
+    }).join('') || '<li class="muted">No matches yet — try a different word.</li>';
+  }
+
+  fetch('/arabiyya/recipes.json')
+    .then(r => r.json())
+    .then(data => {
+      // seed with a few to avoid empty state
+      render(data.slice(0,8));
+      q.addEventListener('input', () => {
+        const v = q.value.trim();
+        if (!v) { render(data.slice(0,8)); return; }
+        const ranked = data
+          .map(r => ({...r, _s: score(r.title, v)}))
+          .sort((a,b) => b._s - a._s)
+          .slice(0,10);
+        render(ranked);
+      });
+    })
+    .catch(() => {
+      results.innerHTML = '<li class="muted">Couldn’t load recipe index. <a href="/arabiyya/">Open the index</a>.</li>';
+    });
+})();
+</script>
