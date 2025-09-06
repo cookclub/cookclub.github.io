@@ -104,139 +104,179 @@
     "file": "026-pollo-frito-quesadillas.html"
   },
   {
+    "title": "Barbacoa Brisket Tacos",
+    "file": "027-barbacoa-brisket-tacos.html"
+  },
+  {
+    "title": "Carne Asada Tacos",
+    "file": "028-carne-asada-tacos.html"
+  },
+  {
+    "title": "Carnitas Tacos",
+    "file": "029-carnitas-tacos.html"
+  },
+  {
+    "title": "Chicken Tikka Tacos",
+    "file": "030-chicken-tikka-tacos.html"
+  },
+  {
+    "title": "Grilled Chicken Tacos",
+    "file": "031-grilled-chicken-tacos.html"
+  },
+  {
+    "title": "Fried Chicken Tacos",
+    "file": "032-fried-chicken-tacos.html"
+  },
+  {
+    "title": "Shrimp Tostadas",
+    "file": "033-shrimp-tostadas.html"
+  },
+  {
+    "title": "Blackened Salmon Tacos",
+    "file": "034-blackened-salmon-tacos.html"
+  },
+  {
+    "title": "Spicy Diablo Shrimp Tacos",
+    "file": "035-spicy-diablo-shrimp-tacos.html"
+  },
+  {
+    "title": "Mushroom Asada Tacos",
+    "file": "036-mushroom-asada-tacos.html"
+  },
+  {
     "title": "Guacamole",
-    "file": "027-guacamole.html"
+    "file": "037-guacamole.html"
   },
   {
     "title": "Shrimp & Scallop Ceviche",
-    "file": "028-shrimp-scallop-ceviche.html"
+    "file": "038-shrimp-scallop-ceviche.html"
   },
   {
     "title": "Trejo’s Chicken Wings with Blue Cheese Dip",
-    "file": "029-trejo-s-chicken-wings-with-blue-cheese-dip.html"
+    "file": "039-trejo-s-chicken-wings-with-blue-cheese-dip.html"
   },
   {
     "title": "Nachos",
-    "file": "030-nachos.html"
+    "file": "040-nachos.html"
   },
   {
     "title": "Fajitas",
-    "file": "031-fajitas.html"
+    "file": "041-fajitas.html"
   },
   {
     "title": "el jefe Salad",
-    "file": "032-el-jefe-salad.html"
+    "file": "042-el-jefe-salad.html"
   },
   {
     "title": "Kale Salad",
-    "file": "033-kale-salad.html"
+    "file": "043-kale-salad.html"
   },
   {
     "title": "Roasted Brussels Sprouts",
-    "file": "034-roasted-brussels-sprouts.html"
+    "file": "044-roasted-brussels-sprouts.html"
   },
   {
     "title": "Street Corn on the Cob (Elote)",
-    "file": "035-street-corn-on-the-cob-elote.html"
+    "file": "045-street-corn-on-the-cob-elote.html"
   },
   {
     "title": "Street Corn in a Bowl",
-    "file": "036-street-corn-in-a-bowl.html"
+    "file": "046-street-corn-in-a-bowl.html"
   },
   {
     "title": "Cotija & Chile Mashed Potatoes",
-    "file": "037-cotija-chile-mashed-potatoes.html"
+    "file": "047-cotija-chile-mashed-potatoes.html"
   },
   {
     "title": "Basic Black Beans",
-    "file": "038-basic-black-beans.html"
+    "file": "048-basic-black-beans.html"
   },
   {
     "title": "Spanish Rice",
-    "file": "039-spanish-rice.html"
+    "file": "049-spanish-rice.html"
   },
   {
     "title": "Brown Basmati Rice",
-    "file": "040-brown-basmati-rice.html"
+    "file": "050-brown-basmati-rice.html"
   },
   {
     "title": "Refried Black Beans",
-    "file": "041-refried-black-beans.html"
+    "file": "051-refried-black-beans.html"
   },
   {
     "title": "Mexican-ish Risotto",
-    "file": "042-mexican-ish-risotto.html"
+    "file": "052-mexican-ish-risotto.html"
   },
   {
     "title": "Trejo’s Donuts",
-    "file": "043-trejo-s-donuts.html"
+    "file": "053-trejo-s-donuts.html"
   },
   {
     "title": "Margarita Donuts",
-    "file": "044-margarita-donuts.html"
+    "file": "054-margarita-donuts.html"
   },
   {
     "title": "The Abuelita",
-    "file": "045-the-abuelita.html"
+    "file": "055-the-abuelita.html"
   },
   {
     "title": "The Lowrider",
-    "file": "046-the-lowrider.html"
+    "file": "056-the-lowrider.html"
   },
   {
     "title": "Nacho Donuts",
-    "file": "047-nacho-donuts.html"
+    "file": "057-nacho-donuts.html"
   },
   {
     "title": "Vegan Donuts",
-    "file": "048-vegan-donuts.html"
+    "file": "058-vegan-donuts.html"
   },
   {
     "title": "Mexican Hot Chocolate Cookies",
-    "file": "049-mexican-hot-chocolate-cookies.html"
+    "file": "059-mexican-hot-chocolate-cookies.html"
   },
   {
     "title": "Rice Pudding",
-    "file": "050-rice-pudding.html"
+    "file": "060-rice-pudding.html"
   },
   {
     "title": "Churros",
-    "file": "051-churros.html"
+    "file": "061-churros.html"
   },
   {
     "title": "Cucumber Cilantro Margarita",
-    "file": "052-cucumber-cilantro-margarita.html"
+    "file": "062-cucumber-cilantro-margarita.html"
   },
   {
     "title": "Red Chile Margarita",
-    "file": "053-red-chile-margarita.html"
+    "file": "063-red-chile-margarita.html"
   },
   {
     "title": "Lavender Margarita",
-    "file": "054-lavender-margarita.html"
+    "file": "064-lavender-margarita.html"
   },
   {
     "title": "Pineapple Cinnamon Margarita",
-    "file": "055-pineapple-cinnamon-margarita.html"
+    "file": "065-pineapple-cinnamon-margarita.html"
   },
   {
     "title": "Lime in the Coconut Margarita",
-    "file": "056-lime-in-the-coconut-margarita.html"
+    "file": "066-lime-in-the-coconut-margarita.html"
   },
   {
     "title": "Hibiscus Margarita",
-    "file": "057-hibiscus-margarita.html"
+    "file": "067-hibiscus-margarita.html"
   },
   {
     "title": "Michelada",
-    "file": "058-michelada.html"
+    "file": "068-michelada.html"
   },
   {
     "title": "Strawberry Lemonade",
-    "file": "059-strawberry-lemonade.html"
+    "file": "069-strawberry-lemonade.html"
   },
   {
     "title": "Date-Sweetened Horchata",
-    "file": "060-date-sweetened-horchata.html"
+    "file": "070-date-sweetened-horchata.html"
   }
 ]

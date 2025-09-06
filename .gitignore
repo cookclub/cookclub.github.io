@@ -43,3 +43,5 @@ epub-agent-bundle.zip
 venv/
 
 *_All_Recipes.html
+
+*All_Recipes*.html
