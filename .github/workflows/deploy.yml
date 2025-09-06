@@ -30,6 +30,14 @@ jobs:
             for f in $files; do n=$(basename "$f"); t="${n%.html}"; printf '<li><a href="exports/html/%s">%s</a></li>\n' "$n" "$t" >> "$dest"; done
             echo '</ul>' >> "$dest"
           fi
+      - name: Include recipe pages (all books)
+        run: |
+          mkdir -p docs/recipes
+          for d in */exports/html 2>/dev/null; do
+            slug="$(dirname "$(dirname "$d")")"
+            mkdir -p "docs/recipes/$slug/exports/html"
+            cp -R "$d/"* "docs/recipes/$slug/exports/html/"  2>/dev/null || true
+          done
 
       # # Keep your SPA 404 fallback
       # - name: Ensure 404.html exists
