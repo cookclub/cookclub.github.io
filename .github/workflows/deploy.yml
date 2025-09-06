@@ -14,13 +14,22 @@ jobs:
       # (optional) auto-generate a simple list page at /arabiyya/
       - name: Generate Arabiyya index
         run: |
+          mkdir -p docs/arabiyya
           dest=docs/arabiyya/index.html
-          echo '<!doctype html><meta charset="utf-8"><h1>Arabiyya</h1><ul>' > "$dest"
-          for f in docs/arabiyya/exports/html/*.html; do
-            n=$(basename "$f"); t="${n%.html}"
-            printf '<li><a href="exports/html/%s">%s</a></li>\n' "$n" "$t" >> "$dest"
-          done
-          echo '</ul>' >> "$dest"
+          files=$(ls docs/arabiyya/exports/html/*.html 2>/dev/null || true)
+          if [ -z "$files" ]; then
+            cat > "$dest" <<'HTML'
+            <!doctype html><meta charset="utf-8">
+            <title>Arabiyya – updating</title>
+            <h1>Arabiyya</h1>
+            <p>We’re refreshing the recipe pages. Please check back soon.</p>
+            <p><a href="/">Back to Big Spoon Society</a></p>
+      HTML
+          else
+            echo '<!doctype html><meta charset="utf-8"><h1>Arabiyya</h1><ul>' > "$dest"
+            for f in $files; do n=$(basename "$f"); t="${n%.html}"; printf '<li><a href="exports/html/%s">%s</a></li>\n' "$n" "$t" >> "$dest"; done
+            echo '</ul>' >> "$dest"
+          fi
 
       # # Keep your SPA 404 fallback
       # - name: Ensure 404.html exists
