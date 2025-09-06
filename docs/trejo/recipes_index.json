@@ -1,0 +1,242 @@
+[
+  {
+    "title": "Pico de Gallo",
+    "file": "001-pico-de-gallo.html"
+  },
+  {
+    "title": "Pickled Red Onions",
+    "file": "002-pickled-red-onions.html"
+  },
+  {
+    "title": "Escabeche",
+    "file": "003-escabeche.html"
+  },
+  {
+    "title": "Salsa Verde",
+    "file": "004-salsa-verde.html"
+  },
+  {
+    "title": "Salsa Roja",
+    "file": "005-salsa-roja.html"
+  },
+  {
+    "title": "Trejo’s Steak Sauce",
+    "file": "006-trejo-s-steak-sauce.html"
+  },
+  {
+    "title": "Pepita Pesto",
+    "file": "007-pepita-pesto.html"
+  },
+  {
+    "title": "Cheesy Bean Dip",
+    "file": "008-cheesy-bean-dip.html"
+  },
+  {
+    "title": "Chipotle shrimp Cocktail SAUCE",
+    "file": "009-chipotle-shrimp-cocktail-sauce.html"
+  },
+  {
+    "title": "Classic Fish Tacos",
+    "file": "010-classic-fish-tacos.html"
+  },
+  {
+    "title": "OG Beer-Battered Fried Fish Tacos",
+    "file": "011-og-beer-battered-fried-fish-tacos.html"
+  },
+  {
+    "title": "Baja Fish Tacos",
+    "file": "012-baja-fish-tacos.html"
+  },
+  {
+    "title": "Gringo Tacos",
+    "file": "013-gringo-tacos.html"
+  },
+  {
+    "title": "Mexi-Falafel Tacos",
+    "file": "014-mexi-falafel-tacos.html"
+  },
+  {
+    "title": "Jackfruit Tacos",
+    "file": "015-jackfruit-tacos.html"
+  },
+  {
+    "title": "Bacon Cheeseburger Tacos",
+    "file": "016-bacon-cheeseburger-tacos.html"
+  },
+  {
+    "title": "Breakfast Burrito",
+    "file": "017-breakfast-burrito.html"
+  },
+  {
+    "title": "Surf & Turf Burritos",
+    "file": "018-surf-turf-burritos.html"
+  },
+  {
+    "title": "Roasted Cauliflower Tacos",
+    "file": "019-roasted-cauliflower-tacos.html"
+  },
+  {
+    "title": "Roasted Cauliflower Bowls",
+    "file": "020-roasted-cauliflower-bowls.html"
+  },
+  {
+    "title": "BCR (BEAN, CHEESE & RICE) Burritos",
+    "file": "021-bcr-bean-cheese-rice-burritos.html"
+  },
+  {
+    "title": "Fried Avocado Tacos",
+    "file": "022-fried-avocado-tacos.html"
+  },
+  {
+    "title": "Black Pepper Tofu Tacos",
+    "file": "023-black-pepper-tofu-tacos.html"
+  },
+  {
+    "title": "Killer Quesadillas",
+    "file": "024-killer-quesadillas.html"
+  },
+  {
+    "title": "Chicken Tikka Quesadillas",
+    "file": "025-chicken-tikka-quesadillas.html"
+  },
+  {
+    "title": "pollo frito Quesadillas",
+    "file": "026-pollo-frito-quesadillas.html"
+  },
+  {
+    "title": "Guacamole",
+    "file": "027-guacamole.html"
+  },
+  {
+    "title": "Shrimp & Scallop Ceviche",
+    "file": "028-shrimp-scallop-ceviche.html"
+  },
+  {
+    "title": "Trejo’s Chicken Wings with Blue Cheese Dip",
+    "file": "029-trejo-s-chicken-wings-with-blue-cheese-dip.html"
+  },
+  {
+    "title": "Nachos",
+    "file": "030-nachos.html"
+  },
+  {
+    "title": "Fajitas",
+    "file": "031-fajitas.html"
+  },
+  {
+    "title": "el jefe Salad",
+    "file": "032-el-jefe-salad.html"
+  },
+  {
+    "title": "Kale Salad",
+    "file": "033-kale-salad.html"
+  },
+  {
+    "title": "Roasted Brussels Sprouts",
+    "file": "034-roasted-brussels-sprouts.html"
+  },
+  {
+    "title": "Street Corn on the Cob (Elote)",
+    "file": "035-street-corn-on-the-cob-elote.html"
+  },
+  {
+    "title": "Street Corn in a Bowl",
+    "file": "036-street-corn-in-a-bowl.html"
+  },
+  {
+    "title": "Cotija & Chile Mashed Potatoes",
+    "file": "037-cotija-chile-mashed-potatoes.html"
+  },
+  {
+    "title": "Basic Black Beans",
+    "file": "038-basic-black-beans.html"
+  },
+  {
+    "title": "Spanish Rice",
+    "file": "039-spanish-rice.html"
+  },
+  {
+    "title": "Brown Basmati Rice",
+    "file": "040-brown-basmati-rice.html"
+  },
+  {
+    "title": "Refried Black Beans",
+    "file": "041-refried-black-beans.html"
+  },
+  {
+    "title": "Mexican-ish Risotto",
+    "file": "042-mexican-ish-risotto.html"
+  },
+  {
+    "title": "Trejo’s Donuts",
+    "file": "043-trejo-s-donuts.html"
+  },
+  {
+    "title": "Margarita Donuts",
+    "file": "044-margarita-donuts.html"
+  },
+  {
+    "title": "The Abuelita",
+    "file": "045-the-abuelita.html"
+  },
+  {
+    "title": "The Lowrider",
+    "file": "046-the-lowrider.html"
+  },
+  {
+    "title": "Nacho Donuts",
+    "file": "047-nacho-donuts.html"
+  },
+  {
+    "title": "Vegan Donuts",
+    "file": "048-vegan-donuts.html"
+  },
+  {
+    "title": "Mexican Hot Chocolate Cookies",
+    "file": "049-mexican-hot-chocolate-cookies.html"
+  },
+  {
+    "title": "Rice Pudding",
+    "file": "050-rice-pudding.html"
+  },
+  {
+    "title": "Churros",
+    "file": "051-churros.html"
+  },
+  {
+    "title": "Cucumber Cilantro Margarita",
+    "file": "052-cucumber-cilantro-margarita.html"
+  },
+  {
+    "title": "Red Chile Margarita",
+    "file": "053-red-chile-margarita.html"
+  },
+  {
+    "title": "Lavender Margarita",
+    "file": "054-lavender-margarita.html"
+  },
+  {
+    "title": "Pineapple Cinnamon Margarita",
+    "file": "055-pineapple-cinnamon-margarita.html"
+  },
+  {
+    "title": "Lime in the Coconut Margarita",
+    "file": "056-lime-in-the-coconut-margarita.html"
+  },
+  {
+    "title": "Hibiscus Margarita",
+    "file": "057-hibiscus-margarita.html"
+  },
+  {
+    "title": "Michelada",
+    "file": "058-michelada.html"
+  },
+  {
+    "title": "Strawberry Lemonade",
+    "file": "059-strawberry-lemonade.html"
+  },
+  {
+    "title": "Date-Sweetened Horchata",
+    "file": "060-date-sweetened-horchata.html"
+  }
+]
