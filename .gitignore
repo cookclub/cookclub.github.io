@@ -41,3 +41,5 @@ coverage/
 epub-agent-bundle.zip
 
 venv/
+
+*_All_Recipes.html
