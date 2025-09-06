@@ -36,3 +36,6 @@ Thumbs.db
 coverage/
 # debug output
 *.localhistory/
+
+*.zip
+epub-agent-bundle.zip
